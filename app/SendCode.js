@@ -6,7 +6,7 @@ import Wallpaper from "./Components/Wallpaper";
 import Logo from "./Components/Logo";
 import Form from "./Components/Form";
 import SignupSection from "./Components/SignupSection";
-import ButtonSubmit from "./Components/ButtonSubmit";
+import ButtonCode from "./Components/ButtonCode";
 
 class Login extends Component{
 
@@ -16,7 +16,7 @@ class Login extends Component{
                 <Logo />
                 <Form page={1}/>
                 {<SignupSection />}
-                <ButtonSubmit />
+                <ButtonCode/>
             </Wallpaper>
         );
     }

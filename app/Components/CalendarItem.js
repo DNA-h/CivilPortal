@@ -10,18 +10,40 @@ class CalendarItem extends Component {
         return (
             <View
                 style={{
-                    flexDirection: 'row'
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    backgroundColor: '#6A6A6A55',
+                    borderRadius: 10,
+                    paddingStart: 10,
+                    paddingEnd: 10,
+                    paddingTop: 5,
+                    paddingBottom: 5,
+                    marginStart: 5,
+                    marginEnd: 5,
+                    marginTop: 10,
+                    marginBottom: 10
                 }}>
                 <View>
-                    <Text>
-                        12:00
+                    <Text
+                        style={{
+                            fontFamily: 'byekan'
+                        }}>
+                        {this.props.item.item.start}
                     </Text>
-                    <Text>
-                        13:00
+                    <Text
+                        style={{
+                            fontFamily: 'byekan'
+                        }}>
+                        {this.props.item.item.end}
                     </Text>
                 </View>
-                <Text>
-                    Launch with Sam
+                <Text
+                    style={{
+                        flex: 1,
+                        fontFamily: 'byekan',
+                        textAlign: 'center'
+                    }}>
+                    {this.props.item.item.title}
                 </Text>
             </View>
         );

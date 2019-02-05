@@ -21,7 +21,7 @@ const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
 const MARGIN = 40;
 
-class ButtonSubmit extends Component {
+class ButtonCode extends Component {
     constructor() {
         super();
 
@@ -44,11 +44,9 @@ class ButtonSubmit extends Component {
             easing: Easing.linear,
         }).start();
 
-
-        let result =await RequestsController.loadToken(this.props.state.currentCode);
-        if (result === 'We texted you a login code.')
-            NavigationService.navigate('SendCode', null);
-
+        let token = await RequestsController.SendCode(this.props.state.currentCode);
+        if (token !== undefined && token !== null && token.length === 40)
+            NavigationService.navigate('MainPage', null);
         console.log('calling navSendCode');
         this.setState({isLoading: false});
         this.buttonAnimated.setValue(0);
@@ -133,4 +131,4 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps, {navSendCode})(ButtonSubmit);
+export default connect(mapStateToProps, {navSendCode})(ButtonCode);

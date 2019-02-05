@@ -33,7 +33,7 @@ const RootStack = createStackNavigator(
         }
     },
     {
-        initialRouteName: 'Login',
+        initialRouteName: 'MainPage',
         navigationOptions: {header: null},
     }
 );

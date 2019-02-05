@@ -13,14 +13,16 @@
     "react-native": "0.57.8",
     "react-native-action-button": "^2.8.5",
     "react-native-datepicker": "^1.7.2",
-    "react-native-gesture-handler": "^1.0.12",
+    "react-native-gesture-handler": "^1.0.15",
     "react-native-persian-date-picker": "^1.0.1",
     "react-native-picker": "^4.3.7",
+    "react-native-splash-screen": "^3.1.1",
     "react-navigation": "^3.0.9",
     "react-redux": "^6.0.0",
     "redux": "^4.0.1"
   },
   "devDependencies": {
+    "babel-core": "7.0.0-bridge.0",
     "babel-jest": "23.6.0",
     "jest": "23.6.0",
     "metro-react-native-babel-preset": "0.51.1",

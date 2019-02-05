@@ -1,9 +1,11 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import Dimensions from 'Dimensions';
+import {connect} from "react-redux";
+import {setValues} from "../Actions";
 import {StyleSheet, View, TextInput, Image} from 'react-native';
 
-export default class UserInput extends Component {
+class UserInput extends Component {
     render() {
         return (
             <View style={styles.inputWrapper}>
@@ -16,6 +18,9 @@ export default class UserInput extends Component {
                     autoCapitalize={this.props.autoCapitalize}
                     returnKeyType={this.props.returnKeyType}
                     placeholderTextColor="white"
+                    onChangeText={(text) => {
+                        this.props.setValues(text,text);
+                    }}
                     underlineColorAndroid="transparent"
                 />
             </View>
@@ -58,3 +63,11 @@ const styles = StyleSheet.create({
         top: 9,
     },
 });
+
+function mapStateToProps(state) {
+    return {
+        state: state
+    }
+}
+
+export default connect(mapStateToProps, {setValues})(UserInput);

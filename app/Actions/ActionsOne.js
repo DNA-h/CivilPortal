@@ -15,3 +15,11 @@ export const navSendCode = () => {
         type : 'navSendCode'
     }
 };
+
+export const setValues = (mobile, code) => {
+    return {
+        type: 'SET',
+        mobile: mobile,
+        code: code
+    }
+};
