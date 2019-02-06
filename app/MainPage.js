@@ -121,7 +121,6 @@ class MainPage extends Component {
                                     source={require("./images/ic_back.png")}/>
                                 <Image
                                     tintColor={"#6393ff"}
-                                    transform
                                     source={require("./images/ic_back.png")}/>
                         </View>
                     </View>

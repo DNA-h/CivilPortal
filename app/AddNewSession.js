@@ -14,7 +14,10 @@ class AddNewSession extends Component{
         return(
             <Wallpaper>
                 <View>
-                    <PersianDatePicker/>
+                    <PersianDatePicker
+                        textStyle={{
+                            fontFamily: 'byekan'
+                        }}/>
                 </View>
                 <Button
                     title="بعدی"

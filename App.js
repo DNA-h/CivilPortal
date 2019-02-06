@@ -33,7 +33,7 @@ const RootStack = createStackNavigator(
         }
     },
     {
-        initialRouteName: 'MainPage',
+        initialRouteName: 'AddNewSession',
         navigationOptions: {header: null},
     }
 );
