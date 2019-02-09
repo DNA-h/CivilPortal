@@ -5,6 +5,9 @@ import Login from "./app/Login";
 import SendCode from "./app/SendCode";
 import MainPage from "./app/MainPage";
 import AddNewSession from "./app/AddNewSession";
+import ChoosePeople from "./app/ChoosePeople";
+import SessionDetail from "./app/SessionDetail";
+import CalendarPage from "./app/CalendarPage";
 const RootStack = createStackNavigator(
     {
         Login: {
@@ -30,10 +33,28 @@ const RootStack = createStackNavigator(
             navigationOptions: {
                 header: null
             }
+        },
+        ChoosePeople: {
+            screen: ChoosePeople,
+            navigationOptions: {
+                header: null
+            }
+        },
+        SessionDetail: {
+            screen: SessionDetail,
+            navigationOptions: {
+                header: null
+            }
+        },
+        CalendarPage: {
+            screen: CalendarPage,
+            navigationOptions: {
+                header: null
+            }
         }
     },
     {
-        initialRouteName: 'AddNewSession',
+        initialRouteName: 'CalendarPage',
         navigationOptions: {header: null},
     }
 );

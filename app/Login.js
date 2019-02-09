@@ -6,8 +6,13 @@ import Logo from "./Components/Logo";
 import Form from "./Components/Form";
 import SignupSection from "./Components/SignupSection";
 import ButtonSubmit from "./Components/ButtonSubmit";
+import SplashScreen from "react-native-splash-screen";
 
 class Login extends Component{
+
+    componentDidMount() {
+        SplashScreen.hide();
+    }
 
     render() {
         return (

@@ -10,7 +10,7 @@ import NavigationService from "./Service/NavigationService";
 import MapView from 'react-native-maps';
 import SplashScreen from 'react-native-splash-screen';
 
-class AddNewSession extends Component{
+class SelectPlace extends Component{
 
     componentDidMount() {
         SplashScreen.hide();
@@ -40,7 +40,7 @@ class AddNewSession extends Component{
                 </View>
                 <Button
                     title="بعدی"
-                    onPress={() => NavigationService.navigate('ChoosePeople',null)}/>
+                    onPress={() => NavigationService.navigate('AddNewSession',null)}/>
 
             </Wallpaper>
         );
@@ -53,4 +53,4 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps, {counterAdd, counterSub})(AddNewSession);
+export default connect(mapStateToProps, {counterAdd, counterSub})(SelectPlace);
