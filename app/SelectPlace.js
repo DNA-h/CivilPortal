@@ -1,14 +1,13 @@
 import React, {Component} from "react";
-import {Text, View, TextInput, Button} from 'react-native';
+import {FlatList, View, TextInput, Button, Text, TouchableWithoutFeedback} from 'react-native';
 import Wallpaper from "./Components/Wallpaper";
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "./Actions/index";
-import ActionButton from 'react-native-action-button';
-import ButtonSubmit from "./Components/ButtonSubmit";
-import PersianDatePicker from 'react-native-persian-date-picker';
-import NavigationService from "./Service/NavigationService";
-import MapView from 'react-native-maps';
 import SplashScreen from 'react-native-splash-screen';
+import PlaceItem from "./Components/PlaceItem";
+import NavigationService from "./Service/NavigationService";
+
+let sampleData = [{name:'naser',place:'دفتر مرکزی'},{name:'hamed',place:'دفتر جنوب تهران'}];
 
 class SelectPlace extends Component{
 
@@ -19,28 +18,24 @@ class SelectPlace extends Component{
     render(){
         return(
             <Wallpaper>
-                <View>
-                    <PersianDatePicker
-                        textStyle={{
-                            fontFamily: 'byekan'
-                        }}/>
-                </View>
                 <View
                     style={{
                         flex: 1
                     }}>
-                    <TextInput
-                        placeholder={"عنوان"}/>
-
-                    <TextInput
-                        placeholder={"ساعت شروع"}/>
-
-                    <TextInput
-                        placeholder={"ساعت پایان"}/>
+                    <FlatList
+                        style={{
+                            flex: 1
+                        }}
+                        keyExtractor={(item, index) => index.toString()}
+                        data={sampleData}
+                        renderItem={(item) =>
+                            <PlaceItem
+                                item={item}/>}
+                    />
                 </View>
                 <Button
                     title="بعدی"
-                    onPress={() => NavigationService.navigate('AddNewSession',null)}/>
+                    onPress={() => NavigationService.navigate('ChoosePeople')}/>
 
             </Wallpaper>
         );

@@ -8,7 +8,9 @@ import bgSrc from '../images/wallpaper.png';
 export default class Wallpaper extends Component {
     render() {
         return (
-            <ImageBackground style={styles.picture} source={bgSrc}>
+            <ImageBackground
+                style={[styles.picture,this.props.style]}
+                source={bgSrc}>
                 {this.props.children}
             </ImageBackground>
         );

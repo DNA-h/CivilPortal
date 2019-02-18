@@ -57,8 +57,13 @@ class CalendarPage extends Component {
         let todayGeorgian = this.parseGeorgianDate();
         let todayHijri = this.parseHijriDate();
         return (
-            <Wallpaper>
-                <PersianCalendarPicker/>
+            <Wallpaper
+                style={{
+                    justifyContent: 'center'
+                }}>
+                <PersianCalendarPicker
+                    selectedDayColor={'#FFFFFF'}
+                    textStyle={{fontFamily: 'byekan'}}/>
             </Wallpaper>
         );
     }

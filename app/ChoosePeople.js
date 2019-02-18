@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {FlatList, View, TextInput, Button} from 'react-native';
+import {FlatList, View, Text, Button, TouchableWithoutFeedback} from 'react-native';
 import Wallpaper from "./Components/Wallpaper";
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "./Actions/index";
@@ -11,14 +11,24 @@ import MapView from 'react-native-maps';
 import SplashScreen from 'react-native-splash-screen';
 import CalendarItem from "./Components/CalendarItem";
 import PeopleItem from "./Components/PeopleItem";
+import Modal from "react-native-modal";
 
 let sampleData = [{name:'naser',place:'مدیر گروه'},{name:'hamed',place:'مدیر'}];
 
 class ChoosePeople extends Component{
 
+    constructor(props){
+        super(props);
+        this.state={
+            showDialog : false
+        }
+    }
+
     componentDidMount() {
         SplashScreen.hide();
     }
+    _toggleModal = () =>
+        this.setState({showDialog: !this.state.showDialog});
 
     render(){
         return(
@@ -38,9 +48,86 @@ class ChoosePeople extends Component{
                                 item={item}/>}
                     />
                 </View>
+                <Modal isVisible={this.state.showDialog}
+                       onBackdropPress={this._toggleModal}>
+                    <View
+                        style={{
+                            backgroundColor: "#FFFFFF",
+                            borderRadius: 10,
+                            marginStart: 10,
+                            marginEnd: 10,
+                            paddingStart: 10,
+                            paddingEnd: 10,
+                            paddingBottom: 5
+                        }}>
+                        <Text
+                            style={{
+                                fontFamily: 'IRANSansMobile',
+                                fontSize: 18,
+                                marginTop: 10
+                            }}>
+                            آیا از ایجاد جلسه جدید مطمئن هستید؟
+                        </Text>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                margin: 10,
+                                justifyContent: 'space-between',
+                                paddingEnd: 25,
+                                paddingStart: 25
+                            }}>
+                            <TouchableWithoutFeedback
+                                onPress={this._toggleModal}>
+                                <View>
+                                    <Text
+                                        style={{
+                                            fontFamily: 'IRANSansMobile',
+                                            paddingEnd: 15,
+                                            paddingStart: 15,
+                                            marginTop: 5,
+                                            marginBottom: 5,
+                                            fontSize: 17,
+                                            color: "#50E3C2",
+                                            borderWidth: 1,
+                                            borderColor: "#50E3C2",
+                                            borderRadius: 10,
+                                            marginStart: 15,
+                                            marginEnd: 15
+                                        }}>
+                                        خیر
+                                    </Text>
+                                </View>
+                            </TouchableWithoutFeedback>
+                            <TouchableWithoutFeedback
+                                onPress={() => {
+                                    this._toggleModal();
+                                }}>
+                                <View>
+                                    <Text
+                                        style={{
+                                            fontFamily: 'IRANSansMobile',
+                                            paddingEnd: 15,
+                                            paddingStart: 15,
+                                            marginTop: 5,
+                                            marginBottom: 5,
+                                            fontSize: 17,
+                                            color: "#D0021B",
+                                            borderWidth: 1,
+                                            borderColor: "#D0021B",
+                                            borderRadius: 10,
+                                            marginStart: 15,
+                                            marginEnd: 15
+                                        }}>
+                                        بله
+                                    </Text>
+                                </View>
+                            </TouchableWithoutFeedback>
+                        </View>
+                    </View>
+                </Modal>
                 <Button
                     title="بعدی"
-                    onPress={() => NavigationService.navigate('AddNewSession',null)}/>
+                    onPress={() => this._toggleModal()}/>
 
             </Wallpaper>
         );

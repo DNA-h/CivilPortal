@@ -1,13 +1,10 @@
 import React, {Component} from "react";
-import {Text, View, TextInput, Button} from 'react-native';
+import {StyleSheet, View, TextInput, Button, TouchableWithoutFeedback, Text} from 'react-native';
 import Wallpaper from "./Components/Wallpaper";
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "./Actions/index";
-import ActionButton from 'react-native-action-button';
-import ButtonSubmit from "./Components/ButtonSubmit";
 import PersianDatePicker from 'react-native-persian-date-picker';
 import NavigationService from "./Service/NavigationService";
-import MapView from 'react-native-maps';
 import SplashScreen from 'react-native-splash-screen';
 
 class AddNewSession extends Component{
@@ -27,25 +24,55 @@ class AddNewSession extends Component{
                 </View>
                 <View
                     style={{
-                        flex: 1
+                        flex: 1,
+                        alignItems: 'center',
+                        justifyContent: 'center'
                     }}>
                     <TextInput
+                        placeholderTextColor={'#C0C0C0'}
+                        style={styles.textInput}
                         placeholder={"عنوان"}/>
 
                     <TextInput
+                        placeholderTextColor={'#C0C0C0'}
+                        style={styles.textInput}
                         placeholder={"ساعت شروع"}/>
 
                     <TextInput
+                        placeholderTextColor={'#C0C0C0'}
+                        style={styles.textInput}
                         placeholder={"ساعت پایان"}/>
                 </View>
-                <Button
-                    title="بعدی"
-                    onPress={() => NavigationService.navigate('ChoosePeople',null)}/>
+                <TouchableWithoutFeedback
+                    onPress={() => NavigationService.navigate('SelectPlace',null)}>
+                    <Text
+                        style={{
+                            fontFamily: 'byekan',
+                            fontSize: 18,
+                            color: '#FFFFFF',
+                            alignSelf: 'center',
+                            backgroundColor: '#5585ff',
+                            borderRadius: 30,
+                            paddingVertical: 10,
+                            paddingHorizontal: 25,
+                            marginBottom: 25
+                        }}>
+                        "بعدی"
+                    </Text>
+                </TouchableWithoutFeedback>
 
             </Wallpaper>
         );
     }
 }
+
+const styles = StyleSheet.create({
+    textInput:{
+        color: '#FFFFFF',
+        fontSize: 18,
+        fontFamily: 'byekan'
+    }
+});
 
 function mapStateToProps(state) {
     return {

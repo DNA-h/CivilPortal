@@ -8,53 +8,21 @@ import AddNewSession from "./app/AddNewSession";
 import ChoosePeople from "./app/ChoosePeople";
 import SessionDetail from "./app/SessionDetail";
 import CalendarPage from "./app/CalendarPage";
+import PlaceItem from "./app/Components/PlaceItem";
+import SelectPlace from "./app/SelectPlace";
 const RootStack = createStackNavigator(
     {
-        Login: {
-            screen: Login,
-            navigationOptions: {
-                header: null
-            }
-        },
-        SendCode: {
-            screen: SendCode,
-            navigationOptions: {
-                header: null
-            }
-        },
-        MainPage: {
-            screen: MainPage,
-            navigationOptions: {
-                header: null
-            }
-        },
-        AddNewSession: {
-            screen: AddNewSession,
-            navigationOptions: {
-                header: null
-            }
-        },
-        ChoosePeople: {
-            screen: ChoosePeople,
-            navigationOptions: {
-                header: null
-            }
-        },
-        SessionDetail: {
-            screen: SessionDetail,
-            navigationOptions: {
-                header: null
-            }
-        },
-        CalendarPage: {
-            screen: CalendarPage,
-            navigationOptions: {
-                header: null
-            }
-        }
+        Login: {screen: Login, navigationOptions: {header: null}},
+        SendCode: {screen: SendCode, navigationOptions: {header: null}},
+        MainPage: {screen: MainPage, navigationOptions: {header: null}},
+        AddNewSession: {screen: AddNewSession, navigationOptions: {header: null}},
+        ChoosePeople: {screen: ChoosePeople, navigationOptions: {header: null}},
+        SessionDetail: {screen: SessionDetail, navigationOptions: {header: null}},
+        SelectPlace: {screen: SelectPlace, navigationOptions: {header: null}},
+        CalendarPage: {screen: CalendarPage, navigationOptions: {header: null}}
     },
     {
-        initialRouteName: 'CalendarPage',
+        initialRouteName: 'MainPage',
         navigationOptions: {header: null},
     }
 );

@@ -16,6 +16,7 @@
     "react-native-datepicker": "^1.7.2",
     "react-native-gesture-handler": "^1.0.15",
     "react-native-maps": "^0.23.0",
+    "react-native-modal": "^7.0.2",
     "react-native-persian-calendar-picker": "^2.2.2",
     "react-native-persian-date-picker": "^1.0.1",
     "react-native-picker": "^4.3.7",

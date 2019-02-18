@@ -1,11 +1,11 @@
 import React, {Component} from "react";
-import {Text, View, FlatList} from 'react-native';
+import {Text, View, CheckBox} from 'react-native';
 import Wallpaper from "./Wallpaper";
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "../Actions";
 
-class CalendarItem extends Component {
-
+class PlaceItem extends Component {
+    check =  this.props.showCheck === false ? null : <CheckBox/>;
     render() {
         return (
             <View
@@ -23,30 +23,13 @@ class CalendarItem extends Component {
                     marginTop: 10,
                     marginBottom: 10
                 }}>
-                <View>
-                    <Text
-                        style={{
-                            fontFamily: 'byekan',
-                            color: '#FFFFFF'
-                        }}>
-                        {this.props.item.item.start}
-                    </Text>
-                    <Text
-                        style={{
-                            fontFamily: 'byekan',
-                            color: '#FFFFFF'
-                        }}>
-                        {this.props.item.item.end}
-                    </Text>
-                </View>
                 <Text
                     style={{
                         flex: 1,
                         fontFamily: 'byekan',
-                        textAlign: 'center',
-                        color: '#FFFFFF'
+                        textAlign: 'center'
                     }}>
-                    {this.props.item.item.title}
+                    {this.props.item.item.place}
                 </Text>
             </View>
         );
@@ -59,4 +42,4 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps, {counterAdd, counterSub})(CalendarItem);
+export default connect(mapStateToProps, {counterAdd, counterSub})(PlaceItem);
