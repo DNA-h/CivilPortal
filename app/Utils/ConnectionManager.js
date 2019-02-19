@@ -1,3 +1,5 @@
+import GLOBALS from "./Globals";
+
 export class ConnectionManager {
     static async doFetch(url, method, body, headers, callback = false) {
         console.log("url is ", url);
@@ -9,9 +11,8 @@ export class ConnectionManager {
             try {
                 let response = await ConnectionManager.helperFetch(url, method, body, headers);
                 // console.log('url ', url);
-                let json = await response.json();
                 //console.log('response', json);
-                return json;
+                return await response.json();
             } catch (e) {
                 console.log(e.toString());
                 return undefined;
@@ -36,5 +37,13 @@ export class ConnectionManager {
                 setTimeout(() => reject(new Error('timeout')), 10000)
             )
         ]);
+    }
+
+    static async getPeople() {
+        let json = await ConnectionManager.doFetch(
+            GLOBALS.BASE_URL + GLOBALS.URL_PEOPLE,
+            'GET', null, new Headers(), true
+        );
+        return json !== undefined ? json : undefined;
     }
 }

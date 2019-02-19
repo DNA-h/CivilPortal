@@ -20,13 +20,43 @@ let sampleData = [{start: '9:45', end: '12:00', title: 'یک'}, {start: '15:00',
 
 class MainPage extends Component {
 
+    constructor(props) {
+        super(props);
+        this.difference = 0;
+        this.state = {
+            todayPersian: '___',
+            todayGeorgian: '___',
+            todayHijri: '___'
+        };
+        this._dayPressed = this._dayPressed.bind(this);
+        this._init = this._init.bind(this);
+        this.parseGeorgianDate = this.parseGeorgianDate.bind(this);
+        this.parseHijriDate = this.parseHijriDate.bind(this);
+        this.parsePersianDate = this.parsePersianDate.bind(this);
+        this._init();
+    }
+
     componentDidMount() {
         SplashScreen.hide();
+
+    }
+
+    _init() {
+        let a = this.parsePersianDate();
+        let b = this.parseGeorgianDate();
+        let c = this.parseHijriDate();
+        this.state = {
+            todayPersian: a,
+            todayGeorgian: b,
+            todayHijri: c
+        };
     }
 
     parsePersianDate() {
         let jalaali = require('jalaali-js');
-        let jalali = jalaali.toJalaali(new Date());
+        let date = new Date();
+        date.setDate(date.getDate() + this.difference);
+        let jalali = jalaali.toJalaali(date);
         let value = jalali.jd + " " + months[jalali.jm - 1] + " " + jalali.jy % 100;
         let chars = value.split('');
         for (let index in chars)
@@ -37,6 +67,7 @@ class MainPage extends Component {
 
     parseGeorgianDate() {
         let date = new Date();
+        date.setDate(date.getDate() + this.difference);
         let value = date.getDate() + " " + gMonths[date.getMonth()] + "\n" + date.getFullYear();
         let chars = value.split('');
         for (let index in chars)
@@ -47,7 +78,7 @@ class MainPage extends Component {
 
     parseHijriDate() {
         let hijri = require('hijri');
-        let date = hijri.convert(new Date(), 0);
+        let date = hijri.convert(new Date(), this.difference);
         let value = date.dayOfMonth + " " + date.monthText + "\n" + date.year;
         let chars = value.split('');
         for (let index in chars)
@@ -56,10 +87,16 @@ class MainPage extends Component {
         return chars.join('');
     }
 
+    _dayPressed(flag) {
+        this.difference += flag ? -1 : 1;
+        this.setState({
+            todayPersian: this.parsePersianDate(),
+            todayGeorgian: this.parseGeorgianDate(),
+            todayHijri: this.parseHijriDate()
+        });
+    }
+
     render() {
-        let todayPersian = this.parsePersianDate();
-        let todayGeorgian = this.parseGeorgianDate();
-        let todayHijri = this.parseHijriDate();
         return (
             <Wallpaper>
                 <View
@@ -83,7 +120,7 @@ class MainPage extends Component {
                                 paddingEnd: 10,
                                 paddingStart: 10
                             }}>
-                            {todayHijri}
+                            {this.state.todayHijri}
                         </Text>
                         <Text
                             style={{
@@ -95,7 +132,7 @@ class MainPage extends Component {
                                 paddingEnd: 10,
                                 paddingStart: 10
                             }}>
-                            {todayGeorgian}
+                            {this.state.todayGeorgian}
                         </Text>
                     </View>
                     <View
@@ -113,7 +150,7 @@ class MainPage extends Component {
                                     paddingEnd: 10,
                                     paddingStart: 10
                                 }}>
-                                {todayPersian}
+                                {this.state.todayPersian}
                             </Text>
                         </View>
                         <View
@@ -123,16 +160,22 @@ class MainPage extends Component {
                                 justifyContent: 'center',
                                 paddingBottom: 10
                             }}>
-                            <Image
-                                style={{width: 20, height: 20}}
-                                tintColor={"#6393ff"}
-                                source={require("./images/ic_back.png")}/>
+                            <TouchableWithoutFeedback
+                                onPress={() => this._dayPressed(true)}>
+                                <Image
+                                    style={{width: 20, height: 20}}
+                                    tintColor={"#6393ff"}
+                                    source={require("./images/ic_back.png")}/>
+                            </TouchableWithoutFeedback>
                             <View style={{flex: 1}}/>
-                            <Image
-                                style={{width: 20, height: 20}}
-                                tintColor={"#6393ff"}
-                                transform={[{rotateY: '180deg'}]}
-                                source={require("./images/ic_back.png")}/>
+                            <TouchableWithoutFeedback
+                                onPress={() => this._dayPressed(false)}>
+                                <Image
+                                    style={{width: 20, height: 20}}
+                                    tintColor={"#6393ff"}
+                                    transform={[{rotateY: '180deg'}]}
+                                    source={require("./images/ic_back.png")}/>
+                            </TouchableWithoutFeedback>
                         </View>
                     </View>
                     <View
@@ -205,19 +248,19 @@ class MyNotificationsScreen extends React.Component {
 const MyDrawerNavigator = createDrawerNavigator({
     Home: {
         screen: MainPage,
-        navigationOptions: ({ navigation }) => ({
+        navigationOptions: ({navigation}) => ({
             title: 'صفحه اصلی',
         }),
     },
     AddNewSession: {
         screen: AddNewSession,
-        navigationOptions: ({ navigation }) => ({
+        navigationOptions: ({navigation}) => ({
             title: 'ثبت جلسه جدید',
         }),
     },
     CalendarPage: {
         screen: CalendarPage,
-        navigationOptions: ({ navigation }) => ({
+        navigationOptions: ({navigation}) => ({
             title: 'مشاهده تقویم من',
         }),
     },

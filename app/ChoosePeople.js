@@ -12,26 +12,39 @@ import SplashScreen from 'react-native-splash-screen';
 import CalendarItem from "./Components/CalendarItem";
 import PeopleItem from "./Components/PeopleItem";
 import Modal from "react-native-modal";
+import {ConnectionManager} from "./Utils/ConnectionManager";
 
-let sampleData = [{name:'naser',place:'مدیر گروه'},{name:'hamed',place:'مدیر'}];
+class ChoosePeople extends Component {
 
-class ChoosePeople extends Component{
-
-    constructor(props){
+    constructor(props) {
         super(props);
-        this.state={
-            showDialog : false
-        }
+        this.state = {
+            showDialog: false,
+            sampleData: [{name: 'naser', place: 'مدیر گروه'},
+                {name: 'hamed', place: 'مدیر'}]
+        };
+        this._loadPeople = this._loadPeople.bind(this);
+        this._loadPeople();
     }
 
     componentDidMount() {
         SplashScreen.hide();
     }
+
+    async _loadPeople() {
+        let result = await ConnectionManager.getPeople();
+        for (let index in result) {
+            let item = {name: result[index].category_name, place: result[index].category_id};
+            this.state.sampleData.push(item);
+        }
+        this.setState({sampleData: this.state.sampleData});
+    }
+
     _toggleModal = () =>
         this.setState({showDialog: !this.state.showDialog});
 
-    render(){
-        return(
+    render() {
+        return (
             <Wallpaper>
                 <View
                     style={{
@@ -42,7 +55,7 @@ class ChoosePeople extends Component{
                             flex: 1
                         }}
                         keyExtractor={(item, index) => index.toString()}
-                        data={sampleData}
+                        data={this.state.sampleData}
                         renderItem={(item) =>
                             <PeopleItem
                                 item={item}/>}
