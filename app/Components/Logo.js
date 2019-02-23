@@ -7,11 +7,18 @@ import logoImg from '../images/logo.png';
 export default class Logo extends Component {
     render() {
         return (
-            <View style={styles.container}>
-                <Image source={logoImg} style={styles.image} />
-                <Text style={styles.text}>
-                    پرتال شهرداری تهران
-                </Text>
+            <View
+                style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}>
+                <View style={styles.container}>
+                    <Image source={logoImg} style={styles.image}/>
+                    <Text style={styles.text}>
+                        مدیریت زمان
+                    </Text>
+                </View>
             </View>
         );
     }
@@ -19,9 +26,14 @@ export default class Logo extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 3,
+        marginTop: 25,
         alignItems: 'center',
         justifyContent: 'center',
+        borderRadius: 15,
+        borderColor: '#e65808',
+        borderWidth: 1,
+        paddingVertical: 10,
+        paddingHorizontal: 30
     },
     image: {
         width: 80,

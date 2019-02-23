@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {StyleSheet, View, ImageBackground, Dimensions} from 'react-native';
-import LinearGradient from "react-native-linear-gradient";
+
+import bgSrc from '../images/wallpaper.png';
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
@@ -8,17 +9,13 @@ const DEVICE_HEIGHT = Dimensions.get('window').height;
 export default class Wallpaper extends Component {
     render() {
         return (
-            <View style={{height: DEVICE_HEIGHT - 20, width: DEVICE_WIDTH}}>
-                <LinearGradient
-                    style={[styles.picture, this.props.style]}
-                    colors={["#425aff", "#7a8fec"]}
-                    start={{x: 0, y: 0}}
-                    end={{x: 0, y: 1}}>
+            <View style={{height: DEVICE_HEIGHT, width: DEVICE_WIDTH}}>
+
                     <ImageBackground
-                        style={[styles.picture, this.props.style]}>
+                        style={[styles.picture, this.props.style]}
+                        source={bgSrc}>
                         {this.props.children}
                     </ImageBackground>
-                </LinearGradient>
             </View>
         );
     }

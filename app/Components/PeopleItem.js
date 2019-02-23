@@ -5,8 +5,24 @@ import {connect} from "react-redux";
 import {counterAdd, counterSub} from "../Actions";
 
 class PeopleItem extends Component {
-    check =  this.props.showCheck === false ? null : <CheckBox/>;
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            isSelected: false
+        };
+    }
+
     render() {
+        let check = this.props.showCheck === false ? null :
+            <CheckBox
+                value={this.state.isSelected}
+                onValueChange={() => {
+                    this.setState(() => {
+                            return {isSelected: !this.state.isSelected}
+                        }
+                    );
+                }}/>;
         return (
             <View
                 style={{
@@ -27,7 +43,8 @@ class PeopleItem extends Component {
                     style={{
                         flex: 1,
                         fontFamily: 'byekan',
-                        textAlign: 'center'
+                        textAlign: 'center',
+                        color: '#FFFFFF'
                     }}>
                     {this.props.item.item.place}
                 </Text>
@@ -35,10 +52,12 @@ class PeopleItem extends Component {
                     style={{
                         flex: 1,
                         fontFamily: 'byekan',
-                        textAlign: 'center'
+                        textAlign: 'center',
+                        color: '#FFFFFF'
                     }}>
                     {this.props.item.item.name}
                 </Text>
+                {check}
             </View>
         );
     }

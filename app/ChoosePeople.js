@@ -20,8 +20,7 @@ class ChoosePeople extends Component {
         super(props);
         this.state = {
             showDialog: false,
-            sampleData: [{name: 'naser', place: 'مدیر گروه'},
-                {name: 'hamed', place: 'مدیر'}]
+            sampleData: []
         };
         this._loadPeople = this._loadPeople.bind(this);
         this._loadPeople();
@@ -58,6 +57,7 @@ class ChoosePeople extends Component {
                         data={this.state.sampleData}
                         renderItem={(item) =>
                             <PeopleItem
+                                showCheck = {true}
                                 item={item}/>}
                     />
                 </View>

@@ -16,6 +16,7 @@ import {connect} from "react-redux";
 import {navSendCode} from "../Actions";
 import NavigationService from "../Service/NavigationService";
 import {RequestsController} from "../Utils/RequestController";
+import {ConnectionManager} from "../Utils/ConnectionManager";
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
@@ -45,11 +46,11 @@ class ButtonSubmit extends Component {
         }).start();
 
 
-        let result =await RequestsController.loadToken(this.props.state.currentCode);
-        if (result === 'We texted you a login code.')
+        let result = await ConnectionManager.sendCode(this.props.state.currentCode);
+        if (result.toString().length === 4)
             NavigationService.navigate('SendCode', null);
 
-        console.log('calling navSendCode');
+        console.log('calling navSendCode ', result.toString().length, ' ', result.toString());
         this.setState({isLoading: false});
         this.buttonAnimated.setValue(0);
         this.growAnimated.setValue(0);
@@ -91,8 +92,8 @@ class ButtonSubmit extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        top: -95,
+        marginBottom: 50,
+        marginTop: 20,
         alignItems: 'center',
         justifyContent: 'flex-start',
     },

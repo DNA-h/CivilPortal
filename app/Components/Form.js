@@ -37,7 +37,7 @@ export default class Form extends Component {
     render() {
         const mPlaceholder = this.props.page === 0 ? 'شماره موبایل' : 'ارسال کد تایید';
         return (
-            <KeyboardAvoidingView behavior="padding" style={styles.container}>
+            <View style={styles.container} >
                 <UserInput
                     source={usernameImg}
                     placeholder= {mPlaceholder}
@@ -45,7 +45,7 @@ export default class Form extends Component {
                     returnKeyType={'done'}
                     autoCorrect={false}
                 />
-            </KeyboardAvoidingView>
+            </View>
         );
     }
 }

@@ -8,8 +8,6 @@ import AddNewSession from "./app/AddNewSession";
 import ChoosePeople from "./app/ChoosePeople";
 import SessionDetail from "./app/SessionDetail";
 import CalendarPage from "./app/CalendarPage";
-import PlaceItem from "./app/Components/PlaceItem";
-import SelectPlace from "./app/SelectPlace";
 const RootStack = createStackNavigator(
     {
         Login: {screen: Login, navigationOptions: {header: null}},
@@ -18,7 +16,6 @@ const RootStack = createStackNavigator(
         AddNewSession: {screen: AddNewSession, navigationOptions: {header: null}},
         ChoosePeople: {screen: ChoosePeople, navigationOptions: {header: null}},
         SessionDetail: {screen: SessionDetail, navigationOptions: {header: null}},
-        SelectPlace: {screen: SelectPlace, navigationOptions: {header: null}},
         CalendarPage: {screen: CalendarPage, navigationOptions: {header: null}}
     },
     {
