@@ -10,13 +10,13 @@ import SplashScreen from 'react-native-splash-screen';
 import {createDrawerNavigator, DrawerItems, DrawerActions} from "react-navigation";
 import AddNewSession from "./AddNewSession";
 import CalendarPage from "./CalendarPage";
+import {ConnectionManager} from "./Utils/ConnectionManager";
 
 let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
     "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
 let gMonths = ["ژانویه", "فوریه", "مارس", "آوریل", "مه", "ژوئن", "ژوئیه",
     "اوت", "سپتامبر", "اوکتبر", "نوامبر", "دسامبر"];
 let arabicNumbers = ['۰', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-let sampleData = [{start: '9:45', end: '12:00', title: 'یک'}, {start: '15:00', end: '16:30', title: 'دو'}];
 
 class MainPage extends Component {
 
@@ -26,30 +26,55 @@ class MainPage extends Component {
         this.state = {
             todayPersian: '___',
             todayGeorgian: '___',
-            todayHijri: '___'
+            todayHijri: '___',
+            sampleData: []
         };
         this._dayPressed = this._dayPressed.bind(this);
         this._init = this._init.bind(this);
         this.parseGeorgianDate = this.parseGeorgianDate.bind(this);
         this.parseHijriDate = this.parseHijriDate.bind(this);
         this.parsePersianDate = this.parsePersianDate.bind(this);
+        this._loadSessions = this._loadSessions.bind(this);
+        this._init = this._init.bind(this);
         this._init();
+    }
+
+    async _loadSessions() {
+        let jalaali = require('jalaali-js');
+        let date = new Date();
+        date.setDate(date.getDate() + this.difference);
+        let jalali = jalaali.toJalaali(date);
+        let value = jalali.jy + "/" + (jalali.jm < 10 ? '0' + jalali.jm : jalali.jm) + "/" +
+            (jalali.jd < 10 ? '0' + jalali.jd : jalali.jd);
+        let result = await ConnectionManager.loadSessions(value);
+        for (let index in result) {
+            let item = {
+                start: result[index].star_time, end: result[index].end_time,
+                title: result[index].desc_visit
+            };
+            this.state.sampleData.push(item);
+        }
+        // console.log('sampleData', this.state);
+        this.setState({sampleData: this.state.sampleData});
     }
 
     componentDidMount() {
         SplashScreen.hide();
-
     }
 
     _init() {
         let a = this.parsePersianDate();
         let b = this.parseGeorgianDate();
         let c = this.parseHijriDate();
-        this.state = {
-            todayPersian: a,
-            todayGeorgian: b,
-            todayHijri: c
-        };
+        this.state.todayPersian = a;
+        this.state.todayGeorgian = b;
+        this.state.todayHijri = c;
+        this.setState({
+            todayPersian: this.state.todayPersian,
+            todayGeorgian: this.state.todayGeorgian,
+            todayHijri: this.state.todayHijri
+        });
+        this._loadSessions();
     }
 
     parsePersianDate() {
@@ -92,8 +117,10 @@ class MainPage extends Component {
         this.setState({
             todayPersian: this.parsePersianDate(),
             todayGeorgian: this.parseGeorgianDate(),
-            todayHijri: this.parseHijriDate()
+            todayHijri: this.parseHijriDate(),
+            sampleData: []
         });
+        this._loadSessions();
     }
 
     render() {
@@ -209,7 +236,7 @@ class MainPage extends Component {
                             flex: 1
                         }}
                         keyExtractor={(item, index) => index.toString()}
-                        data={sampleData}
+                        data={this.state.sampleData}
                         renderItem={(item) =>
                             <CalendarItem
                                 item={item}/>}

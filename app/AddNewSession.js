@@ -23,15 +23,26 @@ class AddNewSession extends Component {
     constructor(props) {
         super(props);
         this.myRef = 1;
+        this.title = "";
+        this.location = "";
+        let jalaali = require('jalaali-js');
+        let date = new Date();
+        let jalali = jalaali.toJalaali(date);
+        let month = jalali.jm.toString().length === 1 ? '0' + jalali.jm.toString() : jalali.jm.toString();
+        let day = jalali.jd.toString().length === 1 ? '0' + jalali.jd.toString() : jalali.jd.toString();
         this.state = {
             isDateTimePickerVisible: false,
             start_time: 'ساعت شروع',
             end_time: 'ساعت پایان',
-            which: -1
+            which: -1,
+            selectedDay: day,
+            selectedMonth: month
         };
         this._keyboardDidHide = this._keyboardDidHide.bind(this);
         this._keyboardDidShow = this._keyboardDidShow.bind(this);
         this._onConfirm = this._onConfirm.bind(this);
+        this._onDateConfirm = this._onDateConfirm.bind(this);
+        this._dropDownChanged = this._dropDownChanged.bind(this);
     }
 
     componentDidMount() {
@@ -78,6 +89,18 @@ class AddNewSession extends Component {
         }
     }
 
+    _onDateConfirm(data) {
+        // console.log('data ', data);
+        let a = data[1].toString().length === 1 ? '0' + data[1] : data[1];
+        let b = data[0].toString().length === 1 ? '0' + data[0] : data[0];
+        this.setState({selectedMonth: b, selectedDay: a});
+    }
+
+    _dropDownChanged(value, index, data) {
+        this.location = value;
+        // console.log('location ', this.location);
+    }
+
     render() {
         return (
             <View
@@ -89,6 +112,7 @@ class AddNewSession extends Component {
                         <View style={{flex: 2}}/>
                         <View>
                             <PersianDatePicker
+                                onConfirm={this._onDateConfirm}
                                 textStyle={{
                                     fontFamily: 'byekan'
                                 }}/>
@@ -102,6 +126,9 @@ class AddNewSession extends Component {
                             <TextInput
                                 placeholderTextColor={'#C0C0C0'}
                                 style={styles.textInput}
+                                onChangeText={(text) => {
+                                    this.title = text
+                                }}
                                 placeholder={"عنوان"}/>
 
                             <TouchableWithoutFeedback
@@ -132,9 +159,8 @@ class AddNewSession extends Component {
                         <Dropdown
                             label={'انتخاب محل جلسه'}
                             itemTextStyle={{fontFamily: 'byekan', textAlign: 'center'}}
-                            style={{
-                                flex: 1
-                            }}
+                            onChangeText={this._dropDownChanged}
+                            style={{flex: 1}}
                             data={sampleData}/>
 
                         <View style={{flex: 1}}/>
@@ -143,7 +169,15 @@ class AddNewSession extends Component {
                                 marginVertical: 40,
                                 marginBottom: 40,
                             }}
-                            onPress={() => NavigationService.navigate('ChoosePeople', null)}>
+                            onPress={() => NavigationService.navigate('ChoosePeople',
+                                {
+                                    selectedDay: this.state.selectedDay,
+                                    selectedMonth: this.state.selectedMonth,
+                                    title: this.title,
+                                    location: this.location,
+                                    startTime: this.state.start_time,
+                                    endTime: this.state.end_time
+                                })}>
                             <View>
                                 <Text
                                     style={{
@@ -159,7 +193,7 @@ class AddNewSession extends Component {
                                         paddingVertical: 10,
                                         paddingHorizontal: 25,
                                     }}>
-                                    "بعدی"
+                                    بعدی
                                 </Text>
                             </View>
                         </TouchableWithoutFeedback>

@@ -18,11 +18,14 @@ class ChoosePeople extends Component {
 
     constructor(props) {
         super(props);
+        this.mIDs = [];
         this.state = {
             showDialog: false,
             sampleData: []
         };
         this._loadPeople = this._loadPeople.bind(this);
+        this._itemClicked = this._itemClicked.bind(this);
+        this._saveSession = this._saveSession.bind(this);
         this._loadPeople();
     }
 
@@ -35,12 +38,34 @@ class ChoosePeople extends Component {
         for (let index in result) {
             let item = {name: result[index].category_name, place: result[index].category_id};
             this.state.sampleData.push(item);
+            this.mIDs.push({flag: false});
         }
         this.setState({sampleData: this.state.sampleData});
     }
 
+    async _saveSession() {
+        let people = "";
+        for (let index in this.mIDs) {
+            if (this.mIDs[index].flag)
+                if (people === "")
+                    people = people + "" + (parseInt(index.toString()) + 1);
+                else
+                    people = people + "," + (parseInt(index.toString()) + 1);
+        }
+        let response = await ConnectionManager.saveSession("1", people, this.props.navigation.getParam('title'),
+            "1397/" + this.props.navigation.getParam('selectedMonth') + "/" + this.props.navigation.getParam('selectedDay'),
+            this.props.navigation.getParam('startTime'), this.props.navigation.getParam('endTime'),
+            this.props.navigation.getParam('location'), true);
+        console.log("response ", response);
+        NavigationService.reset('MainPage');
+    }
+
     _toggleModal = () =>
         this.setState({showDialog: !this.state.showDialog});
+
+    _itemClicked(id) {
+        this.mIDs[id - 1].flag = !this.mIDs[id - 1].flag;
+    }
 
     render() {
         return (
@@ -51,13 +76,15 @@ class ChoosePeople extends Component {
                     }}>
                     <FlatList
                         style={{
-                            flex: 1
+                            flex: 1,
+                            marginBottom: 20
                         }}
                         keyExtractor={(item, index) => index.toString()}
                         data={this.state.sampleData}
                         renderItem={(item) =>
                             <PeopleItem
-                                showCheck = {true}
+                                showCheck={true}
+                                callback={this._itemClicked}
                                 item={item}/>}
                     />
                 </View>
@@ -113,6 +140,7 @@ class ChoosePeople extends Component {
                             </TouchableWithoutFeedback>
                             <TouchableWithoutFeedback
                                 onPress={() => {
+                                    this._saveSession();
                                     this._toggleModal();
                                 }}>
                                 <View>
@@ -138,9 +166,31 @@ class ChoosePeople extends Component {
                         </View>
                     </View>
                 </Modal>
-                <Button
-                    title="بعدی"
-                    onPress={() => this._toggleModal()}/>
+                <TouchableWithoutFeedback
+                    style={{
+                        marginVertical: 40,
+                        marginBottom: 40,
+                    }}
+                    onPress={this._toggleModal}>
+                    <View>
+                        <Text
+                            style={{
+                                fontFamily: 'byekan',
+                                fontSize: 18,
+                                width: '80%',
+                                textAlign: 'center',
+                                color: '#FFFFFF',
+                                alignSelf: 'center',
+                                backgroundColor: '#F035E0',
+                                borderRadius: 30,
+                                marginBottom: 40,
+                                paddingVertical: 10,
+                                paddingHorizontal: 25,
+                            }}>
+                            ثبت جلسه
+                        </Text>
+                    </View>
+                </TouchableWithoutFeedback>
 
             </Wallpaper>
         );

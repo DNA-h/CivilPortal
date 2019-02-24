@@ -62,4 +62,21 @@ export class ConnectionManager {
         );
         return json !== undefined ? json : undefined;
     }
+
+    static async loadSessions(date) {
+        let json = await ConnectionManager.doFetch(
+            GLOBALS.BASE_URL + GLOBALS.URL_LOAD_SESSIONS + "?date=" + date+"&token=1316244843",
+            'POST', null, new Headers(), true
+        );
+        return json !== undefined ? json : undefined;
+    }
+
+    static async saveSession(usr, people, desc, date, stime, etime, location, force) {
+        let json = await ConnectionManager.doFetch(
+            GLOBALS.BASE_URL + GLOBALS.URL_SESSIONS + "?usr=" + usr + "&people=" + people + "&desc=" + desc +
+            "&date=" + date + "&stime=" + stime + "&etime=" + etime + "&location=" + location + "&force=" + force,
+            'POST', null, new Headers(), true
+        );
+        return json !== undefined ? json : undefined;
+    }
 }

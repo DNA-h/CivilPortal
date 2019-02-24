@@ -19,6 +19,7 @@ class PeopleItem extends Component {
                 value={this.state.isSelected}
                 onValueChange={() => {
                     this.setState(() => {
+                            this.props.callback(this.props.item.item.place);
                             return {isSelected: !this.state.isSelected}
                         }
                     );
