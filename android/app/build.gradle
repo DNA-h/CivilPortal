@@ -148,6 +148,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-firebase')
     compile project(':react-native-linear-gradient')
     compile project(':react-native-splash-screen')
     compile project(':react-native-picker')
@@ -159,6 +160,8 @@ dependencies {
     }
     implementation 'com.google.android.gms:play-services-base:16.1.0'
     implementation 'com.google.android.gms:play-services-maps:16.1.0'
+    implementation "com.google.firebase:firebase-core:16.0.3"
+    implementation "com.google.firebase:firebase-messaging:17.3.2"
     implementation project(':react-native-splash-screen')
     implementation project(':react-native-picker')
     implementation project(':react-native-gesture-handler')
@@ -173,3 +176,6 @@ task copyDownloadableDepsToLibs(type: Copy) {
     from configurations.compile
     into 'libs'
 }
+
+apply plugin: 'com.google.gms.google-services'
+// GoogleServicesPlugin.config.disableVersionCheck = true
