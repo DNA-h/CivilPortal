@@ -12,16 +12,17 @@ class UserInput extends Component {
                 <Image source={this.props.source} style={styles.inlineImg} />
                 <TextInput
                     style={styles.input}
+                    keyboardType={'phone-pad'}
                     placeholder={this.props.placeholder}
                     secureTextEntry={this.props.secureTextEntry}
                     autoCorrect={this.props.autoCorrect}
                     autoCapitalize={this.props.autoCapitalize}
                     returnKeyType={this.props.returnKeyType}
-                    placeholderTextColor="white"
+                    placeholderTextColor="#000000"
                     onChangeText={(text) => {
                         this.props.setValues(text,text);
                     }}
-                    underlineColorAndroid="transparent"
+                    underlineColorAndroid="#C0C0C0"
                 />
             </View>
         );
@@ -43,12 +44,12 @@ const DEVICE_HEIGHT = Dimensions.get('window').height;
 const styles = StyleSheet.create({
     input: {
         backgroundColor: 'rgba(255, 255, 255, 0.4)',
-        width: DEVICE_WIDTH - 40,
+        width: DEVICE_WIDTH - 160,
         height: 40,
         marginHorizontal: 20,
         paddingLeft: 45,
         borderRadius: 20,
-        color: '#ffffff',
+        color: '#000000',
         fontFamily: 'byekan'
     },
     inputWrapper: {

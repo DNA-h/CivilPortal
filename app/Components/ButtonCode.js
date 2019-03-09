@@ -59,7 +59,7 @@ class ButtonCode extends Component {
     render() {
         const changeWidth = this.buttonAnimated.interpolate({
             inputRange: [0, 1],
-            outputRange: [DEVICE_WIDTH - MARGIN, MARGIN],
+            outputRange: [DEVICE_WIDTH - 4*MARGIN, MARGIN],
         });
         const changeScale = this.growAnimated.interpolate({
             inputRange: [0, 1],
@@ -100,9 +100,8 @@ const styles = StyleSheet.create({
     button: {
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#F035E0',
+        backgroundColor: '#f06e3a',
         height: MARGIN,
-        borderRadius: 20,
         zIndex: 100,
     },
     circle: {
@@ -110,11 +109,11 @@ const styles = StyleSheet.create({
         width: MARGIN,
         marginTop: -MARGIN,
         borderWidth: 1,
-        borderColor: '#F035E0',
+        borderColor: '#f06e3a',
         borderRadius: 100,
         alignSelf: 'center',
         zIndex: 99,
-        backgroundColor: '#F035E0',
+        backgroundColor: '#f06e3a',
     },
     text: {
         color: 'white',

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Image, ScrollView, Keyboard, Dimensions} from 'react-native';
+import {StyleSheet, Text, View, Image, ScrollView, Keyboard, Dimensions, ImageBackground} from 'react-native';
 import {connect} from 'react-redux';
 import {counterAdd, counterSub} from './Actions'
 import Wallpaper from "./Components/Wallpaper";
@@ -9,6 +9,7 @@ import SignupSection from "./Components/SignupSection";
 import ButtonCode from "./Components/ButtonCode";
 import SplashScreen from "react-native-splash-screen";
 import KeyboardSpacer from 'react-native-keyboard-spacer';
+import ButtonSubmit from "./Components/ButtonSubmit";
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
@@ -59,16 +60,55 @@ class Login extends Component {
                 <ScrollView
                     ref={ref => this.myRef = ref}
                     style={{flex: 1}}>
-                    <Wallpaper>
+                    <ImageBackground
+                        style={{
+                            flex: 1,
+                            width: DEVICE_WIDTH,
+                            height: DEVICE_HEIGHT,
+                            resizeMode: 'stretch',
+                        }}
+                        source={require("./images/img_back01.png")}
+                    >
                         <View style={{flex: 1}}/>
-                        <Logo/>
+                        <View style={{flex: 3}}>
+                            <View
+                                elevation={5}
+                                style={{
+                                    position: 'absolute',
+                                    top: -25,
+                                    right: (DEVICE_WIDTH - 50) / 2,
+                                    zIndex: 3,
+                                    backgroundColor: '#7092be',
+                                    borderRadius: 28,
+                                    paddingHorizontal:6,
+                                    paddingVertical:6,
+                                }}>
+                                <Image
+                                    style={{
+                                        width: 50,
+                                        height: 50,
+                                        resizeMode: 'contain',
+                                    }}
+                                    source={require('./images/ic_no_profile.png')}/>
+                            </View>
+                            <View
+                                elevation={5}
+                                style={{
+                                    flex: 1,
+                                    backgroundColor: '#FFFFFF',
+                                    marginHorizontal: 40,
+                                    zIndex: 2
+                                }}>
+                                <View style={{flex: 1}}/>
+                                <Form page={1}/>
+                                <View style={{flex: 1}}/>
+                                <SignupSection/>
+                                <ButtonCode page={0}/>
+                            </View>
+                        </View>
                         <View style={{flex: 1}}/>
-                        <Form page={1}/>
-                        <View style={{flex: 1}}/>
-                        {<SignupSection/>}
-                        <ButtonCode/>
-                        <KeyboardSpacer/>
-                    </Wallpaper>
+                    </ImageBackground>
+                    <KeyboardSpacer/>
                 </ScrollView>
             </View>
         );

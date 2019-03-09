@@ -48,6 +48,9 @@
 		D8192512F9AD4444B22D89F2 /* libAirMaps.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 438DE6515DFE4467938CB3B2 /* libAirMaps.a */; };
 		E3C36EEBCF2C4631B9705E7E /* libBVLinearGradient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 335FDE83E8364EBDB49C5C9B /* libBVLinearGradient.a */; };
 		BE2BE973965747919ED2CE09 /* libRNFirebase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5BE9BF6288A045A2A56A80A9 /* libRNFirebase.a */; };
+		96D56C3B413E4093837C190C /* btitr.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3B8A3668840C49159E91CA55 /* btitr.ttf */; };
+		09C4EED92B004E6C99BFC8AF /* bTitr.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F4B5497D7B004716A65DEBB2 /* bTitr.ttf */; };
+		D85A0E7B133F4301B815CA75 /* seven_segment.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B719BD3D24884850A8846B33 /* seven_segment.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -371,6 +374,9 @@
 		335FDE83E8364EBDB49C5C9B /* libBVLinearGradient.a */ = {isa = PBXFileReference; name = "libBVLinearGradient.a"; path = "libBVLinearGradient.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 		C668D4232FC14FB4B6CBD2E9 /* RNFirebase.xcodeproj */ = {isa = PBXFileReference; name = "RNFirebase.xcodeproj"; path = "../node_modules/react-native-firebase/ios/RNFirebase.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
 		5BE9BF6288A045A2A56A80A9 /* libRNFirebase.a */ = {isa = PBXFileReference; name = "libRNFirebase.a"; path = "libRNFirebase.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
+		3B8A3668840C49159E91CA55 /* btitr.ttf */ = {isa = PBXFileReference; name = "btitr.ttf"; path = "../app/assets/fonts/btitr.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		F4B5497D7B004716A65DEBB2 /* bTitr.ttf */ = {isa = PBXFileReference; name = "bTitr.ttf"; path = "../app/assets/fonts/bTitr.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		B719BD3D24884850A8846B33 /* seven_segment.ttf */ = {isa = PBXFileReference; name = "seven_segment.ttf"; path = "../app/assets/fonts/seven_segment.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -653,6 +659,9 @@
 			isa = "PBXGroup";
 			children = (
 				B4AE43C806B24628BA957981 /* byekan.ttf */,
+				3B8A3668840C49159E91CA55 /* btitr.ttf */,
+				F4B5497D7B004716A65DEBB2 /* bTitr.ttf */,
+				B719BD3D24884850A8846B33 /* seven_segment.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1105,6 +1114,9 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 				C65C764078FE4560AE679D89 /* byekan.ttf in Resources */,
+				96D56C3B413E4093837C190C /* btitr.ttf in Resources */,
+				09C4EED92B004E6C99BFC8AF /* bTitr.ttf in Resources */,
+				D85A0E7B133F4301B815CA75 /* seven_segment.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

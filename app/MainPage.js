@@ -11,12 +11,15 @@ import {createDrawerNavigator, DrawerItems, DrawerActions} from "react-navigatio
 import AddNewSession from "./AddNewSession";
 import CalendarPage from "./CalendarPage";
 import {ConnectionManager} from "./Utils/ConnectionManager";
+import DBManager from "./Utils/DBManager";
+import Modal from "react-native-modal";
 
 let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
     "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
 let gMonths = ["ژانویه", "فوریه", "مارس", "آوریل", "مه", "ژوئن", "ژوئیه",
     "اوت", "سپتامبر", "اوکتبر", "نوامبر", "دسامبر"];
-let arabicNumbers = ['۰', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+let arabicNumbers = ['۰', '۱', '٢', '٣', '۴', '۵', '۶', '۷', '٨', '٩'];
+let names = [];
 
 class MainPage extends Component {
 
@@ -25,9 +28,13 @@ class MainPage extends Component {
         this.difference = 0;
         this.state = {
             todayPersian: '___',
+            monthPersian: '    ',
             todayGeorgian: '___',
             todayHijri: '___',
-            sampleData: []
+            sampleData: [],
+            isLoading: true,
+            showDialog: false,
+            currIndex: 0
         };
         this._dayPressed = this._dayPressed.bind(this);
         this._init = this._init.bind(this);
@@ -36,7 +43,18 @@ class MainPage extends Component {
         this.parsePersianDate = this.parsePersianDate.bind(this);
         this._loadSessions = this._loadSessions.bind(this);
         this._init = this._init.bind(this);
+        this._toggleModal = this._toggleModal.bind(this);
+        this._loadPeople = this._loadPeople.bind(this);
         this._init();
+        this._loadPeople();
+    }
+
+    async _loadPeople() {
+        let result = await ConnectionManager.getPeople();
+        for (let index in result) {
+            let item = {name: result[index].category_name, place: result[index].category_id};
+            names.push(item);
+        }
     }
 
     async _loadSessions() {
@@ -44,35 +62,59 @@ class MainPage extends Component {
         let date = new Date();
         date.setDate(date.getDate() + this.difference);
         let jalali = jalaali.toJalaali(date);
+        let session_id = -1;
         let value = jalali.jy + "/" + (jalali.jm < 10 ? '0' + jalali.jm : jalali.jm) + "/" +
             (jalali.jd < 10 ? '0' + jalali.jd : jalali.jd);
         let result = await ConnectionManager.loadSessions(value);
         for (let index in result) {
+            if (result[index].session_id === session_id) {
+                this.state.sampleData[this.state.sampleData.length - 1].people.push({id: parseInt(result[index].child_id)});
+                continue;
+            }
+            session_id = result[index].session_id;
             let item = {
-                start: result[index].star_time, end: result[index].end_time,
-                title: result[index].desc_visit
+                start: result[index].star_time,
+                end: result[index].end_time,
+                title: result[index].desc_visit,
+                location: result[index].location_visit,
+                index: this.state.sampleData.length,
+                people: [{id: parseInt(result[index].child_id)}]
             };
             this.state.sampleData.push(item);
         }
         // console.log('sampleData', this.state);
-        this.setState({sampleData: this.state.sampleData});
+        this.setState({sampleData: this.state.sampleData, isLoading: false});
     }
 
     componentDidMount() {
-        SplashScreen.hide();
+        this._checkToken();
+    }
+
+    async _checkToken() {
+        let token = await DBManager.getSettingValue('token');
+        if (token !== undefined && token !== null && token.toString().length === 10) {
+            SplashScreen.hide();
+        } else {
+            SplashScreen.hide();
+            NavigationService.navigate('Login', null);
+        }
     }
 
     _init() {
         let a = this.parsePersianDate();
         let b = this.parseGeorgianDate();
         let c = this.parseHijriDate();
+        let d = this.parsePersianMonth();
         this.state.todayPersian = a;
         this.state.todayGeorgian = b;
         this.state.todayHijri = c;
+        this.state.monthPersian = d;
         this.setState({
             todayPersian: this.state.todayPersian,
             todayGeorgian: this.state.todayGeorgian,
-            todayHijri: this.state.todayHijri
+            todayHijri: this.state.todayHijri,
+            monthPersian: this.state.monthPersian,
+            isLoading: true
         });
         this._loadSessions();
     }
@@ -82,12 +124,20 @@ class MainPage extends Component {
         let date = new Date();
         date.setDate(date.getDate() + this.difference);
         let jalali = jalaali.toJalaali(date);
-        let value = jalali.jd + " " + months[jalali.jm - 1] + " " + jalali.jy % 100;
+        let value = jalali.jd + '';
         let chars = value.split('');
         for (let index in chars)
             if (chars[index] >= '0' && chars[index] <= '9')
                 chars[index] = arabicNumbers[chars[index] - '0'];
         return chars.join('');
+    }
+
+    parsePersianMonth() {
+        let jalaali = require('jalaali-js');
+        let date = new Date();
+        date.setDate(date.getDate() + this.difference);
+        let jalali = jalaali.toJalaali(date);
+        return months[jalali.jm - 1];
     }
 
     parseGeorgianDate() {
@@ -118,12 +168,47 @@ class MainPage extends Component {
             todayPersian: this.parsePersianDate(),
             todayGeorgian: this.parseGeorgianDate(),
             todayHijri: this.parseHijriDate(),
-            sampleData: []
+            sampleData: [],
+            isLoading: true
         });
         this._loadSessions();
     }
 
+    _toggleModal(index) {
+        this.setState({showDialog: !this.state.showDialog, currIndex: index});
+    }
+
     render() {
+        let location = this.state.showDialog > 0 ? this.state.sampleData[this.state.currIndex].location : '';
+        let title = this.state.showDialog > 0 ? this.state.sampleData[this.state.currIndex].title : '';
+        let time = this.state.showDialog > 0 ?
+            ('از ' + this.state.sampleData[this.state.currIndex].start + ' تا '
+                + this.state.sampleData[this.state.currIndex].end) : '';
+        let people = '\n';
+        if (this.state.showDialog) {
+            for (let index in this.state.sampleData[this.state.currIndex].people)
+                people = people + names[this.state.sampleData[this.state.currIndex].people[index].id].name + '\n\n';
+        }
+        let warning = this.state.sampleData.length === 0 && !this.state.isLoading ?
+            <Text
+                style={{
+                    flex: 1,
+                    fontFamily: 'byekan',
+                    textAlign: 'center'
+                }}>
+                هیچ برنامه برای امروز تعیین نشده است
+            </Text> : <FlatList
+                style={{
+                    flex: 1,
+                    height: '100%'
+                }}
+                keyExtractor={(item, index) => index.toString()}
+                data={this.state.sampleData}
+                renderItem={(item) =>
+                    <CalendarItem
+                        item={item}
+                        callback={this._toggleModal}/>}
+            />;
         return (
             <Wallpaper>
                 <View
@@ -166,7 +251,23 @@ class MainPage extends Component {
                         style={{
                             flex: 3
                         }}>
-                        <View style={{flex: 1, justifyContent: 'center'}}>
+                        <View style={{
+                            flex: 1,
+                            justifyContent: 'center'
+                        }}>
+                            <Text
+                                style={{
+                                    fontFamily: 'byekna',
+                                    fontSize: 45,
+                                    fontWeight: 'bold',
+                                    color: '#000000',
+                                    width: '100%',
+                                    textAlign: 'center',
+                                    paddingEnd: 10,
+                                    paddingStart: 10
+                                }}>
+                                {this.state.todayPersian}
+                            </Text>
                             <Text
                                 style={{
                                     fontFamily: 'byekan',
@@ -177,32 +278,8 @@ class MainPage extends Component {
                                     paddingEnd: 10,
                                     paddingStart: 10
                                 }}>
-                                {this.state.todayPersian}
+                                {this.state.monthPersian}
                             </Text>
-                        </View>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                paddingBottom: 10
-                            }}>
-                            <TouchableWithoutFeedback
-                                onPress={() => this._dayPressed(true)}>
-                                <Image
-                                    style={{width: 20, height: 20}}
-                                    tintColor={"#6393ff"}
-                                    source={require("./images/ic_back.png")}/>
-                            </TouchableWithoutFeedback>
-                            <View style={{flex: 1}}/>
-                            <TouchableWithoutFeedback
-                                onPress={() => this._dayPressed(false)}>
-                                <Image
-                                    style={{width: 20, height: 20}}
-                                    tintColor={"#6393ff"}
-                                    transform={[{rotateY: '180deg'}]}
-                                    source={require("./images/ic_back.png")}/>
-                            </TouchableWithoutFeedback>
                         </View>
                     </View>
                     <View
@@ -229,23 +306,104 @@ class MainPage extends Component {
                     }}/>
                 <View
                     style={{
-                        flex: 9
+                        flex: 9,
+                        flexDirection: 'row',
+                        alignItems: 'center'
                     }}>
-                    <FlatList
-                        style={{
-                            flex: 1
-                        }}
-                        keyExtractor={(item, index) => index.toString()}
-                        data={this.state.sampleData}
-                        renderItem={(item) =>
-                            <CalendarItem
-                                item={item}/>}
-                    />
+                    <TouchableWithoutFeedback
+                        onPress={() => this._dayPressed(true)}>
+                        <Image
+                            style={{
+                                width: 20,
+                                height: 20,
+                                marginLeft: 10
+                            }}
+                            tintColor={"#6393ff"}
+                            source={require("./images/ic_back.png")}/>
+                    </TouchableWithoutFeedback>
+                    {warning}
+                    <TouchableWithoutFeedback
+                        onPress={() => this._dayPressed(false)}>
+                        <Image
+                            style={{width: 20, height: 20, marginRight: 10}}
+                            tintColor={"#6393ff"}
+                            transform={[{rotateY: '180deg'}]}
+                            source={require("./images/ic_back.png")}/>
+                    </TouchableWithoutFeedback>
                 </View>
                 <ActionButton
                     buttonColor="rgba(231,76,60,1)"
                     onPress={() => NavigationService.navigate('AddNewSession', null)}>
                 </ActionButton>
+                <Modal
+                    isVisible={this.state.showDialog}
+                    onBackdropPress={this._toggleModal}>
+                    <View
+                        style={{
+                            backgroundColor: "#FFFFFF",
+                            borderRadius: 10,
+                            marginStart: 10,
+                            marginEnd: 10,
+                            paddingStart: 10,
+                            paddingEnd: 10,
+                            paddingBottom: 5
+                        }}>
+                        <Text
+                            style={{
+                                fontFamily: 'byekan',
+                                fontSize: 18,
+                                marginTop: 10,
+                                color: '#000',
+                                width: '100%',
+                                textAlign: 'center'
+                            }}>
+                            خلاصه ای از جلسه
+                        </Text>
+                        <Text
+                            style={{
+                                fontFamily: 'byekan',
+                                fontSize: 18,
+                                marginTop: 10
+                            }}>
+                            عنوان جلسه: {title}
+                        </Text>
+                        <Text
+                            style={{
+                                fontFamily: 'byekan',
+                                fontSize: 18,
+                                marginTop: 10
+                            }}>
+                            مکان جلسه: {location}
+                        </Text>
+                        <Text
+                            style={{
+                                fontFamily: 'byekan',
+                                fontSize: 18,
+                                marginTop: 10
+                            }}>
+                            ساعت جلسه: {time}
+                        </Text>
+                        <Text
+                            style={{
+                                fontFamily: 'byekan',
+                                fontSize: 18,
+                                marginTop: 10
+                            }}>
+                            افراد حاضر در جلسه جلسه:
+                        </Text>
+                        <Text
+                            style={{
+                                fontFamily: 'byekan',
+                                fontSize: 18,
+                                marginTop: 10,
+                                width: '100%',
+                                color: '#000000',
+                                textAlign: 'center'
+                            }}>
+                            {people.toString()}
+                        </Text>
+                    </View>
+                </Modal>
             </Wallpaper>
         );
     }

@@ -7,8 +7,7 @@ export default class SignupSection extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <Text style={styles.text}>نمیتوانم وارد شوم</Text>
-                <Text style={styles.text}>تماس با ادمین</Text>
+                <Text style={styles.text}>شماره تماس خود را فراموش کرده اید؟</Text>
             </View>
         );
     }
@@ -24,7 +23,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
     },
     text: {
-        color: 'white',
+        marginRight: 15,
+        color: '#C0C0C0',
         backgroundColor: 'transparent',
         fontFamily: 'byekan'
     },

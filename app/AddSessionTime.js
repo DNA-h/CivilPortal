@@ -29,7 +29,7 @@ let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "م�
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
 
-class AddNewSession extends Component {
+class AddSessionTime extends Component {
 
     constructor(props) {
         super(props);
@@ -89,54 +89,94 @@ class AddNewSession extends Component {
                         height: DEVICE_HEIGHT,
                     }}
                 >
+                    <View style={{flex: 1}}/>
+                    <Text
+                        style={{
+                            fontFamily: 'byekan',
+                            color: '#000000',
+                            width: '100%',
+                            fontSize: 20,
+                            textAlign: 'center'
+                        }}>
+                        لطفا ساعت شروع جلسه را تعیین نمایید.
+                    </Text>
                     <View
                         style={{
-                            alignItems: 'center',
-                            flex: 1
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                            alignItems: 'center'
                         }}>
-                        <Text
-                            style={{
-                                fontFamily: 'byekan',
-                                color: '#000000',
-                                width: '100%',
-                                fontSize: 25,
-                                textAlign: 'center'
-                            }}>
-                            لطفا تاریخ جلسه را تعیین نمایید.
+                        <WheelPicker
+                            style={{width: 50, height: 180}}
+                            selectedItem={this.state.selectedStartHour}
+                            data={dailyHour}
+                            onItemSelected={selectedItem => {
+                                this.setState({selectedStartHour: selectedItem})
+                            }}
+                            selectedItemTextColor={'#aa3835'}
+                            selectedItemTextSize={25}
+                            itemTextSize={25}
+                            selectedItemTextFontFamily={'seven_segment'}
+                            itemTextFontFamily={'seven_segment'}/>
+                        <Text style={{fontSize: 25}}>
+                            :
                         </Text>
-                        <View style={{flex: 1}}/>
-                        <View
-                            style={{
-                                flex: 1,
-                                flexDirection: 'row',
-                                justifyContent: 'center'
-                            }}>
-                            <WheelPicker
-                                style={{flex: 1, aspectRatio: 1}}
-                                selectedItem={this.state.selectedMonth}
-                                data={months}
-                                onItemSelected={selectedItem => {
-                                    this.setState({selectedMonth: selectedItem})
-                                }}
-                                selectedItemTextColor={'#aa3835'}
-                                selectedItemTextSize={25}
-                                itemTextSize={25}
-                                selectedItemTextFontFamily={'byekan'}
-                                itemTextFontFamily={'byekan'}/>
-
-                            <WheelPicker
-                                style={{flex: 1, aspectRatio: 1}}
-                                selectedItem={this.state.selectedDay}
-                                data={monthsDays}
-                                onItemSelected={selectedItem => {
-                                    this.setState({selectedDay: selectedItem})
-                                }}
-                                selectedItemTextColor={'#3daa48'}
-                                selectedItemTextSize={25}
-                                itemTextSize={25}
-                                selectedItemTextFontFamily={'seven_segment'}
-                                itemTextFontFamily={'seven_segment'}/>
-                        </View>
+                        <WheelPicker
+                            style={{width: 50, height: 180}}
+                            selectedItem={this.state.selectedStartMinute}
+                            data={dailyMinutes}
+                            onItemSelected={selectedItem => {
+                                this.setState({selectedStartMinute: selectedItem})
+                            }}
+                            selectedItemTextColor={'#3daa48'}
+                            selectedItemTextSize={25}
+                            itemTextSize={25}
+                            selectedItemTextFontFamily={'seven_segment'}
+                            itemTextFontFamily={'seven_segment'}/>
+                    </View>
+                    <Text
+                        style={{
+                            fontFamily: 'byekan',
+                            color: '#000000',
+                            width: '100%',
+                            fontSize: 20,
+                            textAlign: 'center'
+                        }}>
+                        لطفا ساعت پایان جلسه را تعیین نمایید.
+                    </Text>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}>
+                        <WheelPicker
+                            style={{width: 50, height: 180}}
+                            selectedItem={this.state.selectedEndHour}
+                            data={dailyHour}
+                            onItemSelected={selectedItem => {
+                                this.setState({selectedEndHour: selectedItem})
+                            }}
+                            selectedItemTextColor={'#aa3835'}
+                            selectedItemTextSize={25}
+                            itemTextSize={25}
+                            selectedItemTextFontFamily={'seven_segment'}
+                            itemTextFontFamily={'seven_segment'}/>
+                        <Text style={{fontSize: 25}}>
+                            :
+                        </Text>
+                        <WheelPicker
+                            style={{width: 50, height: 180}}
+                            selectedItem={this.state.selectedEndMinute}
+                            data={dailyMinutes}
+                            onItemSelected={selectedItem => {
+                                this.setState({selectedEndMinute: selectedItem})
+                            }}
+                            selectedItemTextColor={'#3daa48'}
+                            selectedItemTextSize={25}
+                            itemTextSize={25}
+                            selectedItemTextFontFamily={'seven_segment'}
+                            itemTextFontFamily={'seven_segment'}/>
                     </View>
                     <View style={{flex: 1}}/>
                     <TouchableWithoutFeedback
@@ -144,7 +184,7 @@ class AddNewSession extends Component {
                             marginVertical: 40,
                             marginBottom: 40,
                         }}
-                        onPress={() => NavigationService.navigate('AddSessionTime',
+                        onPress={() => NavigationService.navigate('AddSessionTitle',
                             {
                                 selectedDay: this.state.selectedDay,
                                 selectedMonth: this.state.selectedMonth,
@@ -192,4 +232,4 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps, {counterAdd, counterSub})(AddNewSession);
+export default connect(mapStateToProps, {counterAdd, counterSub})(AddSessionTime);

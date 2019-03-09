@@ -47,10 +47,13 @@ class ButtonSubmit extends Component {
 
 
         let result = await ConnectionManager.sendCode(this.props.state.currentCode);
-        if (result.toString().length === 4)
-            NavigationService.navigate('SendCode', null);
-
-        console.log('calling navSendCode ', result.toString().length, ' ', result.toString());
+        try {
+            let bool = result.Coords[0];
+            console.log('bool ', bool);
+            if (bool.boolean === 'true')
+                NavigationService.navigate('SendCode', null);
+        } catch (e) {
+        }
         this.setState({isLoading: false});
         this.buttonAnimated.setValue(0);
         this.growAnimated.setValue(0);
@@ -59,7 +62,7 @@ class ButtonSubmit extends Component {
     render() {
         const changeWidth = this.buttonAnimated.interpolate({
             inputRange: [0, 1],
-            outputRange: [DEVICE_WIDTH - MARGIN, MARGIN],
+            outputRange: [DEVICE_WIDTH - 4 * MARGIN, MARGIN],
         });
         const changeScale = this.growAnimated.interpolate({
             inputRange: [0, 1],
@@ -67,8 +70,12 @@ class ButtonSubmit extends Component {
         });
 
         return (
-            <View style={styles.container}>
-                <Animated.View style={{width: changeWidth}}>
+            <View
+                elevation={5}
+                style={styles.container}>
+                <Animated.View
+                    elevation={5}
+                    style={{width: changeWidth}}>
                     <TouchableOpacity
                         style={styles.button}
                         onPress={this._onPress}
@@ -76,7 +83,8 @@ class ButtonSubmit extends Component {
                         {this.state.isLoading ? (
                             <Image source={spinner} style={styles.image}/>
                         ) : (
-                            <Text style={styles.text}>
+                            <Text
+                                style={styles.text}>
                                 ارسال
                             </Text>
                         )}
@@ -92,7 +100,7 @@ class ButtonSubmit extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        marginBottom: 50,
+        marginBottom: 35,
         marginTop: 20,
         alignItems: 'center',
         justifyContent: 'flex-start',
@@ -100,9 +108,8 @@ const styles = StyleSheet.create({
     button: {
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#F035E0',
+        backgroundColor: '#f06e3a',
         height: MARGIN,
-        borderRadius: 20,
         zIndex: 100,
     },
     circle: {
@@ -110,11 +117,11 @@ const styles = StyleSheet.create({
         width: MARGIN,
         marginTop: -MARGIN,
         borderWidth: 1,
-        borderColor: '#F035E0',
+        borderColor: '#f06e3a',
         borderRadius: 100,
         alignSelf: 'center',
         zIndex: 99,
-        backgroundColor: '#F035E0',
+        backgroundColor: '#f06e3a',
     },
     text: {
         color: 'white',

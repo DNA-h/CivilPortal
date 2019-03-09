@@ -56,6 +56,9 @@
 	<key>UIAppFonts</key>
 	<array>
 		<string>byekan.ttf</string>
+		<string>btitr.ttf</string>
+		<string>bTitr.ttf</string>
+		<string>seven_segment.ttf</string>
 	</array>
 </dict>
 </plist>
