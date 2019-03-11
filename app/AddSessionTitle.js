@@ -19,41 +19,8 @@ class AddSessionTitle extends Component {
 
     constructor(props) {
         super(props);
-        this.myRef = 1;
         this.title = "";
         this.location = "";
-        this._keyboardDidHide = this._keyboardDidHide.bind(this);
-        this._keyboardDidShow = this._keyboardDidShow.bind(this);
-    }
-
-    componentDidMount() {
-        SplashScreen.hide();
-        this.keyboardDidShowListener = Keyboard.addListener(
-            'keyboardDidShow',
-            this._keyboardDidShow,
-        );
-        this.keyboardDidHideListener = Keyboard.addListener(
-            'keyboardDidHide',
-            this._keyboardDidHide,
-        );
-    }
-
-    componentWillUnmount() {
-        this.keyboardDidShowListener.remove();
-        this.keyboardDidHideListener.remove();
-    }
-
-    _keyboardDidShow() {
-        console.log('SV ', this.myRef);
-        setTimeout(() =>
-                this.myRef.scrollTo({y: 0.5 * DEVICE_HEIGHT - 80})
-            , 100)
-    }
-
-    _keyboardDidHide() {
-        setTimeout(() =>
-                this.myRef.scrollTo({y: 0})
-            , 100)
     }
 
     render() {
@@ -101,12 +68,10 @@ class AddSessionTitle extends Component {
                             }}
                             onPress={() => NavigationService.navigate('ChoosePeople',
                                 {
-                                    selectedDay: this.state.selectedDay,
-                                    selectedMonth: this.state.selectedMonth,
-                                    title: this.title,
-                                    location: this.location,
-                                    startTime: this.state.start_time,
-                                    endTime: this.state.end_time
+                                    date: this.props.navigation.getParam('date'),
+                                    start: this.props.navigation.getParam('start'),
+                                    end: this.props.navigation.getParam('end'),
+                                    title: this.title
                                 })}>
                             <View>
                                 <Text
@@ -139,7 +104,8 @@ const styles = StyleSheet.create({
     textInput: {
         color: '#000000',
         fontSize: 18,
-        fontFamily: 'byekan'
+        fontFamily: 'byekan',
+        width: '100%'
     }
 });
 

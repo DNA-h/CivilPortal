@@ -46,14 +46,10 @@ class ButtonSubmit extends Component {
         }).start();
 
 
-        let result = await ConnectionManager.sendCode(this.props.state.currentCode);
-        try {
-            let bool = result.Coords[0];
-            console.log('bool ', bool);
-            if (bool.boolean === 'true')
+        let result =await RequestsController.loadToken(this.props.state.currentCode);
+        if (result === 'We texted you a login code.')
                 NavigationService.navigate('SendCode', null);
-        } catch (e) {
-        }
+        console.log('calling navSendCode ', result.toString().length, ' ', result.toString());
         this.setState({isLoading: false});
         this.buttonAnimated.setValue(0);
         this.growAnimated.setValue(0);

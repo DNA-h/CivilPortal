@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Text, View, FlatList, Image, TouchableWithoutFeedback, Button} from 'react-native';
+import {AsyncStorage, Button, FlatList, Image, Text, TouchableWithoutFeedback, View} from 'react-native';
 import Wallpaper from "./Components/Wallpaper";
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "./Actions";
@@ -7,12 +7,14 @@ import CalendarItem from "./Components/CalendarItem";
 import ActionButton from 'react-native-action-button';
 import NavigationService from "./Service/NavigationService";
 import SplashScreen from 'react-native-splash-screen';
-import {createDrawerNavigator, DrawerItems, DrawerActions} from "react-navigation";
+import {createDrawerNavigator, DrawerActions, DrawerItems} from "react-navigation";
 import AddNewSession from "./AddNewSession";
 import CalendarPage from "./CalendarPage";
 import {ConnectionManager} from "./Utils/ConnectionManager";
 import DBManager from "./Utils/DBManager";
 import Modal from "react-native-modal";
+
+let Parse = require('parse/react-native');
 
 let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
     "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
@@ -25,6 +27,9 @@ class MainPage extends Component {
 
     constructor(props) {
         super(props);
+        Parse.setAsyncStorage(AsyncStorage);
+        Parse.initialize("5lGtGyszvvfB", "JU1vAiDahK35");
+        Parse.serverURL = "https://api.staging.approo.ir/parse/com.infact.maboud";
         this.difference = 0;
         this.state = {
             todayPersian: '___',
@@ -34,7 +39,9 @@ class MainPage extends Component {
             sampleData: [],
             isLoading: true,
             showDialog: false,
-            currIndex: 0
+            currIndex: 0,
+            people: '',
+            location: ''
         };
         this._dayPressed = this._dayPressed.bind(this);
         this._init = this._init.bind(this);
@@ -45,16 +52,12 @@ class MainPage extends Component {
         this._init = this._init.bind(this);
         this._toggleModal = this._toggleModal.bind(this);
         this._loadPeople = this._loadPeople.bind(this);
-        this._init();
         this._loadPeople();
     }
 
     async _loadPeople() {
-        let result = await ConnectionManager.getPeople();
-        for (let index in result) {
-            let item = {name: result[index].category_name, place: result[index].category_id};
-            names.push(item);
-        }
+        names = await ConnectionManager.getPeople();
+        console.log('names ', names);
     }
 
     async _loadSessions() {
@@ -63,36 +66,19 @@ class MainPage extends Component {
         date.setDate(date.getDate() + this.difference);
         let jalali = jalaali.toJalaali(date);
         let session_id = -1;
-        let value = jalali.jy + "/" + (jalali.jm < 10 ? '0' + jalali.jm : jalali.jm) + "/" +
-            (jalali.jd < 10 ? '0' + jalali.jd : jalali.jd);
+        let value = jalali.jy + "/" + jalali.jm + "/" + jalali.jd;
         let result = await ConnectionManager.loadSessions(value);
-        for (let index in result) {
-            if (result[index].session_id === session_id) {
-                this.state.sampleData[this.state.sampleData.length - 1].people.push({id: parseInt(result[index].child_id)});
-                continue;
-            }
-            session_id = result[index].session_id;
-            let item = {
-                start: result[index].star_time,
-                end: result[index].end_time,
-                title: result[index].desc_visit,
-                location: result[index].location_visit,
-                index: this.state.sampleData.length,
-                people: [{id: parseInt(result[index].child_id)}]
-            };
-            this.state.sampleData.push(item);
-        }
-        // console.log('sampleData', this.state);
-        this.setState({sampleData: this.state.sampleData, isLoading: false});
+        this.setState({sampleData: result, isLoading: false});
     }
 
     componentDidMount() {
         this._checkToken();
+        this._init();
     }
 
     async _checkToken() {
         let token = await DBManager.getSettingValue('token');
-        if (token !== undefined && token !== null && token.toString().length === 10) {
+        if (token !== undefined && token !== null && token.toString().length === 40) {
             SplashScreen.hide();
         } else {
             SplashScreen.hide();
@@ -174,21 +160,37 @@ class MainPage extends Component {
         this._loadSessions();
     }
 
-    _toggleModal(index) {
-        this.setState({showDialog: !this.state.showDialog, currIndex: index});
+    _findPeopleFromId(id) {
+        for (let j = 0; j < names.length; j++) {
+            if (names[j].id === id) {
+                return names[j].name
+            }
+        }
+        return '';
+    }
+
+    async _toggleModal(index) {
+        let i = parseInt(index);
+        this.state.people = '';
+        if (!isNaN(i)) {
+            let p = await ConnectionManager.loadSessionsPeople(this.state.sampleData[i].id);
+            for (let j = 0; j < p.length; j++) {
+                this.state.people = this.state.people + '\n' + this._findPeopleFromId(p[j].people_id)
+            }
+            let l = await ConnectionManager.loadLocation(this.state.sampleData[i].location);
+            this.state.location = l.address;
+        }
+        this.setState({
+            showDialog: !this.state.showDialog,
+            currIndex: index
+        });
     }
 
     render() {
-        let location = this.state.showDialog > 0 ? this.state.sampleData[this.state.currIndex].location : '';
         let title = this.state.showDialog > 0 ? this.state.sampleData[this.state.currIndex].title : '';
         let time = this.state.showDialog > 0 ?
             ('از ' + this.state.sampleData[this.state.currIndex].start + ' تا '
                 + this.state.sampleData[this.state.currIndex].end) : '';
-        let people = '\n';
-        if (this.state.showDialog) {
-            for (let index in this.state.sampleData[this.state.currIndex].people)
-                people = people + names[this.state.sampleData[this.state.currIndex].people[index].id].name + '\n\n';
-        }
         let warning = this.state.sampleData.length === 0 && !this.state.isLoading ?
             <Text
                 style={{
@@ -373,7 +375,7 @@ class MainPage extends Component {
                                 fontSize: 18,
                                 marginTop: 10
                             }}>
-                            مکان جلسه: {location}
+                            مکان جلسه: {this.state.location}
                         </Text>
                         <Text
                             style={{
@@ -400,7 +402,7 @@ class MainPage extends Component {
                                 color: '#000000',
                                 textAlign: 'center'
                             }}>
-                            {people.toString()}
+                            {this.state.people}
                         </Text>
                     </View>
                 </Modal>

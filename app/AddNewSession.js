@@ -9,11 +9,8 @@ import {connect} from "react-redux";
 import {counterAdd, counterSub} from "./Actions/index";
 import PersianDatePicker from 'react-native-persian-date-picker';
 import NavigationService from "./Service/NavigationService";
-import SplashScreen from 'react-native-splash-screen';
 import KeyboardSpacer from "react-native-keyboard-spacer";
-import DateTimePicker from 'react-native-modal-datetime-picker';
 import {WheelPicker, TimePicker, DatePicker} from 'react-native-wheel-picker-android'
-import MapView from 'react-native-maps';
 
 let dailyHour = ['00', '01', '02', '03',
     '04', '05', '06', '07', '08', '09', '10', '11',
@@ -38,46 +35,15 @@ class AddNewSession extends Component {
         let date = new Date();
         let jalali = jalaali.toJalaali(date);
         let month = jalali.jm - 1;
-        let day = jalali.jd;
+        let day = jalali.jd - 1;
         this.state = {
-            isDateTimePickerVisible: false,
-            start_time: 'ساعت شروع',
-            end_time: 'ساعت پایان',
-            which: -1,
             selectedDay: day,
             selectedMonth: month,
-            selectedStartHour: 10,
-            selectedStartMinute: 0,
-            selectedEndHour: 12,
-            selectedEndMinute: 0,
         };
-        this._onConfirm = this._onConfirm.bind(this);
-        this._onDateConfirm = this._onDateConfirm.bind(this);
-    }
-
-    _onConfirm(time) {
-        if (this.state.which === 1) {
-            this.setState({
-                start_time: time.getHours() + ":" + time.getMinutes(),
-                isDateTimePickerVisible: false
-            })
-        } else {
-            this.setState({
-                end_time: time.getHours() + ":" + time.getMinutes(),
-                isDateTimePickerVisible: false
-            })
-        }
-    }
-
-    _onDateConfirm(data) {
-        // console.log('data ', data);
-        let a = data[1].toString().length === 1 ? '0' + data[1] : data[1];
-        let b = data[0].toString().length === 1 ? '0' + data[0] : data[0];
-        this.setState({selectedMonth: b, selectedDay: a});
     }
 
     render() {
-        console.log('month ', this.state.selectedMonth, ' day ', this.state.selectedDay);
+        // console.log('month ', this.state.selectedMonth, ' day ', this.state.selectedDay);
         return (
             <View
                 style={{flex: 1}}>
@@ -115,6 +81,7 @@ class AddNewSession extends Component {
                                 style={{flex: 1, aspectRatio: 1}}
                                 selectedItem={this.state.selectedMonth}
                                 data={months}
+                                isCyclic={true}
                                 onItemSelected={selectedItem => {
                                     this.setState({selectedMonth: selectedItem})
                                 }}
@@ -146,10 +113,7 @@ class AddNewSession extends Component {
                         }}
                         onPress={() => NavigationService.navigate('AddSessionTime',
                             {
-                                selectedDay: this.state.selectedDay,
-                                selectedMonth: this.state.selectedMonth,
-                                startTime: this.state.start_time,
-                                endTime: this.state.end_time
+                                date: '1397/' + (this.state.selectedMonth + 1) + '/' + (this.state.selectedDay + 1),
                             })}>
                         <View>
                             <Text

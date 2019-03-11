@@ -17,6 +17,7 @@ import {navSendCode} from "../Actions";
 import NavigationService from "../Service/NavigationService";
 import {ConnectionManager} from "../Utils/ConnectionManager";
 import DBManager from "../Utils/DBManager";
+import {RequestsController} from "../Utils/RequestController";
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
@@ -45,12 +46,12 @@ class ButtonCode extends Component {
             easing: Easing.linear,
         }).start();
 
-        let token = await ConnectionManager.confirmCode(this.props.state.currentCode);
-        if (token !== undefined && token !== null && token[0].token.toString().length === 10) {
-            DBManager.saveSettingValue('token', token[0].token);
+        let token = await RequestsController.SendCode(this.props.state.currentCode);
+        if (token !== undefined && token !== null && token.length === 40) {
+            DBManager.saveSettingValue('token', token);
             NavigationService.navigate('MainPage', null);
         }
-        console.log('calling navSendCode ', token[0].token);
+        console.log('calling navSendCode ', token);
         this.setState({isLoading: false});
         this.buttonAnimated.setValue(0);
         this.growAnimated.setValue(0);

@@ -33,47 +33,12 @@ class AddSessionTime extends Component {
 
     constructor(props) {
         super(props);
-        this.myRef = 1;
-        let jalaali = require('jalaali-js');
-        let date = new Date();
-        let jalali = jalaali.toJalaali(date);
-        let month = jalali.jm - 1;
-        let day = jalali.jd;
         this.state = {
-            isDateTimePickerVisible: false,
-            start_time: 'ساعت شروع',
-            end_time: 'ساعت پایان',
-            which: -1,
-            selectedDay: day,
-            selectedMonth: month,
             selectedStartHour: 10,
             selectedStartMinute: 0,
             selectedEndHour: 12,
             selectedEndMinute: 0,
         };
-        this._onConfirm = this._onConfirm.bind(this);
-        this._onDateConfirm = this._onDateConfirm.bind(this);
-    }
-
-    _onConfirm(time) {
-        if (this.state.which === 1) {
-            this.setState({
-                start_time: time.getHours() + ":" + time.getMinutes(),
-                isDateTimePickerVisible: false
-            })
-        } else {
-            this.setState({
-                end_time: time.getHours() + ":" + time.getMinutes(),
-                isDateTimePickerVisible: false
-            })
-        }
-    }
-
-    _onDateConfirm(data) {
-        // console.log('data ', data);
-        let a = data[1].toString().length === 1 ? '0' + data[1] : data[1];
-        let b = data[0].toString().length === 1 ? '0' + data[0] : data[0];
-        this.setState({selectedMonth: b, selectedDay: a});
     }
 
     render() {
@@ -186,10 +151,9 @@ class AddSessionTime extends Component {
                         }}
                         onPress={() => NavigationService.navigate('AddSessionTitle',
                             {
-                                selectedDay: this.state.selectedDay,
-                                selectedMonth: this.state.selectedMonth,
-                                startTime: this.state.start_time,
-                                endTime: this.state.end_time
+                                date: this.props.navigation.getParam('date'),
+                                start: this.state.selectedStartHour + ':' + this.state.selectedStartMinute,
+                                end: this.state.selectedEndHour + ':' + this.state.selectedEndMinute
                             })}>
                         <View>
                             <Text
