@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, Image, ScrollView, Keyboard, Dimensions} from 'react-native';
+import {View, ScrollView, Keyboard, Dimensions} from 'react-native';
 import {connect} from 'react-redux';
 import {counterAdd, counterSub} from './Actions'
 import Wallpaper from "./Components/Wallpaper";

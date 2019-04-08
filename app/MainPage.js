@@ -1,6 +1,5 @@
 import React, {Component} from "react";
-import {Text, View, FlatList, Image, TouchableWithoutFeedback, Button} from 'react-native';
-import Wallpaper from "./Components/Wallpaper";
+import {Text, View, FlatList, Image, TouchableWithoutFeedback, Button, ImageBackground} from 'react-native';
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "./Actions";
 import CalendarItem from "./Components/CalendarItem";
@@ -11,6 +10,7 @@ import {createDrawerNavigator, DrawerItems, DrawerActions} from "react-navigatio
 import AddNewSession from "./AddNewSession";
 import CalendarPage from "./CalendarPage";
 import {ConnectionManager} from "./Utils/ConnectionManager";
+import DBManager from "./Utils/DBManager";
 
 let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
     "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
@@ -24,10 +24,12 @@ class MainPage extends Component {
         super(props);
         this.difference = 0;
         this.state = {
-            todayPersian: '___',
+            todayPersian1: '___',
+            todayPersian2: '___',
+            todayPersian3: '___',
             todayGeorgian: '___',
             todayHijri: '___',
-            sampleData: []
+            sampleData: [{start:'10:00',end:'12:00',title:'Dr.'}]
         };
         this._dayPressed = this._dayPressed.bind(this);
         this._init = this._init.bind(this);
@@ -60,34 +62,48 @@ class MainPage extends Component {
 
     componentDidMount() {
         SplashScreen.hide();
+        //this.checkToken();
+    }
+
+    async checkToken() {
+        let token = await DBManager.getSettingValue('token');
+        if (token === undefined || token === null || token.length !== 40)
+            NavigationService.navigate('Login', null);
     }
 
     _init() {
         let a = this.parsePersianDate();
         let b = this.parseGeorgianDate();
         let c = this.parseHijriDate();
-        this.state.todayPersian = a;
+        this.state.todayPersian1 = a[0];
+        this.state.todayPersian2 = a[1];
+        this.state.todayPersian3 = a[2];
         this.state.todayGeorgian = b;
         this.state.todayHijri = c;
         this.setState({
-            todayPersian: this.state.todayPersian,
+            todayPersian1: this.state.todayPersian1,
+            todayPersian2: this.state.todayPersian2,
+            todayPersian3: this.state.todayPersian3,
             todayGeorgian: this.state.todayGeorgian,
             todayHijri: this.state.todayHijri
         });
-        this._loadSessions();
+        //this._loadSessions();
     }
 
     parsePersianDate() {
         let jalaali = require('jalaali-js');
         let date = new Date();
+        let w = date.getDay();
         date.setDate(date.getDate() + this.difference);
+        let weekDays = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه شنبه', 'چهارشنبه', 'پنج شنبه', 'جمعه'];
         let jalali = jalaali.toJalaali(date);
-        let value = jalali.jd + " " + months[jalali.jm - 1] + " " + jalali.jy % 100;
-        let chars = value.split('');
+        let value = [weekDays[w], jalali.jd + '', months[jalali.jm - 1]];
+        let chars = value[1].split('');
         for (let index in chars)
             if (chars[index] >= '0' && chars[index] <= '9')
                 chars[index] = arabicNumbers[chars[index] - '0'];
-        return chars.join('');
+        value[1] = chars.join('');
+        return value;
     }
 
     parseGeorgianDate() {
@@ -114,8 +130,11 @@ class MainPage extends Component {
 
     _dayPressed(flag) {
         this.difference += flag ? -1 : 1;
+        let value = this.parsePersianDate();
         this.setState({
-            todayPersian: this.parsePersianDate(),
+            todayPersian1: value[0],
+            todayPersian2: value[1],
+            todayPersian3: value[2],
             todayGeorgian: this.parseGeorgianDate(),
             todayHijri: this.parseHijriDate(),
             sampleData: []
@@ -125,101 +144,121 @@ class MainPage extends Component {
 
     render() {
         return (
-            <Wallpaper>
+            <ImageBackground
+                source={require('./images/main.png')}
+                style={{
+                    flex: 1,
+                }}>
                 <View
                     style={{
                         flex: 2,
-                        flexDirection: 'row',
-                        backgroundColor: '#CCCCCCAA'
+                        flexDirection: 'row'
                     }}>
                     <View
                         style={{
-                            flex: 2,
-                            justifyContent: 'center'
+                            flex: 2
                         }}>
+                        <View style={{height: 20, flexDirection: 'row', marginLeft: 20}}>
+                            <Image style={{width: 15, height: 15, margin: 5}} tintColor={'#FFFFFF'}
+                                   source={require('./images/ic_back.png')}/>
+                            <Image style={{width: 15, height: 15, margin: 5}} tintColor={'#FFFFFF'}
+                                   source={require('./images/small_calendar.png')}/>
+                            <Image style={{width: 15, height: 15, margin: 5}} tintColor={'#FFFFFF'}
+                                   source={require('./images/basket.png')}/>
+                        </View>
                         <Text
                             style={{
                                 fontFamily: 'byekan',
                                 fontSize: 13,
-                                color: '#000000',
+                                color: '#FFFFFF',
                                 width: '100%',
                                 textAlign: 'center',
                                 paddingEnd: 10,
-                                paddingStart: 10
-                            }}>
-                            {this.state.todayHijri}
-                        </Text>
-                        <Text
-                            style={{
-                                fontFamily: 'byekan',
-                                fontSize: 13,
-                                color: '#000000',
-                                width: '100%',
-                                textAlign: 'center',
-                                paddingEnd: 10,
-                                paddingStart: 10
+                                paddingStart: 10,
+                                marginTop: 25
                             }}>
                             {this.state.todayGeorgian}
                         </Text>
                     </View>
                     <View
                         style={{
-                            flex: 3
+                            width: 90,
+                            height: 90,
+                            borderRadius: 45,
+                            backgroundColor: '#6f67d9',
+                            marginTop: 10
                         }}>
                         <View style={{flex: 1, justifyContent: 'center'}}>
                             <Text
                                 style={{
                                     fontFamily: 'byekan',
-                                    fontSize: 18,
-                                    color: '#000000',
+                                    fontSize: 13,
+                                    color: '#FFFFFF',
                                     width: '100%',
                                     textAlign: 'center',
                                     paddingEnd: 10,
                                     paddingStart: 10
                                 }}>
-                                {this.state.todayPersian}
+                                {this.state.todayPersian1}
                             </Text>
-                        </View>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                paddingBottom: 10
-                            }}>
-                            <TouchableWithoutFeedback
-                                onPress={() => this._dayPressed(true)}>
-                                <Image
-                                    style={{width: 20, height: 20}}
-                                    tintColor={"#6393ff"}
-                                    source={require("./images/ic_back.png")}/>
-                            </TouchableWithoutFeedback>
-                            <View style={{flex: 1}}/>
-                            <TouchableWithoutFeedback
-                                onPress={() => this._dayPressed(false)}>
-                                <Image
-                                    style={{width: 20, height: 20}}
-                                    tintColor={"#6393ff"}
-                                    transform={[{rotateY: '180deg'}]}
-                                    source={require("./images/ic_back.png")}/>
-                            </TouchableWithoutFeedback>
+                            <Text
+                                style={{
+                                    fontFamily: 'byekan',
+                                    fontSize: 40,
+                                    color: '#FFFFFF',
+                                    width: '100%',
+                                    textAlign: 'center',
+                                    paddingEnd: 10,
+                                    paddingStart: 10,
+                                    marginTop: -10
+                                }}>
+                                {this.state.todayPersian2}
+                            </Text>
+                            <Text
+                                style={{
+                                    fontFamily: 'byekan',
+                                    fontSize: 13,
+                                    color: '#FFFFFF',
+                                    width: '100%',
+                                    textAlign: 'center',
+                                    paddingEnd: 10,
+                                    paddingStart: 10,
+                                    marginTop: -10
+                                }}>
+                                {this.state.todayPersian3}
+                            </Text>
                         </View>
                     </View>
                     <View
                         style={{
-                            flex: 1,
+                            flex: 2,
                             alignItems: 'flex-end'
                         }}>
                         <TouchableWithoutFeedback
                             onPress={() => this.props.navigation.dispatch(DrawerActions.openDrawer())}>
                             <Image
                                 style={{
-                                    width: 30,
-                                    height: 30,
-                                    margin: 10
+                                    width: 20,
+                                    height: 20,
+                                    margin: 10,
+                                    marginRight: 15
                                 }}
+                                tintColor={'#FFFFFF'}
                                 source={require("./images/nav_icon.png")}/>
                         </TouchableWithoutFeedback>
+                        <Text
+                            style={{
+                                fontFamily: 'byekan',
+                                fontSize: 13,
+                                color: '#FFFFFF',
+                                width: '100%',
+                                textAlign: 'center',
+                                paddingEnd: 10,
+                                paddingStart: 10,
+                                marginTop: 15
+                            }}>
+                            {this.state.todayHijri}
+                        </Text>
                     </View>
                 </View>
                 <View
@@ -229,7 +268,11 @@ class MainPage extends Component {
                     }}/>
                 <View
                     style={{
-                        flex: 9
+                        flex: 10,
+                        backgroundColor: '#FFFFFF',
+                        marginHorizontal: 20,
+                        borderRadius: 20,
+                        marginBottom: 15
                     }}>
                     <FlatList
                         style={{
@@ -246,7 +289,7 @@ class MainPage extends Component {
                     buttonColor="rgba(231,76,60,1)"
                     onPress={() => NavigationService.navigate('AddNewSession', null)}>
                 </ActionButton>
-            </Wallpaper>
+            </ImageBackground>
         );
     }
 }

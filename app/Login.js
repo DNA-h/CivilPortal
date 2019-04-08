@@ -4,7 +4,7 @@ import {counterAdd, counterSub} from './Actions'
 import Wallpaper from "./Components/Wallpaper";
 import Logo from "./Components/Logo";
 import Form from "./Components/Form";
-import {KeyboardAvoidingView, SafeAreaView, ScrollView, View, Dimensions, Keyboard} from 'react-native';
+import {ScrollView, View, Dimensions, Keyboard, ImageBackground} from 'react-native';
 import SignupSection from "./Components/SignupSection";
 import ButtonSubmit from "./Components/ButtonSubmit";
 import SplashScreen from "react-native-splash-screen";
@@ -59,14 +59,20 @@ class Login extends Component {
                 <ScrollView
                     ref={ref => this.myRef = ref}
                     style={{flex: 1}}>
-                    <Wallpaper>
+                    <ImageBackground
+                        style={{
+                            flex: 1,
+                            backgroundColor: '#ebff69',
+                            height: DEVICE_HEIGHT
+                        }}
+                        source={require('./images/login.png')}>
                         <Logo/>
                         <View style={{flex: 1}}/>
                         <Form page={0}/>
                         <View style={{flex: 1}}/>
                         <SignupSection/>
                         <ButtonSubmit page={0}/>
-                    </Wallpaper>
+                    </ImageBackground>
                     <KeyboardSpacer/>
                 </ScrollView>
             </View>

@@ -8,6 +8,7 @@ import AddNewSession from "./app/AddNewSession";
 import ChoosePeople from "./app/ChoosePeople";
 import SessionDetail from "./app/SessionDetail";
 import CalendarPage from "./app/CalendarPage";
+
 const RootStack = createStackNavigator(
     {
         Login: {screen: Login, navigationOptions: {header: null}},
