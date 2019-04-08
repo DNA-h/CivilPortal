@@ -12,8 +12,7 @@ export default class Wallpaper extends Component {
             <View style={{height: DEVICE_HEIGHT, width: DEVICE_WIDTH}}>
 
                     <ImageBackground
-                        style={[styles.picture, this.props.style]}
-                        source={bgSrc}>
+                        style={[styles.picture, this.props.style]}>
                         {this.props.children}
                     </ImageBackground>
             </View>

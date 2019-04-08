@@ -3,16 +3,13 @@ import {FlatList, View, Text, Button, TouchableWithoutFeedback} from 'react-nati
 import Wallpaper from "./Components/Wallpaper";
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "./Actions/index";
-import ActionButton from 'react-native-action-button';
-import ButtonSubmit from "./Components/ButtonSubmit";
-import PersianDatePicker from 'react-native-persian-date-picker';
 import NavigationService from "./Service/NavigationService";
 import MapView from 'react-native-maps';
-import SplashScreen from 'react-native-splash-screen';
-import CalendarItem from "./Components/CalendarItem";
 import PeopleItem from "./Components/PeopleItem";
 import Modal from "react-native-modal";
 import {ConnectionManager} from "./Utils/ConnectionManager";
+
+let Parse = require('parse/react-native');
 
 class ChoosePeople extends Component {
 
@@ -26,21 +23,16 @@ class ChoosePeople extends Component {
         this._loadPeople = this._loadPeople.bind(this);
         this._itemClicked = this._itemClicked.bind(this);
         this._saveSession = this._saveSession.bind(this);
-        this._loadPeople();
+
     }
 
     componentDidMount() {
-        SplashScreen.hide();
+        this._loadPeople();
     }
 
     async _loadPeople() {
-        let result = await ConnectionManager.getPeople();
-        for (let index in result) {
-            let item = {name: result[index].category_name, place: result[index].category_id};
-            this.state.sampleData.push(item);
-            this.mIDs.push({flag: false});
-        }
-        this.setState({sampleData: this.state.sampleData});
+        let names = await ConnectionManager.getPeople();
+        this.setState({sampleData: names});
     }
 
     async _saveSession() {
@@ -52,19 +44,57 @@ class ChoosePeople extends Component {
                 else
                     people = people + "," + (parseInt(index.toString()) + 1);
         }
-        let response = await ConnectionManager.saveSession("1", people, this.props.navigation.getParam('title'),
-            "1397/" + this.props.navigation.getParam('selectedMonth') + "/" + this.props.navigation.getParam('selectedDay'),
-            this.props.navigation.getParam('startTime'), this.props.navigation.getParam('endTime'),
-            this.props.navigation.getParam('location'), true);
-        console.log("response ", response);
-        NavigationService.reset('MainPage');
+        const Sessions = Parse.Object.extend("Sessions");
+        const session = new Sessions();
+
+        session.set("start", this.props.navigation.getParam('start'));
+        session.set("end", this.props.navigation.getParam('end'));
+        session.set("date", this.props.navigation.getParam('date'));
+        session.set("title", this.props.navigation.getParam('title'));
+        session.set("location", 'Eo1in0m2NK');
+        session.set("owner", 'HepRlBVObH');
+
+        session.save().then((nazr) => {
+            console.log("object created ", nazr.id);
+            let ID = nazr.id;
+            for (let index in this.state.sampleData){
+                if (this.state.sampleData[index].flag){
+                    const SessionPeople = Parse.Object.extend("SessionPeople");
+                    const session = new SessionPeople();
+
+                    session.set("session_id", ID);
+                    session.set("people_id", this.state.sampleData[index].id);
+                    session.set("replace_id", "0");
+
+                    session.save().then((nazr) => {
+                        console.log("object created ", nazr.id);
+                    }, (error) => {
+                        console.log("error: ", error.message);
+                    });
+                }
+            }
+            NavigationService.reset('MainPage');
+        }, (error) => {
+            console.log("error: ", error.message);
+        });
+
     }
 
     _toggleModal = () =>
         this.setState({showDialog: !this.state.showDialog});
 
-    _itemClicked(id) {
-        this.mIDs[id - 1].flag = !this.mIDs[id - 1].flag;
+    _findPeopleFromId(id) {
+        for (let j = 0; j < this.state.sampleData.length; j++) {
+            if (this.state.sampleData[j].id === id) {
+                return j;
+            }
+        }
+        return -1;
+    }
+
+    _itemClicked(id, flag) {
+        let index = this._findPeopleFromId(id);
+        this.state.sampleData[index].flag = !flag;
     }
 
     render() {

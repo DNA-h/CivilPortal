@@ -19,7 +19,7 @@ class PeopleItem extends Component {
                 value={this.state.isSelected}
                 onValueChange={() => {
                     this.setState(() => {
-                            this.props.callback(this.props.item.item.place);
+                            this.props.callback(this.props.item.item.id, this.state.isSelected);
                             return {isSelected: !this.state.isSelected}
                         }
                     );
@@ -47,7 +47,7 @@ class PeopleItem extends Component {
                         textAlign: 'center',
                         color: '#FFFFFF'
                     }}>
-                    {this.props.item.item.place}
+                    {this.props.item.item.rank}
                 </Text>
                 <Text
                     style={{
