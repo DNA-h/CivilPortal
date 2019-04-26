@@ -29,7 +29,8 @@ class MainPage extends Component {
             todayPersian3: '___',
             todayGeorgian: '___',
             todayHijri: '___',
-            sampleData: [{start:'10:00',end:'12:00',title:'Dr.'}]
+            sampleData: [{start:'10:00',end:'12:00',title:'Dr.', left: true},
+                {start:'10:00',end:'12:00',title:'Dr.', left: false}]
         };
         this._dayPressed = this._dayPressed.bind(this);
         this._init = this._init.bind(this);
@@ -62,7 +63,7 @@ class MainPage extends Component {
 
     componentDidMount() {
         SplashScreen.hide();
-        //this.checkToken();
+        this.checkToken();
     }
 
     async checkToken() {

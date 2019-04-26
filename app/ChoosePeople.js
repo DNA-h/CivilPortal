@@ -18,7 +18,7 @@ class ChoosePeople extends Component {
         this.mIDs = [];
         this.state = {
             showDialog: false,
-            sampleData: []
+            sampleData: [{rank: 'design', name: 'naser', showCheck: true}]
         };
         this._loadPeople = this._loadPeople.bind(this);
         this._itemClicked = this._itemClicked.bind(this);
@@ -27,7 +27,7 @@ class ChoosePeople extends Component {
     }
 
     componentDidMount() {
-        this._loadPeople();
+        // this._loadPeople();
     }
 
     async _loadPeople() {
@@ -57,8 +57,8 @@ class ChoosePeople extends Component {
         session.save().then((nazr) => {
             console.log("object created ", nazr.id);
             let ID = nazr.id;
-            for (let index in this.state.sampleData){
-                if (this.state.sampleData[index].flag){
+            for (let index in this.state.sampleData) {
+                if (this.state.sampleData[index].flag) {
                     const SessionPeople = Parse.Object.extend("SessionPeople");
                     const session = new SessionPeople();
 
@@ -104,6 +104,9 @@ class ChoosePeople extends Component {
                     style={{
                         flex: 1
                     }}>
+                    <Text>
+                        انتخاب نفرات
+                    </Text>
                     <FlatList
                         style={{
                             flex: 1,

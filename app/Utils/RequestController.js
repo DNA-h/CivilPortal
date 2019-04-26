@@ -5,7 +5,7 @@ export class RequestsController {
     static async loadToken(mobile) {
         let headers = new Headers();
         headers.append('Content-Type', 'application/json');
-        let json = await ConnectionManager.doFetch("http://karbamabnd.ir/auth/mobile/", 'POST',
+        let json = await ConnectionManager.doFetch("http://185.211.57.73/auth/mobile/", 'POST',
             JSON.stringify({'mobile': mobile}), headers, true);
         console.log('json is ', json);
         return json.detail;
@@ -14,7 +14,7 @@ export class RequestsController {
     static async SendCode(code) {
         let headers = new Headers();
         headers.append('Content-Type', 'application/json');
-        let json = await ConnectionManager.doFetch("http://karbamabnd.ir/callback/auth/", 'POST',
+        let json = await ConnectionManager.doFetch("http://185.211.57.73/callback/auth/", 'POST',
             JSON.stringify({'token': code}), headers, true);
         console.log('json is ', json);
         return json.token;

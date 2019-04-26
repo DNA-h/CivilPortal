@@ -8,6 +8,7 @@ import AddNewSession from "./app/AddNewSession";
 import ChoosePeople from "./app/ChoosePeople";
 import SessionDetail from "./app/SessionDetail";
 import CalendarPage from "./app/CalendarPage";
+import AboutUs from "./app/AboutUs";
 
 const RootStack = createStackNavigator(
     {
@@ -17,7 +18,8 @@ const RootStack = createStackNavigator(
         AddNewSession: {screen: AddNewSession, navigationOptions: {header: null}},
         ChoosePeople: {screen: ChoosePeople, navigationOptions: {header: null}},
         SessionDetail: {screen: SessionDetail, navigationOptions: {header: null}},
-        CalendarPage: {screen: CalendarPage, navigationOptions: {header: null}}
+        CalendarPage: {screen: CalendarPage, navigationOptions: {header: null}},
+        AboutUs: {screen: AboutUs, navigationOptions: {header: null}},
     },
     {
         initialRouteName: 'MainPage',

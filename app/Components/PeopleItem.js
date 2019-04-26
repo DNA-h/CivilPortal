@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Text, View, CheckBox} from 'react-native';
+import {Text, View, CheckBox, Image} from 'react-native';
 import Wallpaper from "./Wallpaper";
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "../Actions";
@@ -40,25 +40,39 @@ class PeopleItem extends Component {
                     marginTop: 10,
                     marginBottom: 10
                 }}>
-                <Text
-                    style={{
-                        flex: 1,
-                        fontFamily: 'byekan',
-                        textAlign: 'center',
-                        color: '#FFFFFF'
-                    }}>
-                    {this.props.item.item.rank}
-                </Text>
-                <Text
-                    style={{
-                        flex: 1,
-                        fontFamily: 'byekan',
-                        textAlign: 'center',
-                        color: '#FFFFFF'
-                    }}>
-                    {this.props.item.item.name}
-                </Text>
                 {check}
+                <View style={{flex: 1}}/>
+                <View>
+                    <Text
+                        style={{
+                            flex: 1,
+                            fontFamily: 'byekan',
+                            textAlign: 'center',
+                            color: '#FFFFFF'
+                        }}>
+                        {this.props.item.item.rank}
+                    </Text>
+                    <Text
+                        style={{
+                            flex: 1,
+                            fontFamily: 'byekan',
+                            textAlign: 'center',
+                            color: '#FFFFFF'
+                        }}>
+                        {this.props.item.item.name}
+                    </Text>
+                </View>
+                <Image
+                    style={{
+                        width: 70,
+                        height: 70,
+                        margin: 10,
+                        borderWidth: 2,
+                        borderColor: '#00b',
+                        borderRadius: 40,
+                    }}
+                    tintColor={'#FFFFFF'}
+                    source={require('../images/ic_no_profile.png')}/>
             </View>
         );
     }
