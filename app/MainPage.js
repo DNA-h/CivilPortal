@@ -11,6 +11,7 @@ import AddNewSession from "./AddNewSession";
 import CalendarPage from "./CalendarPage";
 import {ConnectionManager} from "./Utils/ConnectionManager";
 import DBManager from "./Utils/DBManager";
+import {RequestsController} from "./Utils/RequestController";
 
 let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
     "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
@@ -29,8 +30,7 @@ class MainPage extends Component {
             todayPersian3: '___',
             todayGeorgian: '___',
             todayHijri: '___',
-            sampleData: [{start:'10:00',end:'12:00',title:'Dr.', left: true},
-                {start:'10:00',end:'12:00',title:'Dr.', left: false}]
+            sampleData: []
         };
         this._dayPressed = this._dayPressed.bind(this);
         this._init = this._init.bind(this);
@@ -47,13 +47,13 @@ class MainPage extends Component {
         let date = new Date();
         date.setDate(date.getDate() + this.difference);
         let jalali = jalaali.toJalaali(date);
-        let value = jalali.jy + "/" + (jalali.jm < 10 ? '0' + jalali.jm : jalali.jm) + "/" +
+        let value = jalali.jy + "-" + (jalali.jm < 10 ? '0' + jalali.jm : jalali.jm) + "-" +
             (jalali.jd < 10 ? '0' + jalali.jd : jalali.jd);
-        let result = await ConnectionManager.loadSessions(value);
+        let result = await RequestsController.MySessions(value);
         for (let index in result) {
             let item = {
-                start: result[index].star_time, end: result[index].end_time,
-                title: result[index].desc_visit
+                start: result[index].start_time, end: result[index].end_time,
+                title: result[index].meeting_title, left: index % 2 === 1
             };
             this.state.sampleData.push(item);
         }
@@ -70,6 +70,8 @@ class MainPage extends Component {
         let token = await DBManager.getSettingValue('token');
         if (token === undefined || token === null || token.length !== 40)
             NavigationService.navigate('Login', null);
+        else
+            this._loadSessions();
     }
 
     _init() {
@@ -88,7 +90,6 @@ class MainPage extends Component {
             todayGeorgian: this.state.todayGeorgian,
             todayHijri: this.state.todayHijri
         });
-        //this._loadSessions();
     }
 
     parsePersianDate() {
@@ -242,7 +243,7 @@ class MainPage extends Component {
                                     width: 20,
                                     height: 20,
                                     margin: 10,
-                                    marginRight: 15
+                                    marginRight: 20
                                 }}
                                 tintColor={'#FFFFFF'}
                                 source={require("./images/nav_icon.png")}/>
@@ -275,6 +276,16 @@ class MainPage extends Component {
                         borderRadius: 20,
                         marginBottom: 15
                     }}>
+                    <Text
+                        style={{
+                            width: '100%',
+                            textAlign: 'center',
+                            color: '#6f67d9',
+                            fontFamily: 'byekan'
+                        }}>
+                        روز معلم
+                    </Text>
+                    <View style={{height: 1, width: '100%', backgroundColor: '#6f67d9'}}/>
                     <FlatList
                         style={{
                             flex: 1
@@ -288,7 +299,7 @@ class MainPage extends Component {
                 </View>
                 <ActionButton
                     buttonColor="rgba(231,76,60,1)"
-                    onPress={() => NavigationService.navigate('AddNewSession', null)}>
+                    onPress={() => NavigationService.navigate('AddNewSessionZ', null)}>
                 </ActionButton>
             </ImageBackground>
         );

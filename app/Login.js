@@ -23,26 +23,30 @@ class Login extends Component {
         };
         this.text = '09140510168';
         this._sendCode = this._sendCode.bind(this);
+        this._checkCode = this._checkCode.bind(this);
+        this._TextChanged = this._TextChanged.bind(this);
     }
 
     componentDidMount() {
         SplashScreen.hide();
     }
 
+    _TextChanged(input) {
+        this.text = input
+    }
+
     async _sendCode() {
         let result = await RequestsController.loadToken(this.text);
         if (result === 'We texted you a login code.')
             this.setState({isPhoneNumber: false});
-        console.log('_sendCode ', result.toString().length, ' ', result.toString());
     }
 
     async _checkCode() {
         let result = await RequestsController.SendCode(this.text);
-        if (result !== undefined && token !== null && token.length === 40) {
-            DBManager.saveSettingValue('token', token);
+        if (result !== undefined && result.length === 40) {
+            DBManager.saveSettingValue('token', result);
             NavigationService.navigate('MainPage', null);
         }
-        console.log('_checkCode ', result.toString().length, ' ', result.toString());
     }
 
     render() {
@@ -56,14 +60,14 @@ class Login extends Component {
             }}
             autoCapitalize="none"
             onChangeText={(text) => {
-                this.text = text;
+                this._TextChanged(text);
             }}
             defaultValue={'09140510168'}
             autoCorrect={false}
             keyboardType='email-address'
             returnKeyType="next"
             placeholder='شماره تلفن ...'
-            placeholderTextColor='#000'/>: <TextInput
+            placeholderTextColor='#000'/> : <TextInput
             style={{
                 backgroundColor: '#7fb0ff',
                 color: '#000',
@@ -73,15 +77,15 @@ class Login extends Component {
             }}
             autoCapitalize="none"
             onChangeText={(text) => {
-                this.text = text;
+                this._TextChanged(text);
             }}
-            defaultValue={'09140510168'}
+            defaultValue={'_ _ _'}
             autoCorrect={false}
             keyboardType='email-address'
             returnKeyType="next"
             placeholder='کد شش رقمی ...'
             placeholderTextColor='#000'/>;
-            let button = this.state.isPhoneNumber ? <TouchableWithoutFeedback
+        let button = this.state.isPhoneNumber ? <TouchableWithoutFeedback
                 onPress={this._sendCode}>
                 <View>
                     <Text
@@ -95,22 +99,22 @@ class Login extends Component {
                         ورود
                     </Text>
                 </View>
-            </TouchableWithoutFeedback>:
-                <TouchableWithoutFeedback
-                    onPress={this._checkCode}>
-                    <View>
-                        <Text
-                            style={{
-                                borderRadius: 35,
-                                backgroundColor: "#c8c6f5",
-                                marginRight: 15,
-                                paddingHorizontal: 20,
-                                color: '#8c0aff'
-                            }}>
-                            ارسال کد
-                        </Text>
-                    </View>
-                </TouchableWithoutFeedback>;
+            </TouchableWithoutFeedback> :
+            <TouchableWithoutFeedback
+                onPress={this._checkCode}>
+                <View>
+                    <Text
+                        style={{
+                            borderRadius: 35,
+                            backgroundColor: "#c8c6f5",
+                            marginRight: 15,
+                            paddingHorizontal: 20,
+                            color: '#8c0aff'
+                        }}>
+                        ارسال کد
+                    </Text>
+                </View>
+            </TouchableWithoutFeedback>;
         return (
             <View style={{backgroundColor: '#8c0aff', justifyContent: 'center', alignItems: 'center'}}>
 
@@ -157,21 +161,7 @@ class Login extends Component {
                     margin: 12,
                     paddingLeft: 60, paddingRight: 60,
                 }}>
-                    <TouchableWithoutFeedback
-                        onPress={this._sendCode}>
-                        <View>
-                            <Text
-                                style={{
-                                    borderRadius: 35,
-                                    backgroundColor: "#c8c6f5",
-                                    marginRight: 15,
-                                    paddingHorizontal: 20,
-                                    color: '#8c0aff'
-                                }}>
-                                ورود
-                            </Text>
-                        </View>
-                    </TouchableWithoutFeedback>
+                    {button}
                     <View style={{flex: 1}}/>
 
                     <Text style={{color: '#FFFFFF', marginLeft: 15}}>

@@ -9,8 +9,6 @@ import PeopleItem from "./Components/PeopleItem";
 import Modal from "react-native-modal";
 import {ConnectionManager} from "./Utils/ConnectionManager";
 
-let Parse = require('parse/react-native');
-
 class ChoosePeople extends Component {
 
     constructor(props) {
@@ -33,51 +31,6 @@ class ChoosePeople extends Component {
     async _loadPeople() {
         let names = await ConnectionManager.getPeople();
         this.setState({sampleData: names});
-    }
-
-    async _saveSession() {
-        let people = "";
-        for (let index in this.mIDs) {
-            if (this.mIDs[index].flag)
-                if (people === "")
-                    people = people + "" + (parseInt(index.toString()) + 1);
-                else
-                    people = people + "," + (parseInt(index.toString()) + 1);
-        }
-        const Sessions = Parse.Object.extend("Sessions");
-        const session = new Sessions();
-
-        session.set("start", this.props.navigation.getParam('start'));
-        session.set("end", this.props.navigation.getParam('end'));
-        session.set("date", this.props.navigation.getParam('date'));
-        session.set("title", this.props.navigation.getParam('title'));
-        session.set("location", 'Eo1in0m2NK');
-        session.set("owner", 'HepRlBVObH');
-
-        session.save().then((nazr) => {
-            console.log("object created ", nazr.id);
-            let ID = nazr.id;
-            for (let index in this.state.sampleData) {
-                if (this.state.sampleData[index].flag) {
-                    const SessionPeople = Parse.Object.extend("SessionPeople");
-                    const session = new SessionPeople();
-
-                    session.set("session_id", ID);
-                    session.set("people_id", this.state.sampleData[index].id);
-                    session.set("replace_id", "0");
-
-                    session.save().then((nazr) => {
-                        console.log("object created ", nazr.id);
-                    }, (error) => {
-                        console.log("error: ", error.message);
-                    });
-                }
-            }
-            NavigationService.reset('MainPage');
-        }, (error) => {
-            console.log("error: ", error.message);
-        });
-
     }
 
     _toggleModal = () =>

@@ -12,7 +12,6 @@ import NavigationService from "./Service/NavigationService";
 import SplashScreen from 'react-native-splash-screen';
 import KeyboardSpacer from "react-native-keyboard-spacer";
 import DateTimePicker from 'react-native-modal-datetime-picker';
-import {WheelPicker, TimePicker, DatePicker} from 'react-native-wheel-picker-android'
 import MapView from 'react-native-maps';
 
 let dailyHour = ['00', '01', '02', '03',
@@ -71,33 +70,9 @@ class AddSessionTime extends Component {
                             justifyContent: 'center',
                             alignItems: 'center'
                         }}>
-                        <WheelPicker
-                            style={{width: 50, height: 180}}
-                            selectedItem={this.state.selectedStartHour}
-                            data={dailyHour}
-                            onItemSelected={selectedItem => {
-                                this.setState({selectedStartHour: selectedItem})
-                            }}
-                            selectedItemTextColor={'#aa3835'}
-                            selectedItemTextSize={25}
-                            itemTextSize={25}
-                            selectedItemTextFontFamily={'seven_segment'}
-                            itemTextFontFamily={'seven_segment'}/>
                         <Text style={{fontSize: 25}}>
                             :
                         </Text>
-                        <WheelPicker
-                            style={{width: 50, height: 180}}
-                            selectedItem={this.state.selectedStartMinute}
-                            data={dailyMinutes}
-                            onItemSelected={selectedItem => {
-                                this.setState({selectedStartMinute: selectedItem})
-                            }}
-                            selectedItemTextColor={'#3daa48'}
-                            selectedItemTextSize={25}
-                            itemTextSize={25}
-                            selectedItemTextFontFamily={'seven_segment'}
-                            itemTextFontFamily={'seven_segment'}/>
                     </View>
                     <Text
                         style={{
@@ -115,33 +90,9 @@ class AddSessionTime extends Component {
                             justifyContent: 'center',
                             alignItems: 'center'
                         }}>
-                        <WheelPicker
-                            style={{width: 50, height: 180}}
-                            selectedItem={this.state.selectedEndHour}
-                            data={dailyHour}
-                            onItemSelected={selectedItem => {
-                                this.setState({selectedEndHour: selectedItem})
-                            }}
-                            selectedItemTextColor={'#aa3835'}
-                            selectedItemTextSize={25}
-                            itemTextSize={25}
-                            selectedItemTextFontFamily={'seven_segment'}
-                            itemTextFontFamily={'seven_segment'}/>
                         <Text style={{fontSize: 25}}>
                             :
                         </Text>
-                        <WheelPicker
-                            style={{width: 50, height: 180}}
-                            selectedItem={this.state.selectedEndMinute}
-                            data={dailyMinutes}
-                            onItemSelected={selectedItem => {
-                                this.setState({selectedEndMinute: selectedItem})
-                            }}
-                            selectedItemTextColor={'#3daa48'}
-                            selectedItemTextSize={25}
-                            itemTextSize={25}
-                            selectedItemTextFontFamily={'seven_segment'}
-                            itemTextFontFamily={'seven_segment'}/>
                     </View>
                     <View style={{flex: 1}}/>
                     <TouchableWithoutFeedback

@@ -3,8 +3,6 @@ package com.civilportal;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
-import com.wheelpicker.WheelPickerPackage;
-import com.zyu.ReactNativeWheelPickerPackage;
 import io.invertase.firebase.RNFirebasePackage;
 import com.BV.LinearGradient.LinearGradientPackage;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
@@ -31,8 +29,6 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-            new WheelPickerPackage(),
-            new ReactNativeWheelPickerPackage(),
             new RNFirebasePackage(),
             new LinearGradientPackage(),
             new SplashScreenReactPackage(),
