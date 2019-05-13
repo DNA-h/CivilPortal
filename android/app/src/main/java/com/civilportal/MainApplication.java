@@ -6,7 +6,6 @@ import com.facebook.react.ReactApplication;
 import io.invertase.firebase.RNFirebasePackage;
 import com.BV.LinearGradient.LinearGradientPackage;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
-import com.beefe.picker.PickerViewPackage;
 import com.airbnb.android.react.maps.MapsPackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 import com.facebook.react.ReactNativeHost;
@@ -32,7 +31,6 @@ public class MainApplication extends Application implements ReactApplication {
             new RNFirebasePackage(),
             new LinearGradientPackage(),
             new SplashScreenReactPackage(),
-            new PickerViewPackage(),
             new MapsPackage(),
             new RNGestureHandlerPackage()
       );

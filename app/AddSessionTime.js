@@ -7,11 +7,9 @@ import {
 import Wallpaper from "./Components/Wallpaper";
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "./Actions/index";
-import PersianDatePicker from 'react-native-persian-date-picker';
 import NavigationService from "./Service/NavigationService";
 import SplashScreen from 'react-native-splash-screen';
 import KeyboardSpacer from "react-native-keyboard-spacer";
-import DateTimePicker from 'react-native-modal-datetime-picker';
 import MapView from 'react-native-maps';
 
 let dailyHour = ['00', '01', '02', '03',

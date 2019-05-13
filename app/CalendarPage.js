@@ -5,7 +5,6 @@ import {connect} from "react-redux";
 import {counterAdd, counterSub} from "./Actions";
 import PeopleItem from "./Components/PeopleItem";
 import {Calendar} from 'react-native-calendars';
-const PersianCalendarPicker = require('react-native-persian-calendar-picker');
 
 let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
     "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
@@ -61,9 +60,6 @@ class CalendarPage extends Component {
                 style={{
                     justifyContent: 'center'
                 }}>
-                <PersianCalendarPicker
-                    selectedDayColor={'#FFFFFF'}
-                    textStyle={{fontFamily: 'byekan'}}/>
             </Wallpaper>
         );
     }

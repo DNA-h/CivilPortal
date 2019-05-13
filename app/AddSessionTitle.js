@@ -9,7 +9,6 @@ import {counterAdd, counterSub} from "./Actions/index";
 import NavigationService from "./Service/NavigationService";
 import SplashScreen from 'react-native-splash-screen';
 import KeyboardSpacer from "react-native-keyboard-spacer";
-import DateTimePicker from 'react-native-modal-datetime-picker';
 
 let sampleData = ['12', '13', '14', '15', '16'];
 const DEVICE_WIDTH = Dimensions.get('window').width;

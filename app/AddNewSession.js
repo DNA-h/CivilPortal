@@ -7,7 +7,6 @@ import {
 import Wallpaper from "./Components/Wallpaper";
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "./Actions/index";
-import PersianDatePicker from 'react-native-persian-date-picker';
 import NavigationService from "./Service/NavigationService";
 import KeyboardSpacer from "react-native-keyboard-spacer";
 
