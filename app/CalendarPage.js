@@ -1,10 +1,7 @@
 import React, {Component} from "react";
-import {Text, View, ScrollView, Image, FlatList} from 'react-native';
 import Wallpaper from "./Components/Wallpaper";
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "./Actions";
-import PeopleItem from "./Components/PeopleItem";
-import {Calendar} from 'react-native-calendars';
 
 let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
     "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];

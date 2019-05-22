@@ -8,7 +8,6 @@ import Form from "./Components/Form";
 import SignupSection from "./Components/SignupSection";
 import ButtonCode from "./Components/ButtonCode";
 import SplashScreen from "react-native-splash-screen";
-import KeyboardSpacer from 'react-native-keyboard-spacer';
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
@@ -67,7 +66,6 @@ class Login extends Component {
                         <View style={{flex: 1}}/>
                         {<SignupSection/>}
                         <ButtonCode/>
-                        <KeyboardSpacer/>
                     </Wallpaper>
                 </ScrollView>
             </View>

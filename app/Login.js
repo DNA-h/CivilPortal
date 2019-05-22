@@ -1,14 +1,8 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {counterAdd, counterSub} from './Actions'
-import Wallpaper from "./Components/Wallpaper";
-import Logo from "./Components/Logo";
-import Form from "./Components/Form";
 import {ScrollView, View, Dimensions, Text, TouchableWithoutFeedback, Image, TextInput, Button} from 'react-native';
-import SignupSection from "./Components/SignupSection";
-import ButtonSubmit from "./Components/ButtonSubmit";
 import SplashScreen from "react-native-splash-screen";
-import KeyboardSpacer from 'react-native-keyboard-spacer';
 import {RequestsController} from "./Utils/RequestController";
 import NavigationService from "./Service/NavigationService";
 import DBManager from "./Utils/DBManager";

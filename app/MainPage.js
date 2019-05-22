@@ -299,7 +299,7 @@ class MainPage extends Component {
                 </View>
                 <ActionButton
                     buttonColor="rgba(231,76,60,1)"
-                    onPress={() => NavigationService.navigate('AddNewSessionZ', null)}>
+                    onPress={() => NavigationService.navigate('AddNewSession', null)}>
                 </ActionButton>
             </ImageBackground>
         );
