@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {
     StyleSheet, View, Image,
-    TouchableWithoutFeedback, Text,
+    TouchableWithoutFeedback, Text, Picker,
     ScrollView, Keyboard, Dimensions, TextInput
 } from 'react-native';
 import Wallpaper from "./Components/Wallpaper";
@@ -9,6 +9,11 @@ import {connect} from "react-redux";
 import {counterAdd, counterSub} from "./Actions/index";
 import NavigationService from "./Service/NavigationService";
 import Item from "./Components/Item";
+import SplashScreen from "react-native-splash-screen";
+import MapboxGL from '@mapbox/react-native-mapbox-gl';
+import {RequestsController} from "./Utils/RequestController";
+
+MapboxGL.setAccessToken("pk.eyJ1IjoiZG5hLWgiLCJhIjoiY2p2eGN3ZG1lMDNpcTQ0cnpvMHBobm5ubSJ9.anMU_gz8N2Hl7H0oTgtINg");
 
 let dailyHour = ['00', '01', '02', '03',
     '04', '05', '06', '07', '08', '09', '10', '11',
@@ -53,9 +58,14 @@ class AddNewSession extends Component {
             selectedDay: day,
             selectedMonth: month,
             currentItem: 0,
-            currentPercent: 0.1
+            currentPercent: 0.1,
+            selectedHour: 5,
+            selectedMinute: 5,
+            currentPlace: -1,
+            places: []
         };
         this.handleScroll = this.handleScroll.bind(this);
+        this._loadPlaces = this._loadPlaces.bind(this);
     }
 
     handleScroll(event: Object) {
@@ -68,10 +78,26 @@ class AddNewSession extends Component {
         });
     }
 
+    componentDidMount() {
+        SplashScreen.hide();
+        this._loadPlaces();
+    }
+
+    async _loadPlaces() {
+        let result = await RequestsController.MyPlaces();
+        for (let index in result) {
+            let item = {
+                pk: result[index].pk, title: result[index].fields.place_title
+            };
+            this.state.places.push(item);
+        }
+        this.setState({places: this.state.places});
+    }
+
     render() {
         return (
             <View
-                style={{flex: 1}}>
+                style={{flex: 1, backgroundColor: '#78a4ff'}}>
                 <View
                     style={{
                         flex: 1,
@@ -123,43 +149,73 @@ class AddNewSession extends Component {
                             }}>
                             <View style={{flex: 1}}/>
                             <View>
-                                <Image
+                                <TouchableWithoutFeedback
+                                    onPress={() => this.setState(
+                                        {selectedHour: Math.min(23, this.state.selectedHour + 1)})}>
+                                    <Image
+                                        style={{
+                                            width: 25,
+                                            height: 25,
+                                            transform: [{rotate: '90deg'}]
+                                        }}
+                                        source={require("./images/ic_back.png")}/>
+                                </TouchableWithoutFeedback>
+                                <Text
                                     style={{
-                                        width: 25,
-                                        height: 25,
-                                        transform: [{rotate: '90deg'}]
-                                    }}
-                                    source={require("./images/ic_back.png")}/>
-                                <Text style={{fontSize:18, fontFamily:'byekan'}}>
-                                    05
+                                        fontSize: 18,
+                                        fontFamily: 'byekan',
+                                        backgroundColor: 'white',
+                                        borderRadius: 12,
+                                        textAlign: 'center'
+                                    }}>
+                                    {this.state.selectedHour}
                                 </Text>
-                                <Image
-                                    style={{
-                                        width: 25,
-                                        height: 25,
-                                        transform: [{rotate: '-90deg'}]
-                                    }}
-                                    source={require("./images/ic_back.png")}/>
+                                <TouchableWithoutFeedback
+                                    onPress={() => this.setState(
+                                        {selectedHour: Math.max(0, this.state.selectedHour - 1)})}>
+                                    <Image
+                                        style={{
+                                            width: 25,
+                                            height: 25,
+                                            transform: [{rotate: '-90deg'}]
+                                        }}
+                                        source={require("./images/ic_back.png")}/>
+                                </TouchableWithoutFeedback>
                             </View>
-                            <Text>:</Text>
+                            <Text style={{marginHorizontal: 10}}>:</Text>
                             <View>
-                                <Image
+                                <TouchableWithoutFeedback
+                                    onPress={() => this.setState(
+                                        {selectedMinute: Math.min(59, this.state.selectedMinute + 5)})}>
+                                    <Image
+                                        style={{
+                                            width: 25,
+                                            height: 25,
+                                            transform: [{rotate: '90deg'}]
+                                        }}
+                                        source={require("./images/ic_back.png")}/>
+                                </TouchableWithoutFeedback>
+                                <Text
                                     style={{
-                                        width: 25,
-                                        height: 25,
-                                        transform: [{rotate: '90deg'}]
-                                    }}
-                                    source={require("./images/ic_back.png")}/>
-                                <Text style={{fontSize:18, fontFamily:'byekan'}}>
-                                    05
+                                        fontSize: 18,
+                                        fontFamily: 'byekan',
+                                        borderRadius: 12,
+                                        textAlign: 'center',
+                                        backgroundColor: 'white'
+                                    }}>
+                                    {this.state.selectedMinute}
                                 </Text>
-                                <Image
-                                    style={{
-                                        width: 25,
-                                        height: 25,
-                                        transform: [{rotate: '-90deg'}]
-                                    }}
-                                    source={require("./images/ic_back.png")}/>
+                                <TouchableWithoutFeedback
+                                    onPress={() => this.setState(
+                                        {selectedMinute: Math.max(0, this.state.selectedMinute - 5)})}>
+                                    <Image
+                                        style={{
+                                            width: 25,
+                                            height: 25,
+                                            transform: [{rotate: '-90deg'}]
+                                        }}
+                                        source={require("./images/ic_back.png")}/>
+                                </TouchableWithoutFeedback>
                             </View>
                             <View style={{flex: 1}}/>
                         </View>
@@ -181,37 +237,16 @@ class AddNewSession extends Component {
                                 color: '#000',
                                 textAlign: 'center',
                                 fontFamily: 'byekan',
-                                flex: 1
                             }}
                             autoCapitalize="none"
                             onChangeText={(text) => {
-                                this.text = text;
+                                this.title = text;
                             }}
-                            defaultValue={'09140510168'}
                             autoCorrect={false}
                             keyboardType='email-address'
                             returnKeyType="next"
-                            placeholder='موضوع ...'
-                            placeholderTextColor='#000'/>
-                        <TextInput
-                            style={{
-                                backgroundColor: '#7fb0ff',
-                                color: '#000',
-                                textAlign: 'center',
-                                fontFamily: 'byekan',
-                                marginVertical: 10,
-                                flex: 1
-                            }}
-                            autoCapitalize="none"
-                            onChangeText={(text) => {
-                                this.text = text;
-                            }}
-                            defaultValue={'09140510168'}
-                            autoCorrect={false}
-                            keyboardType='email-address'
-                            returnKeyType="next"
-                            placeholder='آدرس ...'
-                            placeholderTextColor='#000'/>
+                            placeholder='موضوع'
+                            placeholderTextColor='#888'/>
                     </View>
                     <View>
                         <Text
@@ -222,26 +257,34 @@ class AddNewSession extends Component {
                                 fontSize: 25,
                                 textAlign: 'center'
                             }}>
-                            انتخاب آدرس از روی نقشه
+                            انتخاب آدرس
                         </Text>
-                        <Image
-                            style={{
-                                width: '90%',
-                                height: 100,
-                                resizeMode: 'cover'
-                            }}
-                            source={require("./images/ic_map.png")}/>
+                        <Picker
+                            selectedValue={this.state.currentPlace}
+                            onValueChange={(value, index) => {
+                                if (value !== -1) {
+                                    this.setState({currentPlace: value});
+                                }
+                            }}>
+                            {this.state.places.length === 0 ?
+                                <Picker.Item label={""} value={-1}/>
+                                :
+                                <Picker.Item label={"انتخاب کنید"} value={-1}/>
+                            }
+
+                            {this.state.places.map(
+                                (key, index) =>
+                                    <Picker.Item key={index} label={key.title} value={key.pk}/>
+                            )}
+
+                        </Picker>
                     </View>
                     <TouchableWithoutFeedback
-                        style={{
-                            marginVertical: 40,
-                            marginBottom: 40,
-                        }}
                         onPress={() => NavigationService.navigate('ChoosePeople',
                             {
                                 date: '1397/' + (this.state.selectedMonth + 1) + '/' + (this.state.selectedDay + 1),
                             })}>
-                        <View>
+                        <View style={{marginVertical: 10}}>
                             <Text
                                 style={{
                                     fontFamily: 'byekan',
@@ -252,7 +295,6 @@ class AddNewSession extends Component {
                                     alignSelf: 'center',
                                     backgroundColor: '#F035E0',
                                     borderRadius: 30,
-                                    marginBottom: 40,
                                     paddingVertical: 10,
                                     paddingHorizontal: 25,
                                 }}>
@@ -261,7 +303,6 @@ class AddNewSession extends Component {
                         </View>
                     </TouchableWithoutFeedback>
                 </View>
-
             </View>
         );
     }

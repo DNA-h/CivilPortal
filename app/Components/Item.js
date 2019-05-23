@@ -65,6 +65,7 @@ export default class Item extends React.Component {
                         borderColor: 'green',
                         borderRadius: 25,
                         justifyContent: 'center',
+                        alignItems: 'center',
                         margin: 20,
                         padding: 5,
                         transform: [{scale: this.animView}]
@@ -72,21 +73,24 @@ export default class Item extends React.Component {
                     <Animated.Text
                         style={{
                             color: this.state.color,
-                            fontSize: 13
+                            fontSize: 13,
+                            fontFamily: 'byekan'
                         }}>
                         {this.props.date}
                     </Animated.Text>
                     <Text
                         style={{
                             color: this.state.color,
-                            fontSize: 12
+                            fontSize: 12,
+                            fontFamily: 'byekan'
                         }}>
                         {this.props.month}
                     </Text>
                     <Text
                         style={{
                             color: this.state.color,
-                            fontSize: 13
+                            fontSize: 13,
+                            fontFamily: 'byekan'
                         }}>
                         {this.props.day}
                     </Text>

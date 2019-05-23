@@ -30,4 +30,14 @@ export class RequestsController {
         // console.log('json is ', json);
         return json;
     }
+
+    static async MyPlaces() {
+        let headers = new Headers();
+        headers.append('Content-Type', 'application/json');
+        headers.append('Authorization','token '+await DBManager.getSettingValue('token'));
+        let json = await ConnectionManager.doFetch("http://185.211.57.73/api/place-by-owner/", 'POST',
+            null, headers, true);
+        // console.log('json is ', json);
+        return json;
+    }
 }
