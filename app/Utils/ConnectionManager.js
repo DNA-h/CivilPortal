@@ -38,28 +38,4 @@ export class ConnectionManager {
             )
         ]);
     }
-
-    static async sendCode(mobile) {
-        let json = await ConnectionManager.doFetch(
-            GLOBALS.BASE_URL + GLOBALS.URL_SMS + "?mobile=" + mobile,
-            'POST', null, new Headers(), true
-        );
-        return json !== undefined ? json : undefined;
-    }
-
-    static async confirmCode(code) {
-        let json = await ConnectionManager.doFetch(
-            GLOBALS.BASE_URL + GLOBALS.URL_PEOPLE + "?code=" + code,
-            'POST', null, new Headers(), true
-        );
-        return json !== undefined ? json : undefined;
-    }
-
-    static async confirmCode(code) {
-        let json = await ConnectionManager.doFetch(
-            GLOBALS.BASE_URL + GLOBALS.URL_PEOPLE + "?code=" + code,
-            'POST', null, new Headers(), true
-        );
-        return json !== undefined ? json : undefined;
-    }
 }

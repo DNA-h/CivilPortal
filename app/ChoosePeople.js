@@ -8,6 +8,7 @@ import MapView from 'react-native-maps';
 import PeopleItem from "./Components/PeopleItem";
 import Modal from "react-native-modal";
 import {ConnectionManager} from "./Utils/ConnectionManager";
+import {RequestsController} from "./Utils/RequestController";
 
 class ChoosePeople extends Component {
 
@@ -20,16 +21,15 @@ class ChoosePeople extends Component {
         };
         this._loadPeople = this._loadPeople.bind(this);
         this._itemClicked = this._itemClicked.bind(this);
-        this._saveSession = this._saveSession.bind(this);
 
     }
 
     componentDidMount() {
-        // this._loadPeople();
+        this._loadPeople();
     }
 
     async _loadPeople() {
-        let names = await ConnectionManager.getPeople();
+        let names = await RequestsController.loadPeople();
         this.setState({sampleData: names});
     }
 

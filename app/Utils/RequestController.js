@@ -40,4 +40,14 @@ export class RequestsController {
         // console.log('json is ', json);
         return json;
     }
+
+    static async loadPeople() {
+        let headers = new Headers();
+        headers.append('Content-Type', 'application/json');
+        headers.append('Authorization','token '+await DBManager.getSettingValue('token'));
+        let json = await ConnectionManager.doFetch("http://185.211.57.73/api/get-childern-by-token/", 'POST',
+            null, headers, true);
+        console.log('json is ', json);
+        return json;
+    }
 }

@@ -4,16 +4,13 @@ import {
     TouchableWithoutFeedback, Text, Picker,
     ScrollView, Keyboard, Dimensions, TextInput
 } from 'react-native';
-import Wallpaper from "./Components/Wallpaper";
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "./Actions/index";
 import NavigationService from "./Service/NavigationService";
 import Item from "./Components/Item";
 import SplashScreen from "react-native-splash-screen";
-import MapboxGL from '@mapbox/react-native-mapbox-gl';
 import {RequestsController} from "./Utils/RequestController";
 
-MapboxGL.setAccessToken("pk.eyJ1IjoiZG5hLWgiLCJhIjoiY2p2eGN3ZG1lMDNpcTQ0cnpvMHBobm5ubSJ9.anMU_gz8N2Hl7H0oTgtINg");
 
 let dailyHour = ['00', '01', '02', '03',
     '04', '05', '06', '07', '08', '09', '10', '11',
@@ -259,11 +256,21 @@ class AddNewSession extends Component {
                             }}>
                             انتخاب آدرس
                         </Text>
+                        <TouchableWithoutFeedback
+                            onPress={() => NavigationService.navigate('Save')}>
+                            <View style={{flex: 1}}>
+                                <Text>
+                                    اضافه کردن آدرس
+                                </Text>
+                            </View>
+                        </TouchableWithoutFeedback>
                         <Picker
                             selectedValue={this.state.currentPlace}
                             onValueChange={(value, index) => {
-                                if (value !== -1) {
+                                if (value !== -1 && value !== -2) {
                                     this.setState({currentPlace: value});
+                                } else if (value === -2) {
+                                    
                                 }
                             }}>
                             {this.state.places.length === 0 ?
@@ -276,6 +283,8 @@ class AddNewSession extends Component {
                                 (key, index) =>
                                     <Picker.Item key={index} label={key.title} value={key.pk}/>
                             )}
+
+                            <Picker.Item label={"آدرس جدید"} value={-2}/>
 
                         </Picker>
                     </View>
