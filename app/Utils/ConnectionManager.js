@@ -3,7 +3,7 @@ import GLOBALS from "./Globals";
 export class ConnectionManager {
     static async doFetch(url, method, body, headers, callback = false) {
         console.log("url is ", url);
-        // console.log("body is ", body);
+        console.log("body is ", body);
         // console.log("headers tag ", headers);
 
         // console.log('url ', url);
@@ -11,7 +11,7 @@ export class ConnectionManager {
             try {
                 let response = await ConnectionManager.helperFetch(url, method, body, headers);
                 // console.log('url ', url);
-                // console.log('response', response);
+                console.log('response', response);
                 return await response.json();
             } catch (e) {
                 // console.log(e.toString());

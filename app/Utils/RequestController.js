@@ -24,7 +24,7 @@ export class RequestsController {
     static async MySessions(day) {
         let headers = new Headers();
         headers.append('Content-Type', 'application/json');
-        headers.append('Authorization','token '+await DBManager.getSettingValue('token'));
+        headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
         let json = await ConnectionManager.doFetch("http://185.211.57.73/api/get-sessions-by-owner-for-day/", 'POST',
             JSON.stringify({'time': day}), headers, true);
         // console.log('json is ', json);
@@ -34,7 +34,7 @@ export class RequestsController {
     static async MyPlaces() {
         let headers = new Headers();
         headers.append('Content-Type', 'application/json');
-        headers.append('Authorization','token '+await DBManager.getSettingValue('token'));
+        headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
         let json = await ConnectionManager.doFetch("http://185.211.57.73/api/place-by-owner/", 'POST',
             null, headers, true);
         // console.log('json is ', json);
@@ -44,9 +44,36 @@ export class RequestsController {
     static async loadPeople() {
         let headers = new Headers();
         headers.append('Content-Type', 'application/json');
-        headers.append('Authorization','token '+await DBManager.getSettingValue('token'));
+        headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
         let json = await ConnectionManager.doFetch("http://185.211.57.73/api/get-childern-by-token/", 'POST',
             null, headers, true);
+        return json;
+    }
+
+    static async loadMyself() {
+        let headers = new Headers();
+        headers.append('Content-Type', 'application/json');
+        headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
+        let json = await ConnectionManager.doFetch("http://185.211.57.73/api/peoples/", 'POST',
+            JSON.stringify({places: []}), headers, true);
+        console.log('json is ', json);
+        return json;
+    }
+
+    static async saveSession(start_time, place, end_time, meeting_title, audiences) {
+        let headers = new Headers();
+        headers.append('Content-Type', 'application/json');
+        headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
+        let aud = [];
+        for (let i = 0; i < audiences.length; i++) {
+            aud.push({people: audiences[i].fields.mobile, rep_ppl: ""})
+        }
+        let json = await ConnectionManager.doFetch("http://185.211.57.73/api/sessions/", 'POST',
+            JSON.stringify({
+                start_time: start_time, place: place,
+                end_time: end_time, meeting_title: meeting_title, audiences: aud
+            }),
+            headers, true);
         console.log('json is ', json);
         return json;
     }

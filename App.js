@@ -22,7 +22,7 @@ const RootStack = createStackNavigator(
         Save: {screen:SaveAddress, navigationOptions: {header: null}},
     },
     {
-        initialRouteName: 'AddNewSession',
+        initialRouteName: 'MainPage',
         navigationOptions: {header: null},
     }
 );

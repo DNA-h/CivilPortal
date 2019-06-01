@@ -39,14 +39,14 @@ class AddNewSession extends Component {
         let day = jalali.jd - 1;
         this.data = [];
         for (let i = 0; i < 31; i++) {
-            let jalali = jalaali.toJalaali(date);
-            let month = jalali.jm - 1;
-            let day = jalali.jd;
+            let jalali2 = jalaali.toJalaali(date);
+            let month2 = jalali2.jm - 1;
+            let day2 = jalali2.jd;
             let d = date.getDay();
             this.data.push({
                 index: i,
-                date: day,
-                month: months[month],
+                date: day2,
+                month: months[month2],
                 day: days[d]
             });
             date.setDate(date.getDate() + 1);
@@ -56,8 +56,10 @@ class AddNewSession extends Component {
             selectedMonth: month,
             currentItem: 0,
             currentPercent: 0.1,
-            selectedHour: 5,
-            selectedMinute: 5,
+            startHour: 5,
+            startMinute: 5,
+            endHour: 5,
+            endMinute: 5,
             currentPlace: -1,
             places: []
         };
@@ -148,7 +150,7 @@ class AddNewSession extends Component {
                             <View>
                                 <TouchableWithoutFeedback
                                     onPress={() => this.setState(
-                                        {selectedHour: Math.min(23, this.state.selectedHour + 1)})}>
+                                        {startHour: Math.min(23, this.state.startHour + 1)})}>
                                     <Image
                                         style={{
                                             width: 25,
@@ -165,11 +167,11 @@ class AddNewSession extends Component {
                                         borderRadius: 12,
                                         textAlign: 'center'
                                     }}>
-                                    {this.state.selectedHour}
+                                    {this.state.startHour}
                                 </Text>
                                 <TouchableWithoutFeedback
                                     onPress={() => this.setState(
-                                        {selectedHour: Math.max(0, this.state.selectedHour - 1)})}>
+                                        {startHour: Math.max(0, this.state.startHour - 1)})}>
                                     <Image
                                         style={{
                                             width: 25,
@@ -183,7 +185,7 @@ class AddNewSession extends Component {
                             <View>
                                 <TouchableWithoutFeedback
                                     onPress={() => this.setState(
-                                        {selectedMinute: Math.min(59, this.state.selectedMinute + 5)})}>
+                                        {startMinute: Math.min(59, this.state.startMinute + 5)})}>
                                     <Image
                                         style={{
                                             width: 25,
@@ -200,11 +202,90 @@ class AddNewSession extends Component {
                                         textAlign: 'center',
                                         backgroundColor: 'white'
                                     }}>
-                                    {this.state.selectedMinute}
+                                    {this.state.startMinute}
                                 </Text>
                                 <TouchableWithoutFeedback
                                     onPress={() => this.setState(
-                                        {selectedMinute: Math.max(0, this.state.selectedMinute - 5)})}>
+                                        {startMinute: Math.max(0, this.state.startMinute - 5)})}>
+                                    <Image
+                                        style={{
+                                            width: 25,
+                                            height: 25,
+                                            transform: [{rotate: '-90deg'}]
+                                        }}
+                                        source={require("./images/ic_back.png")}/>
+                                </TouchableWithoutFeedback>
+                            </View>
+                            <View style={{flex: 1}}/>
+                        </View>
+                        <View
+                            style={{
+                                flex: 1,
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                                alignItems: 'center'
+                            }}>
+                            <View style={{flex: 1}}/>
+                            <View>
+                                <TouchableWithoutFeedback
+                                    onPress={() => this.setState(
+                                        {endHour: Math.min(23, this.state.endHour + 1)})}>
+                                    <Image
+                                        style={{
+                                            width: 25,
+                                            height: 25,
+                                            transform: [{rotate: '90deg'}]
+                                        }}
+                                        source={require("./images/ic_back.png")}/>
+                                </TouchableWithoutFeedback>
+                                <Text
+                                    style={{
+                                        fontSize: 18,
+                                        fontFamily: 'byekan',
+                                        backgroundColor: 'white',
+                                        borderRadius: 12,
+                                        textAlign: 'center'
+                                    }}>
+                                    {this.state.endHour}
+                                </Text>
+                                <TouchableWithoutFeedback
+                                    onPress={() => this.setState(
+                                        {endHour: Math.max(0, this.state.endHour - 1)})}>
+                                    <Image
+                                        style={{
+                                            width: 25,
+                                            height: 25,
+                                            transform: [{rotate: '-90deg'}]
+                                        }}
+                                        source={require("./images/ic_back.png")}/>
+                                </TouchableWithoutFeedback>
+                            </View>
+                            <Text style={{marginHorizontal: 10}}>:</Text>
+                            <View>
+                                <TouchableWithoutFeedback
+                                    onPress={() => this.setState(
+                                        {endMinute: Math.min(59, this.state.endMinute + 5)})}>
+                                    <Image
+                                        style={{
+                                            width: 25,
+                                            height: 25,
+                                            transform: [{rotate: '90deg'}]
+                                        }}
+                                        source={require("./images/ic_back.png")}/>
+                                </TouchableWithoutFeedback>
+                                <Text
+                                    style={{
+                                        fontSize: 18,
+                                        fontFamily: 'byekan',
+                                        borderRadius: 12,
+                                        textAlign: 'center',
+                                        backgroundColor: 'white'
+                                    }}>
+                                    {this.state.endMinute}
+                                </Text>
+                                <TouchableWithoutFeedback
+                                    onPress={() => this.setState(
+                                        {endMinute: Math.max(0, this.state.endMinute - 5)})}>
                                     <Image
                                         style={{
                                             width: 25,
@@ -270,7 +351,7 @@ class AddNewSession extends Component {
                                 if (value !== -1 && value !== -2) {
                                     this.setState({currentPlace: value});
                                 } else if (value === -2) {
-                                    
+
                                 }
                             }}>
                             {this.state.places.length === 0 ?
@@ -291,7 +372,11 @@ class AddNewSession extends Component {
                     <TouchableWithoutFeedback
                         onPress={() => NavigationService.navigate('ChoosePeople',
                             {
-                                date: '1397/' + (this.state.selectedMonth + 1) + '/' + (this.state.selectedDay + 1),
+                                date: '1398-' + (this.state.selectedMonth + 1) + '-' + (this.state.selectedDay + 1),
+                                start: this.state.startHour + ":" + this.state.startMinute,
+                                end: this.state.endHour + ":" + this.state.endMinute,
+                                place: this.state.currentPlace,
+                                meeting_title: this.title
                             })}>
                         <View style={{marginVertical: 10}}>
                             <Text

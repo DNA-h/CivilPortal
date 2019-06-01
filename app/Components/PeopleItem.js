@@ -19,7 +19,12 @@ class PeopleItem extends Component {
                 value={this.state.isSelected}
                 onValueChange={() => {
                     this.setState(() => {
-                            this.props.callback(this.props.item.item.id, this.state.isSelected);
+                            this.props.callback(
+                                this.props.item.item.fields.first_name,
+                                this.props.item.item.fields.last_name,
+                                this.props.item.item.fields.mobile,
+                                this.props.item.item.pk,
+                                this.state.isSelected);
                             return {isSelected: !this.state.isSelected}
                         }
                     );
@@ -59,7 +64,8 @@ class PeopleItem extends Component {
                             textAlign: 'center',
                             color: '#FFFFFF'
                         }}>
-                        {this.props.item.item.name}
+                        {this.props.item.item.fields.first_name + " " +
+                        this.props.item.item.fields.last_name}
                     </Text>
                 </View>
                 <Image
