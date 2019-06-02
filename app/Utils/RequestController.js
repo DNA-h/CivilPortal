@@ -31,6 +31,16 @@ export class RequestsController {
         return json;
     }
 
+    static async specificSession(id) {
+        let headers = new Headers();
+        headers.append('Content-Type', 'application/json');
+        headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
+        let json = await ConnectionManager.doFetch("http://185.211.57.73/api/session-by-id/", 'POST',
+          JSON.stringify({'id': id}), headers, true);
+        // console.log('json is ', json);
+        return json;
+    }
+
     static async MyPlaces() {
         let headers = new Headers();
         headers.append('Content-Type', 'application/json');
@@ -57,6 +67,36 @@ export class RequestsController {
         let json = await ConnectionManager.doFetch("http://185.211.57.73/api/peoples/", 'POST',
             JSON.stringify({places: []}), headers, true);
         console.log('json is ', json);
+        return json;
+    }
+
+    static async saveAddress(title, addres, lat, lng) {
+        let headers = new Headers();
+        headers.append('Content-Type', 'application/json');
+        headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
+        let json = await ConnectionManager.doFetch("http://185.211.57.73/api/peoples/", 'POST',
+            JSON.stringify({
+                places: [{
+                    place_title: title, place_address: addres,
+                    Latitude: lat, Longitude: lng
+                }]
+            }), headers, true);
+        // console.log('json is ', json);
+        return json;
+    }
+
+    static async shareSession(session, user) {
+        let headers = new Headers();
+        headers.append('Content-Type', 'application/json');
+        headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
+        let json = await ConnectionManager.doFetch("http://185.211.57.73/api/replaces/", 'POST',
+          JSON.stringify({
+              places: [{
+                  rep_ppl: user,
+                  session_id: session
+              }]
+          }), headers, true);
+        // console.log('json is ', json);
         return json;
     }
 
