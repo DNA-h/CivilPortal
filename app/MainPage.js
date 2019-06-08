@@ -54,12 +54,26 @@ class MainPage extends Component {
     let result = await RequestsController.MySessions(value);
     this.state.sampleData = [];
     for (let index in result) {
-      let item = {
-        id: result[index].id,
-        start: result[index].start_time, end: result[index].end_time,
-        title: result[index].meeting_title, left: index % 2 === 1,
-      };
-      this.state.sampleData.push(item);
+      console.log('audience is ', result[index]['as audience']);
+      if (result[index]['as audience'] !== undefined) {
+        let item = {
+          id: result[index]['as audience'].id,
+          start: result[index]['as audience'].start_time,
+          end: result[index]['as audience'].end_time,
+          title: result[index]['as audience'].meeting_title,
+          left: 0,
+        };
+        this.state.sampleData.push(item);
+      }else if(result[index]['as owner'] !== undefined) {
+        let item = {
+          id: result[index]['as owner'].id,
+          start: result[index]['as owner'].start_time,
+          end: result[index]['as owner'].end_time,
+          title: result[index]['as owner'].meeting_title,
+          left: 1,
+        };
+        this.state.sampleData.push(item);
+      }
     }
     // console.log('sampleData', this.state);
     this.setState({sampleData: this.state.sampleData});
@@ -71,17 +85,16 @@ class MainPage extends Component {
     this.setState({visible: true});
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     SplashScreen.hide();
-    this.checkToken();
+    await this.checkToken();
+    await this._loadSessions();
   }
 
   async checkToken() {
     let token = await DBManager.getSettingValue('token');
     if (token === undefined || token === null || token.length !== 40)
       NavigationService.navigate('Login', null);
-    else
-      this._loadSessions();
   }
 
   _init() {

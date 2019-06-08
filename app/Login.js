@@ -176,8 +176,7 @@ class Login extends Component {
                        source={require('./images/user_login.png')}/>
 
             </View>
-        )
-            ;
+        );
     }
 
     // render() {

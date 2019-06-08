@@ -70,14 +70,14 @@ export default class Item extends React.Component {
                         padding: 5,
                         transform: [{scale: this.animView}]
                     }}>
-                    <Animated.Text
+                    <Text
                         style={{
                             color: this.state.color,
                             fontSize: 13,
                             fontFamily: 'byekan'
                         }}>
                         {this.props.date}
-                    </Animated.Text>
+                    </Text>
                     <Text
                         style={{
                             color: this.state.color,
