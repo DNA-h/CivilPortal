@@ -33,6 +33,8 @@ class MainPage extends Component {
       sampleData: [],
       visible: false
     };
+    this.result = [{people: "{}"}];
+    this.people = {};
     this._dayPressed = this._dayPressed.bind(this);
     this._init = this._init.bind(this);
     this.parseGeorgianDate = this.parseGeorgianDate.bind(this);
@@ -64,7 +66,7 @@ class MainPage extends Component {
           left: 0,
         };
         this.state.sampleData.push(item);
-      }else if(result[index]['as owner'] !== undefined) {
+      } else if (result[index]['as owner'] !== undefined) {
         let item = {
           id: result[index]['as owner'].id,
           start: result[index]['as owner'].start_time,
@@ -81,7 +83,16 @@ class MainPage extends Component {
 
   async _itemClicked(id) {
     this.result = await RequestsController.specificSession(id.toString());
-    this.result = JSON.stringify(this.result);
+    // console.log('result ', this.result);
+    // this.result = JSON.stringify(this.result);
+    let value = this.result[0].people.replace(/'/g, '\"');
+    // value = value.replace('True','"True"');
+    // value.split('True').join('"True"');
+    var find = 'True';
+    var re = new RegExp(find, 'g');
+    value = value.replace(re, '"True"');
+    this.people = await JSON.parse(value);
+    // console.log('json is ', this.people);
     this.setState({visible: true});
   }
 
@@ -334,9 +345,47 @@ class MainPage extends Component {
                 paddingEnd: 10,
                 paddingBottom: 5
               }}>
-              <Text style={{fontFamily: 'byekan'}}>
-                {this.result}
+              <Text style={{
+                fontFamily: 'byekan',
+                color: '#6f67d9',
+                fontSize: 18,
+                textAlign: 'center'
+              }}>
+                خلاصه ای از جلسه
               </Text>
+              <View style={{flexDirection: 'row', marginTop: 10}}>
+                <Text style={{fontFamily: 'byekan', flex: 1}}>
+                  {this.result[0].meeting_title}
+                </Text>
+                <Text style={{fontFamily: 'byekan', flex: 1}}>
+                  عنوان جلسه:
+                </Text>
+              </View>
+              <View style={{flexDirection: 'row', marginTop: 5}}>
+                <Text style={{fontFamily: 'byekan', flex: 1}}>
+                  {this.result[0].start_time}
+                </Text>
+                <Text style={{fontFamily: 'byekan', flex: 1}}>
+                  ساعت شروع:
+                </Text>
+              </View>
+              <View style={{flexDirection: 'row', marginTop: 5}}>
+                <Text style={{fontFamily: 'byekan', flex: 1}}>
+                  {this.result[0].end_time}
+                </Text>
+                <Text style={{fontFamily: 'byekan', flex: 1}}>
+                  ساعت پایان:
+                </Text>
+              </View>
+              <View style={{flexDirection: 'row', marginTop: 5}}>
+                <Text style={{fontFamily: 'byekan', flex: 1}}>
+                  {this.result[0].meeting_owner}
+                </Text>
+                <Text style={{fontFamily: 'byekan', flex: 1}}>
+                  مدیر جلسه:
+                </Text>
+              </View>
+              {this.sessionDetilItem()}
             </View>
           </Modal>
         </View>
@@ -345,6 +394,32 @@ class MainPage extends Component {
           onPress={() => NavigationService.navigate('AddNewSession', null)}>
         </ActionButton>
       </ImageBackground>
+    );
+  }
+
+  sessionDetilItem() {
+    let keys = Object.keys(this.people);
+    return (
+      <View>
+        <Text style={{
+          fontFamily: 'byekan', textAlign: 'center',
+          color: '#6f67d9', marginTop: 10
+        }}>
+          افراد حاضر در جلسه
+        </Text>
+        {keys.map((val, index) =>
+          <View style={{flexDirection: 'row', marginTop: 5}}>
+            <View style={{flex: 1}}/>
+            <Text style={{fontFamily: 'byekan'}}>
+              {this.people[val].last_name}
+            </Text>
+            <Text style={{fontFamily: 'byekan'}}>
+              {this.people[val].first_name}
+            </Text>
+            <View style={{flex: 1}}/>
+          </View>
+        )}
+      </View>
     );
   }
 }

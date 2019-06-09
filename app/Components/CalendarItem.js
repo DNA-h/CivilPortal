@@ -80,7 +80,8 @@ class CalendarItem extends Component {
               borderBottomRightRadius: 20,
               borderTopRightRadius: 20,
               marginHorizontal: 3,
-              alignItems: 'center'
+              alignItems: 'center',
+              paddingVertical: 8
             }}>
             <Image style={{width: 12, height: 12, margin: 5}} tintColor={'#000000'}
                    source={require('../images/basket.png')}/>
@@ -123,7 +124,8 @@ class CalendarItem extends Component {
               borderBottomRightRadius: 20,
               borderTopLeftRadius: 20,
               marginHorizontal: 3,
-              alignItems: 'center'
+              alignItems: 'center',
+              paddingVertical: 8
             }}>
             <Image style={{width: 12, height: 12, margin: 5}} tintColor={'#000000'}
                    source={require('../images/basket.png')}/>

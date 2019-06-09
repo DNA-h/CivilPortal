@@ -73,7 +73,7 @@ export default class Item extends React.Component {
                     <Text
                         style={{
                             color: this.state.color,
-                            fontSize: 13,
+                            fontSize: 12,
                             fontFamily: 'byekan'
                         }}>
                         {this.props.date}
@@ -89,7 +89,7 @@ export default class Item extends React.Component {
                     <Text
                         style={{
                             color: this.state.color,
-                            fontSize: 13,
+                            fontSize: 10,
                             fontFamily: 'byekan'
                         }}>
                         {this.props.day}

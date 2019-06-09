@@ -20,9 +20,10 @@ class PeopleItem extends Component {
         onValueChange={() => {
           this.setState(() => {
               this.props.callback(
-                this.props.item.item[0],
-                this.props.item.item[1],
-                this.props.item.item[2],
+                this.props.item.item.first_name,
+                this.props.item.item.last_name,
+                this.props.item.item.mobile,
+                this.props.item.item.rank,
                 this.state.isSelected);
               return {isSelected: !this.state.isSelected}
             }
@@ -52,7 +53,7 @@ class PeopleItem extends Component {
                 flex: 1,
                 fontFamily: 'byekan',
                 textAlign: 'center',
-                color: '#FFFFFF'
+                color: '#6f67d9'
               }}>
               {this.props.item.item.rank}
             </Text>
@@ -63,8 +64,8 @@ class PeopleItem extends Component {
                 textAlign: 'center',
                 color: '#6f67d9'
               }}>
-              {this.props.item.item[0] + " " +
-              this.props.item.item[1]}
+              {this.props.item.item.first_name + " " +
+              this.props.item.item.last_name}
             </Text>
           </View>
           <Image

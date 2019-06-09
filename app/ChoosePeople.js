@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {FlatList, View, Text, Button, TouchableWithoutFeedback, Image, CheckBox} from 'react-native';
+import {FlatList, View, Text, SafeAreaView, TouchableWithoutFeedback, Image, CheckBox} from 'react-native';
 import Wallpaper from "./Components/Wallpaper";
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "./Actions/index";
@@ -36,14 +36,22 @@ class ChoosePeople extends Component {
     let peoples = Object.keys(object);
     let mNames = [];
     for (let index = 0; index < peoples.length; index++) {
-      mNames.push(object[peoples[index]]);
+      let item = {
+        first_name: object[peoples[index]].first_name,
+        last_name: object[peoples[index]].last_name,
+        mobile: object[peoples[index]].mobile,
+        rank: peoples[index]
+      };
+      mNames.push(item);
     }
     this.setState({sampleData: mNames});
     let me = await RequestsController.loadMyself();
-    this.state.selectedData.push([
-      me[0].fields.first_name,
-      me[0].fields.last_name,
-    ]);
+    this.state.selectedData.push({
+      first_name: me[0].fields.first_name,
+      last_name: me[0].fields.last_name,
+      mobile: me[0].fields.mobile,
+      rank: 'خودم'
+    });
     this.setState({selectedData: this.state.selectedData});
   }
 
@@ -62,10 +70,14 @@ class ChoosePeople extends Component {
     return -1;
   }
 
-  _itemClicked(first, last, mobile, flag) {
+  _itemClicked(first, last, mobile, rank, flag) {
     if (!flag) {
-      this.state.selectedData.push(
-        [first, last, mobile]);
+      this.state.selectedData.push({
+        first_name: first,
+        last_name: last,
+        mobile: mobile,
+        rank: rank
+      });
       this.setState({selectedData: this.state.selectedData});
     } else {
       for (let index in this.state.selectedData) {
@@ -100,10 +112,16 @@ class ChoosePeople extends Component {
 
   render() {
     return (
-      <Wallpaper>
+      <SafeAreaView style={{
+        flex: 1,
+        backgroundColor: '#6b62d2',
+      }}>
         <View
           style={{
             flex: 1,
+            margin: 10,
+            backgroundColor: '#FFFFFF',
+            borderRadius: 15
           }}>
           <Text
             style={{
@@ -281,7 +299,7 @@ class ChoosePeople extends Component {
         <TouchableWithoutFeedback
           style={{
             marginVertical: 40,
-            marginBottom: 40,
+            marginBottom: 10,
           }}
           onPress={this._toggleModal}>
           <View>
@@ -304,7 +322,7 @@ class ChoosePeople extends Component {
           </View>
         </TouchableWithoutFeedback>
 
-      </Wallpaper>
+      </SafeAreaView>
     );
   }
 }

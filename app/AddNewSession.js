@@ -85,6 +85,7 @@ class AddNewSession extends Component {
 
   async _loadPlaces() {
     let result = await RequestsController.MyPlaces();
+    this.state.places = [];
     for (let index in result) {
       let item = {
         pk: result[index].pk, title: result[index].fields.place_title
@@ -97,7 +98,7 @@ class AddNewSession extends Component {
   render() {
     return (
       <View
-        style={{flex: 1, backgroundColor: '#78a4ff'}}>
+        style={{flex: 1, backgroundColor: '#6b62d2'}}>
         <View
           style={{
             flex: 1,
@@ -106,9 +107,77 @@ class AddNewSession extends Component {
           }}>
           <View
             style={{
-              alignItems: 'center',
               flex: 1
             }}>
+            <View style={{width: '100%', alignItems: 'center'}}>
+              <Text style={{
+                fontSize: 13,
+                fontFamily: 'byekan',
+                backgroundColor: 'white',
+                borderRadius: 12,
+                paddingHorizontal: 15,
+                textAlign: 'center'
+              }}>
+                تعیین روز
+              </Text>
+              <View style={{
+                position: 'absolute',
+                left: 10,
+                right: 10,
+                top: 10,
+                height: 1,
+                backgroundColor: 'white'
+              }}/>
+            </View>
+            <View
+              style={{
+                flex: 1,
+                marginHorizontal: 10,
+                flexDirection: 'row',
+              }}>
+              <ScrollView
+                onScroll={this.handleScroll}
+                horizontal={true}
+                style={{width: '90%'}}>
+                <View style={{width: DEVICE_WIDTH / 2}}/>
+                {this.data.map(
+                  (key, index) =>
+                    <Item
+                      index={key.index}
+                      currentItem={this.state.currentItem}
+                      currentPercent={this.state.currentPercent}
+                      date={key.date}
+                      month={key.month}
+                      day={key.day}/>
+                )}
+                <View style={{width: DEVICE_WIDTH / 2}}/>
+
+              </ScrollView>
+              <View
+                style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  top: 0,
+                  alignItems: 'center',
+                }}>
+                <LinearGradient
+                  colors={[
+                    'rgba(107,98,210,0.9)',
+                    'rgba(107,98,210,0.1)',
+                    'rgba(107,98,210,0.9)']}
+                  start={{x: 0, y: 0}}
+                  end={{x: 1, y: 0}}
+                  style={{
+                    width: '100%',
+                    flex: 1
+                  }}
+                />
+              </View>
+            </View>
+          </View>
+          <View style={{width: '100%', alignItems: 'center'}}>
             <Text style={{
               fontSize: 13,
               fontFamily: 'byekan',
@@ -117,38 +186,16 @@ class AddNewSession extends Component {
               paddingHorizontal: 15,
               textAlign: 'center'
             }}>
-              تعیین روز
+              تعیین ساعت
             </Text>
-            <View
-              style={{
-                flex: 1,
-                flexDirection: 'row',
-                justifyContent: 'center'
-              }}>
-              <LinearGradient
-                colors={['rgb(147,122,255,0.7)', 'rgb(147,122,255,0)', 'rgb(147,122,255,0.7)']}
-                start={{x: 0, y: 0}}
-                end={{x: 1, y: 0}}
-              >
-                <ScrollView
-                  onScroll={this.handleScroll}
-                  horizontal={true}
-                  style={{width: '100%'}}>
-                  <View style={{width: DEVICE_WIDTH / 2}}/>
-                  {this.data.map(
-                    (key, index) =>
-                      <Item
-                        index={key.index}
-                        currentItem={this.state.currentItem}
-                        currentPercent={this.state.currentPercent}
-                        date={key.date}
-                        month={key.month}
-                        day={key.day}/>
-                  )}
-                  <View style={{width: DEVICE_WIDTH / 2}}/>
-                </ScrollView>
-              </LinearGradient>
-            </View>
+            <View style={{
+              position: 'absolute',
+              left: 10,
+              right: 10,
+              top: 10,
+              height: 1,
+              backgroundColor: 'white'
+            }}/>
           </View>
           <View
             style={{
@@ -205,7 +252,7 @@ class AddNewSession extends Component {
               <View>
                 <TouchableWithoutFeedback
                   onPress={() => this.setState(
-                    {endMinute: Math.min(59, this.state.endMinute + 5)})}>
+                    {endMinute: Math.min(55, this.state.endMinute + 5)})}>
                   <Image
                     style={{
                       width: 25,
@@ -243,8 +290,8 @@ class AddNewSession extends Component {
             <Text
               style={{
                 fontFamily: 'byekan',
-                color: '#000000',
-                fontSize: 13,
+                color: '#FFFFFF',
+                fontSize: 15,
                 textAlign: 'center',
                 flex: 1
               }}>
@@ -298,7 +345,7 @@ class AddNewSession extends Component {
               <View>
                 <TouchableWithoutFeedback
                   onPress={() => this.setState(
-                    {startMinute: Math.min(59, this.state.startMinute + 5)})}>
+                    {startMinute: Math.min(55, this.state.startMinute + 5)})}>
                   <Image
                     style={{
                       width: 25,
@@ -336,8 +383,8 @@ class AddNewSession extends Component {
             <Text
               style={{
                 fontFamily: 'byekan',
-                color: '#000000',
-                fontSize: 13,
+                color: '#FFFFFF',
+                fontSize: 15,
                 textAlign: 'center',
                 flex: 1
               }}>
@@ -345,47 +392,27 @@ class AddNewSession extends Component {
             </Text>
           </View>
           <View>
-            <Text
-              style={{
-                fontFamily: 'byekan',
-                color: '#000000',
-                width: '100%',
-                fontSize: 25,
-                textAlign: 'center'
-              }}>
-              موضوع و آدرس
-            </Text>
             <TextInput
               style={{
-                backgroundColor: '#7fb0ff',
+                backgroundColor: '#FFFFFF',
                 color: '#000',
                 textAlign: 'center',
                 fontFamily: 'byekan',
                 marginHorizontal: 20,
-                borderRadius: 15
+                borderRadius: 15,
+                marginTop: 5
               }}
               autoCapitalize="none"
               onChangeText={(text) => {
                 this.title = text;
               }}
               autoCorrect={false}
-              keyboardType='email-address'
               returnKeyType="next"
               placeholder='موضوع'
-              placeholderTextColor='#888'/>
+              placeholderTextColor='#909090'/>
           </View>
           <View>
-            <Text
-              style={{
-                fontFamily: 'byekan',
-                color: '#000000',
-                width: '100%',
-                fontSize: 25,
-                textAlign: 'center'
-              }}>
-              انتخاب آدرس
-            </Text>
-            <View style={{flexDirection: 'row'}}>
+            <View style={{flexDirection: 'row', marginTop: 20}}>
               <TouchableWithoutFeedback
                 onPress={() => NavigationService.navigate('Save')}>
                 <Image
@@ -409,7 +436,7 @@ class AddNewSession extends Component {
                 {this.state.places.length === 0 ?
                   <Picker.Item label={""} value={-1}/>
                   :
-                  <Picker.Item label={"انتخاب کنید"} value={-1}/>
+                  <Picker.Item label={"انتخاب آدرس"} value={-1}/>
                 }
 
                 {this.state.places.map(

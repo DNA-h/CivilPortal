@@ -45,14 +45,15 @@ export default class SaveAddress extends React.Component {
           style={{flex: 1, width: '100%'}}/>
         <Image
           style={{
-            width: 50,
-            height: 50,
+            width: 40,
+            height: 40,
             position: 'absolute',
-            top: (h - 50) / 2,
-            bottom: (h - 50) / 2,
-            left: (w - 50) / 2,
-            right: (w - 50) / 2,
-            resizeMode: 'contain'
+            top: (h - 40) / 2,
+            bottom: (h - 40) / 2,
+            left: (w - 40) / 2,
+            right: (w - 40) / 2,
+            resizeMode: 'contain',
+            tintColor: '#ff6b06'
           }}
           source={require("./images/ic_location.png")}/>
         <ActionButton

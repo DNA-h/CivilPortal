@@ -27,7 +27,7 @@ export class RequestsController {
     headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
     let json = await ConnectionManager.doFetch("http://185.211.57.73/api/get-sessions-by-date/", 'POST',
       JSON.stringify({'time': day}), headers, true);
-    console.log('json is ', json);
+    // console.log('json is ', json);
     return json;
   }
 
@@ -66,7 +66,7 @@ export class RequestsController {
     headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
     let json = await ConnectionManager.doFetch("http://185.211.57.73/api/peoples/", 'POST',
       JSON.stringify({places: []}), headers, true);
-    console.log('json is ', json);
+    // console.log('json is ', json);
     return json;
   }
 
@@ -106,7 +106,7 @@ export class RequestsController {
     headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
     let aud = [];
     for (let i = 0; i < audiences.length; i++) {
-      aud.push({people: audiences[i][2], rep_ppl: ""})
+      aud.push({people: audiences[i].mobile, rep_ppl: ""})
     }
     let json = await ConnectionManager.doFetch("http://185.211.57.73/api/sessions/", 'POST',
       JSON.stringify({
@@ -115,7 +115,7 @@ export class RequestsController {
         force: force, audiences: aud
       }),
       headers, true);
-    console.log('json is ', json);
+    // console.log('json is ', json);
     return json;
   }
 }
