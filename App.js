@@ -20,7 +20,7 @@ const RootStack = createStackNavigator(
         SessionDetail: {screen: SessionDetail, navigationOptions: {header: null}},
         CalendarPage: {screen: CalendarPage, navigationOptions: {header: null}},
         AboutUs: {screen: AboutUs, navigationOptions: {header: null}},
-        Save: {screen:SaveAddress, navigationOptions: {header: null}},
+        Save: {screen: SaveAddress, navigationOptions: {header: null}},
         Share: {screen:ShareSession, navigationOptions: {header: null}},
     },
     {

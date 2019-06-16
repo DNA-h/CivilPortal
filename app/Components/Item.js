@@ -40,7 +40,7 @@ export default class Item extends React.Component {
             && this.props.currentItem !== this.props.index) {
             return;
         }
-        if (Math.abs(this.props.currentPercent - this.prevPercent) > 0.001) {
+        if (Math.abs(this.props.currentPercent - this.prevPercent)) {
             this.state.scale.setValue(this.props.currentPercent);
             // Animated.timing(
             //     this.state.scale, {
@@ -49,13 +49,14 @@ export default class Item extends React.Component {
             //     }
             // ).start();
             this.prevPercent = this.props.currentPercent;
-            this.setState({color: 'white', back: 'blue'});
+            // this.setState({color: 'white', back: 'blue'});
+            this.setState({color: '#000', back: '#FFF'});
         }
     }
 
     render() {
         return (
-            <View style={{flexDirection: 'row'}}>
+            <View style={{flexDirection: 'row', height: 180}}>
                 <Animated.View
                     style={{
                         marginHorizontal: 10,
