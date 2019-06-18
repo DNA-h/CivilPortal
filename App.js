@@ -10,6 +10,7 @@ import CalendarPage from "./app/CalendarPage";
 import AboutUs from "./app/AboutUs";
 import SaveAddress from "./app/SaveAddress";
 import ShareSession from "./app/ShareSession";
+import SaveAddressNew from "./app/SaveAddressNew";
 
 const RootStack = createStackNavigator(
     {
@@ -21,10 +22,11 @@ const RootStack = createStackNavigator(
         CalendarPage: {screen: CalendarPage, navigationOptions: {header: null}},
         AboutUs: {screen: AboutUs, navigationOptions: {header: null}},
         Save: {screen: SaveAddress, navigationOptions: {header: null}},
+        SaveNew: {screen: SaveAddressNew, navigationOptions: {header: null}},
         Share: {screen:ShareSession, navigationOptions: {header: null}},
     },
     {
-        initialRouteName: 'MainPage',
+        initialRouteName: 'AddNewSession',
         navigationOptions: {header: null},
     }
 );
