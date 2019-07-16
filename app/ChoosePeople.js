@@ -19,6 +19,7 @@ class ChoosePeople extends Component {
       sampleData: [],
       selectedData: []
     };
+    this.me = {item:{rank: 'خودم', first_name: '', last_name: ''}};
     this._loadPeople = this._loadPeople.bind(this);
     this._itemClicked = this._itemClicked.bind(this);
     this._saveSession = this._saveSession.bind(this);
@@ -26,7 +27,7 @@ class ChoosePeople extends Component {
 
   componentDidMount() {
     this._loadPeople();
-    // console.log('start ',this.props.navigation.getParam("start"));
+    console.log('start ', this.props.navigation);
   }
 
   async _loadPeople() {
@@ -45,13 +46,13 @@ class ChoosePeople extends Component {
       mNames.push(item);
     }
     this.setState({sampleData: mNames});
-    let me = await RequestsController.loadMyself();
-    this.state.selectedData.push({
-      first_name: me[0].fields.first_name,
-      last_name: me[0].fields.last_name,
-      mobile: me[0].fields.mobile,
+    let mme = await RequestsController.loadMyself();
+    this.me = {item:{
+      first_name: mme[0].fields.first_name,
+      last_name: mme[0].fields.last_name,
+      mobile: mme[0].fields.mobile,
       rank: 'خودم'
-    });
+    }};
     this.setState({selectedData: this.state.selectedData});
   }
 
@@ -140,20 +141,14 @@ class ChoosePeople extends Component {
               marginBottom: 20
             }}
             keyExtractor={(item, index) => index.toString()}
-            data={this.state.selectedData}
-            renderItem={(item) =>
-              <PeopleItem
-                showCheck={true}
-                callback={this._itemClicked}
-                item={item}/>}
-          />
-          <FlatList
-            style={{
-              flex: 1,
-              marginBottom: 20
-            }}
-            keyExtractor={(item, index) => index.toString()}
             data={this.state.sampleData}
+            ListHeaderComponent={
+              <PeopleItem
+                showCheck={false}
+                callback={() => {
+                }}
+                item={this.me}/>
+            }
             renderItem={(item) =>
               <PeopleItem
                 showCheck={true}

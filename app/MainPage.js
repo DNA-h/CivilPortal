@@ -56,7 +56,7 @@ class MainPage extends Component {
     let result = await RequestsController.MySessions(value);
     this.state.sampleData = [];
     for (let index in result) {
-      console.log('audience is ', result[index]['as audience']);
+      // console.log('audience is ', result[index]['as audience']);
       if (result[index]['as audience'] !== undefined) {
         let item = {
           id: result[index]['as audience'].id,
@@ -72,7 +72,7 @@ class MainPage extends Component {
           start: result[index]['as owner'].start_time,
           end: result[index]['as owner'].end_time,
           title: result[index]['as owner'].meeting_title,
-          left: 1,
+          left: 0,
         };
         this.state.sampleData.push(item);
       }
@@ -408,7 +408,7 @@ class MainPage extends Component {
           افراد حاضر در جلسه
         </Text>
         {keys.map((val, index) =>
-          <View style={{flexDirection: 'row', marginTop: 5}}>
+          <View style={{flexDirection: 'row', marginTop: 5}} key={index}>
             <View style={{flex: 1}}/>
             <Text style={{fontFamily: 'byekan'}}>
               {this.people[val].last_name}

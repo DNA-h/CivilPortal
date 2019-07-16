@@ -26,7 +26,7 @@ const RootStack = createStackNavigator(
         Share: {screen:ShareSession, navigationOptions: {header: null}},
     },
     {
-        initialRouteName: 'AddNewSession',
+        initialRouteName: 'MainPage',
         navigationOptions: {header: null},
     }
 );

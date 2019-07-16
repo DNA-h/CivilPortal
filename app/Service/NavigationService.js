@@ -23,10 +23,16 @@ function reset(routeName) {
     }))
 }
 
+function goBack() {
+    _navigator.dispatch(
+        NavigationActions.back()
+    );
+}
 // add other navigation functions that you need and export them
 
 export default {
     navigate,
     setTopLevelNavigator,
-    reset
+    reset,
+    goBack
 };

@@ -10,6 +10,7 @@ class CalendarItem extends Component {
       <View
         style={{
           flex: 1,
+          height: 80,
           flexDirection: 'row',
           alignItems: 'center',
           borderRadius: 10,
@@ -27,6 +28,7 @@ class CalendarItem extends Component {
           <View
             style={{
               flex: 5,
+              height: 80,
               flexDirection: 'row',
               backgroundColor: '#6A6A6A55',
               borderTopLeftRadius: 20,
@@ -101,6 +103,7 @@ class CalendarItem extends Component {
       <View
         style={{
           flex: 1,
+          height: 80,
           flexDirection: 'row',
           alignItems: 'center',
           borderRadius: 10,
@@ -140,6 +143,7 @@ class CalendarItem extends Component {
           <View
             style={{
               flex: 5,
+              height: 80,
               flexDirection: 'row',
               backgroundColor: '#6A6A6A55',
               borderTopRightRadius: 20,
