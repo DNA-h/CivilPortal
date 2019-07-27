@@ -1,5 +1,6 @@
 import React, {Component} from "react";
-import {Text, View, FlatList, Image, TouchableWithoutFeedback, Button, ImageBackground} from 'react-native';
+import {Text, View, FlatList, Image, TouchableWithoutFeedback,
+  StatusBar ,Button, ImageBackground} from 'react-native';
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "./Actions";
 import CalendarItem from "./Components/CalendarItem";
@@ -100,6 +101,7 @@ class MainPage extends Component {
     SplashScreen.hide();
     await this.checkToken();
     await this._loadSessions();
+    StatusBar.setBackgroundColor('#6A61D1')
   }
 
   async checkToken() {

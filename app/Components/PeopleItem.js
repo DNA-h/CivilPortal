@@ -30,7 +30,8 @@ class PeopleItem extends Component {
           );
         }}/>;
     return (
-      <View style={{alignItems: 'center'}}>
+      <View
+        style={{alignItems: 'center'}}>
         <View
           style={{
             flexDirection: 'row',
@@ -84,7 +85,7 @@ class PeopleItem extends Component {
           style={{
             width: '90%',
             height: 1,
-            backgroundColor: '#c0c0c0'
+            backgroundColor: this.props.item.item.rank === 'خودم' ? '#6f67d9' : '#c0c0c0'
           }}/>
       </View>
     );

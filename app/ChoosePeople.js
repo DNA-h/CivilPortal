@@ -19,7 +19,7 @@ class ChoosePeople extends Component {
       sampleData: [],
       selectedData: []
     };
-    this.me = {item:{rank: 'خودم', first_name: '', last_name: ''}};
+    this.me = {item: {rank: 'خودم', first_name: '', last_name: ''}};
     this._loadPeople = this._loadPeople.bind(this);
     this._itemClicked = this._itemClicked.bind(this);
     this._saveSession = this._saveSession.bind(this);
@@ -47,12 +47,14 @@ class ChoosePeople extends Component {
     }
     this.setState({sampleData: mNames});
     let mme = await RequestsController.loadMyself();
-    this.me = {item:{
-      first_name: mme[0].fields.first_name,
-      last_name: mme[0].fields.last_name,
-      mobile: mme[0].fields.mobile,
-      rank: 'خودم'
-    }};
+    this.me = {
+      item: {
+        first_name: mme[0].fields.first_name,
+        last_name: mme[0].fields.last_name,
+        mobile: mme[0].fields.mobile,
+        rank: 'خودم'
+      }
+    };
     this.setState({selectedData: this.state.selectedData});
   }
 
@@ -122,6 +124,7 @@ class ChoosePeople extends Component {
             flex: 1,
             margin: 10,
             backgroundColor: '#FFFFFF',
+            marginTop: 20,
             borderRadius: 15
           }}>
           <Text
@@ -155,6 +158,30 @@ class ChoosePeople extends Component {
                 callback={this._itemClicked}
                 item={item}/>}
           />
+          <TouchableWithoutFeedback
+            style={{
+              marginVertical: 40,
+              marginBottom: 10,
+            }}
+            onPress={this._toggleModal}>
+            <View>
+              <Text
+                style={{
+                  fontFamily: 'byekan',
+                  fontSize: 18,
+                  width: '80%',
+                  textAlign: 'center',
+                  color: '#FFFFFF',
+                  alignSelf: 'center',
+                  borderRadius: 30,
+                  marginBottom: 40,
+                  paddingVertical: 10,
+                  paddingHorizontal: 25,
+                }}>
+                تایید و ثبت جلسه
+              </Text>
+            </View>
+          </TouchableWithoutFeedback>
         </View>
         <Modal isVisible={this.state.showDialog}
                onBackdropPress={this._toggleModal}>
@@ -291,31 +318,6 @@ class ChoosePeople extends Component {
             </View>
           </View>
         </Modal>
-        <TouchableWithoutFeedback
-          style={{
-            marginVertical: 40,
-            marginBottom: 10,
-          }}
-          onPress={this._toggleModal}>
-          <View>
-            <Text
-              style={{
-                fontFamily: 'byekan',
-                fontSize: 18,
-                width: '80%',
-                textAlign: 'center',
-                color: '#FFFFFF',
-                alignSelf: 'center',
-                backgroundColor: '#F035E0',
-                borderRadius: 30,
-                marginBottom: 40,
-                paddingVertical: 10,
-                paddingHorizontal: 25,
-              }}>
-              ثبت جلسه
-            </Text>
-          </View>
-        </TouchableWithoutFeedback>
 
       </SafeAreaView>
     );
