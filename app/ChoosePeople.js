@@ -125,7 +125,7 @@ class ChoosePeople extends Component {
             margin: 10,
             backgroundColor: '#FFFFFF',
             marginTop: 20,
-            borderRadius: 15
+            borderRadius: 25
           }}>
           <Text
             style={{
@@ -171,11 +171,11 @@ class ChoosePeople extends Component {
                   fontSize: 18,
                   width: '80%',
                   textAlign: 'center',
-                  color: '#FFFFFF',
+                  color: '#6f67d9',
                   alignSelf: 'center',
                   borderRadius: 30,
-                  marginBottom: 40,
-                  paddingVertical: 10,
+                  marginBottom: 10,
+                  paddingVertical: 5,
                   paddingHorizontal: 25,
                 }}>
                 تایید و ثبت جلسه

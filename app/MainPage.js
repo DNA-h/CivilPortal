@@ -1,6 +1,8 @@
 import React, {Component} from "react";
-import {Text, View, FlatList, Image, TouchableWithoutFeedback,
-  StatusBar ,Button, ImageBackground} from 'react-native';
+import {
+  Text, View, FlatList, Image, TouchableWithoutFeedback,
+  StatusBar, Button, ImageBackground
+} from 'react-native';
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "./Actions";
 import CalendarItem from "./Components/CalendarItem";
@@ -310,7 +312,7 @@ class MainPage extends Component {
             backgroundColor: '#FFFFFF',
             marginHorizontal: 20,
             borderRadius: 20,
-            marginBottom: 15
+            marginBottom: 35
           }}>
           <Text
             style={{
@@ -321,7 +323,12 @@ class MainPage extends Component {
             }}>
             روز معلم
           </Text>
-          <View style={{height: 1, width: '100%', backgroundColor: '#6f67d9'}}/>
+          <View
+            style={{
+              height: 1,
+              width: '100%',
+              backgroundColor: '#6f67d9'
+            }}/>
           <FlatList
             style={{
               flex: 1
@@ -391,10 +398,44 @@ class MainPage extends Component {
             </View>
           </Modal>
         </View>
-        <ActionButton
-          buttonColor="rgba(231,76,60,1)"
-          onPress={() => NavigationService.navigate('AddNewSession', null)}>
-        </ActionButton>
+        <View
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 10,
+            height: 50,
+            alignItems: 'center',
+          }}
+        >
+          <TouchableWithoutFeedback
+            onPress={() => NavigationService.navigate('AddNewSession', null)}
+            >
+            <View
+              style={{
+                width: 60,
+                height: 60,
+                borderRadius: 30,
+                backgroundColor: '#7C7AF2',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <Image
+                style={{
+                  width: 50,
+                  height: 50,
+                  borderRadius: 25,
+                  tintColor: '#FFFFFF',
+                  backgroundColor: '#7C7AF2',
+                  borderWidth: 2,
+                  borderColor: '#FFFFFF'
+                }}
+                source={require("./images/ic_add.png")}
+              />
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
       </ImageBackground>
     );
   }
@@ -422,27 +463,6 @@ class MainPage extends Component {
           </View>
         )}
       </View>
-    );
-  }
-}
-
-class MyNotificationsScreen extends React.Component {
-  static navigationOptions = {
-    drawerLabel: 'Notifications',
-    drawerIcon: ({tintColor}) => (
-      <Image
-        source={require('./images/nav_icon.png')}
-        style={{tintColor: tintColor, width: 24, height: 24}}
-      />
-    ),
-  };
-
-  render() {
-    return (
-      <Button
-        onPress={() => this.props.navigation.goBack()}
-        title="Go back home"
-      />
     );
   }
 }
