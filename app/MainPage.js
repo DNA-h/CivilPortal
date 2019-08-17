@@ -20,6 +20,7 @@ let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "م�
   "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
 let gMonths = ["ژانویه", "فوریه", "مارس", "آوریل", "مه", "ژوئن", "ژوئیه",
   "اوت", "سپتامبر", "اوکتبر", "نوامبر", "دسامبر"];
+let weekDays = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه شنبه', 'چهارشنبه', 'پنج شنبه', 'جمعه'];
 let arabicNumbers = ['۰', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
 
 class MainPage extends Component {
@@ -112,6 +113,20 @@ class MainPage extends Component {
       NavigationService.navigate('Login', null);
   }
 
+  static prettifyTime(str) {
+    if (str === undefined) return;
+    const year = parseInt(str.substr(0, 4), 10);
+    const month = parseInt(str.substr(6, 2), 10);
+    const day = parseInt(str.substr(9, 2), 10);
+    let jalaali = require('jalaali-js');
+    const g = jalaali.toGregorian(year, month, day);
+    const date = new Date();
+    date.setDate(g.gd);
+    date.setMonth(g.gm);
+    date.setFullYear(g.gy);
+    return (`${year} ${months[month-1]} ${date.getDay()}`);
+  }
+
   _init() {
     let a = this.parsePersianDate();
     let b = this.parseGeorgianDate();
@@ -135,7 +150,6 @@ class MainPage extends Component {
     let date = new Date();
     let w = date.getDay();
     date.setDate(date.getDate() + this.difference);
-    let weekDays = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه شنبه', 'چهارشنبه', 'پنج شنبه', 'جمعه'];
     let jalali = jalaali.toJalaali(date);
     let value = [weekDays[w], jalali.jd + '', months[jalali.jm - 1]];
     let chars = value[1].split('');
@@ -198,13 +212,40 @@ class MainPage extends Component {
             style={{
               flex: 2
             }}>
-            <View style={{height: 20, flexDirection: 'row', marginLeft: 20}}>
-              <Image style={{width: 15, height: 15, margin: 5}} tintColor={'#FFFFFF'}
-                     source={require('./images/ic_back.png')}/>
-              <Image style={{width: 15, height: 15, margin: 5}} tintColor={'#FFFFFF'}
-                     source={require('./images/small_calendar.png')}/>
-              <Image style={{width: 15, height: 15, margin: 5}} tintColor={'#FFFFFF'}
-                     source={require('./images/basket.png')}/>
+            <View
+              style={{
+                height: 20,
+                flexDirection: 'row',
+                marginLeft: 20
+              }}
+            >
+              <Image
+                style={{
+                  width: 15,
+                  height: 15,
+                  margin: 5
+                }}
+                tintColor={'#FFFFFF'}
+                source={require('./images/ic_back.png')}
+              />
+              <Image
+                style={{
+                  width: 15,
+                  height: 15,
+                  margin: 5
+                }}
+                tintColor={'#FFFFFF'}
+                source={require('./images/small_calendar.png')}
+              />
+              <Image
+                style={{
+                  width: 15,
+                  height: 15,
+                  margin: 5
+                }}
+                tintColor={'#FFFFFF'}
+                source={require('./images/basket.png')}
+              />
             </View>
             <Text
               style={{
@@ -347,6 +388,8 @@ class MainPage extends Component {
             <View
               style={{
                 backgroundColor: "#FFFFFF",
+                height: '80%',
+                justifyContent: 'space-between',
                 borderRadius: 10,
                 marginStart: 10,
                 marginEnd: 10,
@@ -366,9 +409,19 @@ class MainPage extends Component {
                 <Text style={{fontFamily: 'byekan', flex: 1}}>
                   {this.result[0].meeting_title}
                 </Text>
+                <Image
+                  style={{width: 12, height: 12, margin: 5}}
+                  tintColor={'#6f67d9'}
+                  source={require('./images/ic_title.png')}/>
+              </View>
+              <View style={{flexDirection: 'row', marginTop: 5}}>
                 <Text style={{fontFamily: 'byekan', flex: 1}}>
-                  عنوان جلسه:
+                  {MainPage.prettifyTime(this.result[0].start_time)}
                 </Text>
+                <Image
+                  style={{width: 12, height: 12, margin: 5}}
+                  tintColor={'#6f67d9'}
+                  source={require('./images/ic_title.png')}/>
               </View>
               <View style={{flexDirection: 'row', marginTop: 5}}>
                 <Text style={{fontFamily: 'byekan', flex: 1}}>
@@ -410,7 +463,7 @@ class MainPage extends Component {
         >
           <TouchableWithoutFeedback
             onPress={() => NavigationService.navigate('AddNewSession', null)}
-            >
+          >
             <View
               style={{
                 width: 60,

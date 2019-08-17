@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {
-  StyleSheet, View, Image, TouchableWithoutFeedback, Text, FlatList, ScrollView, Keyboard, Dimensions, TextInput
+  StyleSheet, View, Image, TouchableWithoutFeedback, Text, FlatList, ImageBackground, Keyboard, Dimensions, TextInput
 } from 'react-native';
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "./Actions/index";
@@ -8,7 +8,6 @@ import NavigationService from "./Service/NavigationService";
 import Item from "./Components/Item";
 import SplashScreen from "react-native-splash-screen";
 import {RequestsController} from "./Utils/RequestController";
-import LinearGradient from "react-native-linear-gradient";
 import Carousel from 'react-native-snap-carousel';
 import Modal from "react-native-modal";
 
@@ -79,7 +78,6 @@ class AddNewSession extends Component {
       currentPlace: -1,
       places: [],
       selectPlace: false,
-      isVisible: false,
     };
     this.handleScroll = this.handleScroll.bind(this);
     this._loadPlaces = this._loadPlaces.bind(this);
@@ -118,42 +116,62 @@ class AddNewSession extends Component {
   render() {
     return (<View
         style={{flex: 1, direction: 'rtl'}}>
-        <LinearGradient
-          colors={['#5849a7', '#8787f0']}
-          start={{x: 0, y: 0}} end={{x: 1, y: 1}}
+        <ImageBackground
+          source={require('./images/menu.png')}
           style={{flex: 1, width: DEVICE_WIDTH, height: DEVICE_HEIGHT,}}
         >
           <View
             style={{
               flex: 1, width: DEVICE_WIDTH, height: DEVICE_HEIGHT,
             }}>
+            <TouchableWithoutFeedback
+              onPress={NavigationService.goBack}
+            >
+              <Image
+                style={{
+                  width: 25,
+                  height: 25,
+                  marginTop: 10,
+                  marginRight: 10
+                }}
+                tintColor={'#FFFFFF'}
+                source={require('./images/ic_back.png')}
+              />
+            </TouchableWithoutFeedback>
             <View
               style={{
                 flex: 1
               }}>
-              <View style={{width: '100%', alignItems: 'center'}}>
-                <Text style={{
-                  fontSize: 13,
-                  fontFamily: 'byekan',
-                  backgroundColor: 'white',
-                  borderRadius: 12,
-                  paddingHorizontal: 15,
-                  textAlign: 'center'
-                }}>
+              <View
+                style={{width: '100%', alignItems: 'center', justifyContent: 'center'}}
+              >
+                <Image
+                  source={require('./images/top_curve_border.png')}
+                  style={{
+                    position: 'absolute',
+                    left: 20,
+                    right: 20,
+                    top: 8,
+                    width: DEVICE_WIDTH - 40,
+                    height: (DEVICE_WIDTH - 40) / 16,
+                    resizeMode: 'contain'
+                  }}
+                />
+                <Text
+                  style={{
+                    fontSize: 13,
+                    fontFamily: 'byekan',
+                    backgroundColor: 'white',
+                    borderRadius: 12,
+                    paddingHorizontal: 15,
+                    textAlign: 'center'
+                  }}>
                   تعیین روز
                 </Text>
-                <View style={{
-                  position: 'absolute',
-                  left: 10,
-                  right: 10,
-                  top: 10,
-                  height: 1,
-                  backgroundColor: 'white'
-                }}/>
               </View>
               <View
                 style={{
-                  flex: 1, marginHorizontal: 0, flexDirection: 'row', alignItems: 'center'
+                  flex: 1, marginHorizontal: 10, flexDirection: 'row', alignItems: 'center'
                 }}>
                 <TouchableWithoutFeedback
                   onPress={() => {
@@ -175,6 +193,8 @@ class AddNewSession extends Component {
                   sliderWidth={DEVICE_WIDTH}
                   sliderHeight={140}
                   enableMomentum
+                  useScrollView={false}
+                  activeSlideAlignment={"start"}
                   contentContainerCustomStyle={{paddingStart: 0, paddingEnd: 0}}
                   containerCustomStyle={{paddingStart: 0, paddingEnd: 0}}
                   onSnapToItem={(item) => {
@@ -187,7 +207,7 @@ class AddNewSession extends Component {
                     this.state.selectedDay = jalali.jd - 1;
                   }}
                   ListHeaderComponent={
-                    <View style={{flexDirection: 'row'}}>
+                    <View style={{flexDirection: 'row', width: DEVICE_WIDTH / 2 - 60, justifyContent:'space-around'}}>
                       <Item
                         date={this.extras[2].date}
                         month={this.extras[2].month}
@@ -254,37 +274,47 @@ class AddNewSession extends Component {
                     }}
                     source={require("./images/ic_back.png")}/>
                 </TouchableWithoutFeedback>
-                <LinearGradient
-                  colors={['rgba(88,73,163,1)', 'rgba(88,73,163,0.8)', 'rgba(88,73,163,0)', 'rgba(88,73,163,0.8)', 'rgba(88,73,163,1)']}
-                  start={{x: 0, y: 0}} end={{x: 1, y: 0}}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0
-                  }}
-                />
+
               </View>
-            </View>
-            <View style={{width: '100%', alignItems: 'center'}}>
-              <Text style={{
-                fontSize: 13,
-                fontFamily: 'byekan',
-                backgroundColor: 'white',
-                borderRadius: 12,
-                paddingHorizontal: 15,
-                textAlign: 'center'
-              }}>
-                تعیین ساعت
-              </Text>
-              <View style={{
-                position: 'absolute', left: 10, right: 10, top: 10, height: 1, backgroundColor: 'white'
-              }}/>
             </View>
             <View
               style={{
-                alignItems: 'center', justifyContent: 'center', flex: 1, flexDirection: 'row', direction: 'ltr'
+                width: '100%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginTop: 10
+              }}>
+              <Image
+                source={require('./images/top_curve_border.png')}
+                style={{
+                  position: 'absolute',
+                  left: 20,
+                  right: 20,
+                  top: 8,
+                  width: DEVICE_WIDTH - 40,
+                  height: (DEVICE_WIDTH - 40) / 16,
+                  resizeMode: 'contain'
+                }}
+              />
+              <Text
+                style={{
+                  fontSize: 13,
+                  fontFamily: 'byekan',
+                  backgroundColor: 'white',
+                  borderRadius: 12,
+                  paddingHorizontal: 15,
+                  textAlign: 'center',
+                }}>
+                تعیین ساعت
+              </Text>
+            </View>
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'space-around',
+                flexDirection: 'row',
+                direction: 'ltr',
+                marginVertical: 40,
               }}>
               <View
                 style={{
@@ -544,50 +574,41 @@ class AddNewSession extends Component {
                 </View>
               </View>
             </TouchableWithoutFeedback>
-            <View>
-              <View style={{flexDirection: 'row', marginTop: 20}}>
-                <View style={{flex: 1}}/>
-                <TouchableWithoutFeedback
-                  onPress={() => NavigationService.navigate('Save')}>
-                  <View style={{flex: 3}}>
+            <View style={{flex: 1}}>
+              <TouchableWithoutFeedback
+                onPress={() => NavigationService.navigate('Save')}>
+                <View style={{flex: 1, alignItems: 'center'}}>
+                  <ImageBackground
+                    source={require('./images/ic_map.png')}
+                    style={{
+                      resizeMode: 'cover',
+                      flex: 1,
+                      width: DEVICE_WIDTH - 40,
+                      alignItems: 'center',
+                      borderRadius: 15,
+                      overflow: 'hidden',
+                      marginTop: 15
+                    }}
+                  >
                     <Text
-                      style={styles.address}>
-                      تعیین مکان از روی نقشه
+                      style={{
+                        fontFamily: 'byekan',
+                        fontSize:18,
+                        color: '#888',
+                        backgroundColor: '#FFF',
+                        textAlign: 'center',
+                        borderWidth: 2,
+                        borderRadius: 25,
+                        marginTop:5,
+                        borderColor: '#808080',
+                        paddingHorizontal: 10,
+                      }}>
+                      انتخاب از روی نقشه
                     </Text>
-                  </View>
-                </TouchableWithoutFeedback>
-                <View style={{flex: 1}}/>
-              </View>
-            </View>
-            <Modal
-              isVisible={this.state.isVisible}
-              style={{justifyContent: "flex-end"}}
-              onBackdropPress={() => this.setState({isVisible: false})}>
-              <View
-                style={{
-                  backgroundColor: "#FFFFFF",
-                  borderRadius: 10,
-                  marginStart: 10,
-                  marginEnd: 10,
-                  paddingStart: 10,
-                  paddingEnd: 10,
-                  paddingBottom: 5
-                }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    margin: 10,
-                    paddingEnd: 25,
-                    paddingStart: 25
-                  }}>
-                  <TouchableWithoutFeedback
-                    onPress={() => this.setState({visible: false})}>
-                    <Image style={{height: 120, width: '90%'}}
-                           source={require('./images/ic_map.png')}/>
-                  </TouchableWithoutFeedback>
+                  </ImageBackground>
                 </View>
-              </View>
-            </Modal>
+              </TouchableWithoutFeedback>
+            </View>
             <Modal
               isVisible={this.state.selectPlace}
               style={{justifyContent: "flex-end"}}
@@ -667,9 +688,9 @@ class AddNewSession extends Component {
                     fontSize: 18,
                     width: '80%',
                     textAlign: 'center',
-                    color: '#FFFFFF',
+                    color: '#675ec9',
                     alignSelf: 'center',
-                    backgroundColor: '#F035E0',
+                    backgroundColor: '#FFFFFF',
                     borderRadius: 30,
                     paddingVertical: 10,
                     paddingHorizontal: 25,
@@ -679,7 +700,7 @@ class AddNewSession extends Component {
               </View>
             </TouchableWithoutFeedback>
           </View>
-        </LinearGradient>
+        </ImageBackground>
       </View>
     );
   }

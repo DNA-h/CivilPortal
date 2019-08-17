@@ -27,24 +27,11 @@ class ChoosePeople extends Component {
 
   componentDidMount() {
     this._loadPeople();
-    console.log('start ', this.props.navigation);
   }
 
   async _loadPeople() {
     let names = await RequestsController.loadPeople();
-    let keys = Object.keys(names);
-    let object = names[keys[0]];
-    let peoples = Object.keys(object);
-    let mNames = [];
-    for (let index = 0; index < peoples.length; index++) {
-      let item = {
-        first_name: object[peoples[index]].first_name,
-        last_name: object[peoples[index]].last_name,
-        mobile: object[peoples[index]].mobile,
-        rank: peoples[index]
-      };
-      mNames.push(item);
-    }
+    let mNames = names.لیست;
     this.setState({sampleData: mNames});
     let mme = await RequestsController.loadMyself();
     this.me = {
@@ -52,6 +39,7 @@ class ChoosePeople extends Component {
         first_name: mme[0].fields.first_name,
         last_name: mme[0].fields.last_name,
         mobile: mme[0].fields.mobile,
+        pic: 'http://127.0.0.1:8001/static/uploads/' + mme[0].fields.image,
         rank: 'خودم'
       }
     };

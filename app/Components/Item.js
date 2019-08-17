@@ -5,7 +5,7 @@ export default class Item extends React.Component {
 
   render() {
     return (
-      <View style={{flexDirection: 'row', height: 140}}>
+      <View style={{flexDirection: 'row', height: 120}}>
         <Animated.View
           style={{
             marginHorizontal: 5,

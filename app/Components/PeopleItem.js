@@ -29,6 +29,8 @@ class PeopleItem extends Component {
             }
           );
         }}/>;
+        const str = this.props.item.item.pic !== undefined ? this.props.item.item.pic : '';
+        // console.log('str ', typeof str);
     return (
       <View
         style={{alignItems: 'center'}}>
@@ -56,7 +58,7 @@ class PeopleItem extends Component {
                 textAlign: 'center',
                 color: '#6f67d9'
               }}>
-              {this.props.item.item.rank}
+              {this.props.item.item.rank_name}
             </Text>
             <Text
               style={{
@@ -69,17 +71,25 @@ class PeopleItem extends Component {
               this.props.item.item.last_name}
             </Text>
           </View>
+          <View
+            style={{
+              width: 50,
+              height: 50,
+              borderRadius:25,
+              overflow:'hidden',
+              borderWidth: 2,
+              borderColor: '#00b',
+              margin: 10,
+            }}
+          >
           <Image
             style={{
               width: 50,
               height: 50,
-              margin: 10,
-              borderWidth: 2,
-              borderColor: '#00b',
-              borderRadius: 25,
+              resizeMode: 'contain',
             }}
-            tintColor={'#6f67d9'}
-            source={require('../images/ic_no_profile.png')}/>
+            source={{uri:`http://185.211.57.73/${str.replace('http://127.0.0.1:8001/','')}`}}/>
+          </View>
         </View>
         <View
           style={{

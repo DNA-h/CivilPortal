@@ -91,12 +91,10 @@ export class RequestsController {
     headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
     let json = await ConnectionManager.doFetch("http://185.211.57.73/api/replaces/", 'POST',
       JSON.stringify({
-        places: [{
           rep_ppl: user,
-          session_id: session
-        }]
-      }), headers, true);
-    // console.log('json is ', json);
+          session_id: session,
+          force: 0
+        }), headers, true);
     return json;
   }
 
