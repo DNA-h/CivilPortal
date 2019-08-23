@@ -6,6 +6,7 @@ import org.devio.rn.splashscreen.SplashScreen;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
 import com.swmansion.gesturehandler.react.RNGestureHandlerEnabledRootView;
+import com.rnimmersive.RNImmersiveModule;
 public class MainActivity extends ReactActivity {
 
         @Override
@@ -30,5 +31,14 @@ public class MainActivity extends ReactActivity {
           return new RNGestureHandlerEnabledRootView(MainActivity.this);
         }
       };
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+      super.onWindowFocusChanged(hasFocus);
+
+      if (hasFocus && RNImmersiveModule.getInstance() != null) {
+        RNImmersiveModule.getInstance().emitImmersiveStateChangeEvent();
+      }
     }
 }

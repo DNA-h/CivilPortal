@@ -3,6 +3,7 @@ package com.civilportal;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.rnimmersive.RNImmersivePackage;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 import com.mapbox.rctmgl.RCTMGLPackage;
@@ -27,6 +28,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNImmersivePackage(),
             new SplashScreenReactPackage(),
             new RNGestureHandlerPackage(),
             new RCTMGLPackage(),

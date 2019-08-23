@@ -16,21 +16,24 @@ class ShareSession extends Component {
     this.state = {
       showDialog: false,
       showCongestion: false,
-      sampleData: [],
-      selectedData: []
+      sampleData: []
     };
+    this.replaced = undefined;
+    this.replacedName =undefined;
     this._loadPeople = this._loadPeople.bind(this);
     this._itemClicked = this._itemClicked.bind(this);
     this._shareSession = this._shareSession.bind(this);
   }
 
   componentDidMount() {
+    console.log('props', this.props.navigation);
     this._loadPeople();
   }
 
   async _loadPeople() {
     let names = await RequestsController.loadPeople();
-    this.setState({sampleData: names});
+    let mNames = names.لیست;
+    this.setState({sampleData: mNames});
   }
 
   _toggleModal = () =>
@@ -39,74 +42,53 @@ class ShareSession extends Component {
   _toggleCongestion = () =>
     this.setState({showCongestion: !this.state.showCongestion});
 
-  _findPeopleFromId(id) {
-    for (let j = 0; j < this.state.sampleData.length; j++) {
-      if (this.state.sampleData[j].id === id) {
-        return j;
-      }
-    }
-    return -1;
-  }
-
-  _itemClicked(first, last, mobile, pk, flag) {
-    if (!flag) {
-      this.state.selectedData.push({
-        pk: pk,
-        fields: {
-          first_name: first,
-          last_name: last,
-          mobile: mobile,
-        }
-      });
-      this.setState({selectedData: this.state.selectedData});
-    } else {
-      for (let index in this.state.selectedData) {
-        if (this.state.selectedData[index].pk === pk) {
-          this.state.selectedData.splice(index, 1);
-          break;
-        }
-      }
-      this.setState({selectedData: this.state.selectedData});
-    }
+  _itemClicked(first, last, pk) {
+    this.replaced = pk;
+    this.replacedName = last + " " + first;
+    this._toggleModal();
   }
 
   async _shareSession() {
     let json = await RequestsController.shareSession(
-      this.props.navigation.getParam("session"),
-      this.state.selectedData[0].pk
+      this.props.navigation.getParam("session_id"),
+      this.replaced
     );
-    if (json.meeting_title !== undefined)
+    // if (json.meeting_title !== undefined)
       NavigationService.navigate("MainPage");
-    else {
-      this.congestion = json;
-      this._toggleCongestion();
-    }
+    // else {
+    //   this.congestion = json;
+    //   this._toggleCongestion();
+    // }
     console.log('json is ', json);
   }
 
   render() {
     return (
-      <Wallpaper>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: '#6b62d2',
+        }}
+      >
         <View
           style={{
-            flex: 1
+            flex: 1,
+            margin: 10,
+            backgroundColor: '#FFFFFF',
+            marginTop: 20,
+            borderRadius: 25
           }}>
-          <Text>
+          <Text
+            style={{
+              color: '#6f67d9',
+              textAlign: 'center',
+              width: '100%',
+              fontFamily: 'byekan',
+              fontSize: 18,
+              marginTop: 10
+            }}>
             واگذاری جلسه
           </Text>
-          <FlatList
-            style={{
-              flex: 1,
-              marginBottom: 20
-            }}
-            keyExtractor={(item, index) => index.toString()}
-            data={this.state.selectedData}
-            renderItem={(item) =>
-              <PeopleItem
-                showCheck={true}
-                callback={this._itemClicked}
-                item={item}/>}
-          />
           <FlatList
             style={{
               flex: 1,
@@ -116,13 +98,15 @@ class ShareSession extends Component {
             data={this.state.sampleData}
             renderItem={(item) =>
               <PeopleItem
-                showCheck={true}
+                showCheck={false}
                 callback={this._itemClicked}
                 item={item}/>}
           />
         </View>
-        <Modal isVisible={this.state.showDialog}
-               onBackdropPress={this._toggleModal}>
+        <Modal
+          isVisible={this.state.showDialog}
+          onBackdropPress={this._toggleModal}
+        >
           <View
             style={{
               backgroundColor: "#FFFFFF",
@@ -139,9 +123,7 @@ class ShareSession extends Component {
                 fontSize: 18,
                 marginTop: 10
               }}>
-              شما در حال اضافه کردن {this.state.selectedData.length} نفر هستید
-              {"\n"}
-              آیا از ایجاد جلسه جدید مطمئن هستید؟
+              آیا مایل  جناب {this.replacedName} به عنوان جایگزین شما در جلسه شرکت نماید؟
             </Text>
             <View
               style={{
@@ -175,7 +157,7 @@ class ShareSession extends Component {
               </TouchableWithoutFeedback>
               <TouchableWithoutFeedback
                 onPress={() => {
-                  this._saveSession();
+                  this._shareSession();
                   this._toggleModal();
                 }}>
                 <View>
@@ -256,33 +238,7 @@ class ShareSession extends Component {
             </View>
           </View>
         </Modal>
-        <TouchableWithoutFeedback
-          style={{
-            marginVertical: 40,
-            marginBottom: 40,
-          }}
-          onPress={this._toggleModal}>
-          <View>
-            <Text
-              style={{
-                fontFamily: 'byekan',
-                fontSize: 18,
-                width: '80%',
-                textAlign: 'center',
-                color: '#FFFFFF',
-                alignSelf: 'center',
-                backgroundColor: '#F035E0',
-                borderRadius: 30,
-                marginBottom: 40,
-                paddingVertical: 10,
-                paddingHorizontal: 25,
-              }}>
-              واگذاری جلسه
-            </Text>
-          </View>
-        </TouchableWithoutFeedback>
-
-      </Wallpaper>
+      </View>
     );
   }
 }

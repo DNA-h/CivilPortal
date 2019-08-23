@@ -74,7 +74,7 @@ export class RequestsController {
     let headers = new Headers();
     headers.append('Content-Type', 'application/json');
     headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
-    let json = await ConnectionManager.doFetch("http://185.211.57.73/api/peoples/", 'POST',
+    await ConnectionManager.doFetch("http://185.211.57.73/api/peoples/", 'POST',
       JSON.stringify({
         places: [{
           place_title: title, place_address: addres,
@@ -82,11 +82,13 @@ export class RequestsController {
         }]
       }), headers, true);
     // console.log('json is ', json);
+    let json = await RequestsController.MyPlaces();
     return json;
   }
 
   static async shareSession(session, user) {
     let headers = new Headers();
+    console.log("session ", session);
     headers.append('Content-Type', 'application/json');
     headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
     let json = await ConnectionManager.doFetch("http://185.211.57.73/api/replaces/", 'POST',

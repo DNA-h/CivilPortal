@@ -1,12 +1,11 @@
 import React, {Component} from "react";
 import {
   Text, View, FlatList, Image, TouchableWithoutFeedback,
-  StatusBar, Button, ImageBackground
+  StatusBar, Button, ImageBackground, Dimensions
 } from 'react-native';
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "./Actions";
 import CalendarItem from "./Components/CalendarItem";
-import ActionButton from 'react-native-action-button';
 import NavigationService from "./Service/NavigationService";
 import SplashScreen from 'react-native-splash-screen';
 import {createDrawerNavigator, DrawerItems, DrawerActions} from "react-navigation";
@@ -18,10 +17,12 @@ import Modal from "react-native-modal";
 
 let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
   "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
-let gMonths = ["ژانویه", "فوریه", "مارس", "آوریل", "مه", "ژوئن", "ژوئیه",
-  "اوت", "سپتامبر", "اوکتبر", "نوامبر", "دسامبر"];
-let weekDays = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه شنبه', 'چهارشنبه', 'پنج شنبه', 'جمعه'];
+let gMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
+  "Aug", "Sep", "Oct", "Nov", "Dec"];
+let weekDays = ['یکشنبه', 'دوشنبه', 'سه شنبه', 'چهارشنبه', 'پنج شنبه', 'جمعه', 'شنبه'];
 let arabicNumbers = ['۰', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+const DEVICE_WIDTH = Dimensions.get('window').width;
+const DEVICE_HEIGHT = Dimensions.get('window').height;
 
 class MainPage extends Component {
 
@@ -37,8 +38,7 @@ class MainPage extends Component {
       sampleData: [],
       visible: false
     };
-    this.result = [{people: "{}"}];
-    this.people = {};
+    this.result = [{people: []}];
     this._dayPressed = this._dayPressed.bind(this);
     this._init = this._init.bind(this);
     this.parseGeorgianDate = this.parseGeorgianDate.bind(this);
@@ -58,52 +58,17 @@ class MainPage extends Component {
     let value = jalali.jy + "-" + (jalali.jm < 10 ? '0' + jalali.jm : jalali.jm) + "-" +
       (jalali.jd < 10 ? '0' + jalali.jd : jalali.jd);
     let result = await RequestsController.MySessions(value);
-    this.state.sampleData = [];
-    for (let index in result) {
-      // console.log('audience is ', result[index]['as audience']);
-      if (result[index]['as audience'] !== undefined) {
-        let item = {
-          id: result[index]['as audience'].id,
-          start: result[index]['as audience'].start_time,
-          end: result[index]['as audience'].end_time,
-          title: result[index]['as audience'].meeting_title,
-          left: 0,
-        };
-        this.state.sampleData.push(item);
-      } else if (result[index]['as owner'] !== undefined) {
-        let item = {
-          id: result[index]['as owner'].id,
-          start: result[index]['as owner'].start_time,
-          end: result[index]['as owner'].end_time,
-          title: result[index]['as owner'].meeting_title,
-          left: 0,
-        };
-        this.state.sampleData.push(item);
-      }
-    }
-    // console.log('sampleData', this.state);
-    this.setState({sampleData: this.state.sampleData});
+    this.setState({sampleData: result});
   }
 
   async _itemClicked(id) {
-    this.result = await RequestsController.specificSession(id.toString());
-    // console.log('result ', this.result);
-    // this.result = JSON.stringify(this.result);
-    let value = this.result[0].people.replace(/'/g, '\"');
-    // value = value.replace('True','"True"');
-    // value.split('True').join('"True"');
-    var find = 'True';
-    var re = new RegExp(find, 'g');
-    value = value.replace(re, '"True"');
-    this.people = await JSON.parse(value);
-    // console.log('json is ', this.people);
+    this.result = await RequestsController.specificSession(id);
     this.setState({visible: true});
   }
 
   async componentDidMount() {
     SplashScreen.hide();
     await this.checkToken();
-    await this._loadSessions();
     StatusBar.setBackgroundColor('#6A61D1')
   }
 
@@ -111,20 +76,22 @@ class MainPage extends Component {
     let token = await DBManager.getSettingValue('token');
     if (token === undefined || token === null || token.length !== 40)
       NavigationService.navigate('Login', null);
+    else
+      await this._loadSessions();
   }
 
   static prettifyTime(str) {
     if (str === undefined) return;
     const year = parseInt(str.substr(0, 4), 10);
     const month = parseInt(str.substr(6, 2), 10);
-    const day = parseInt(str.substr(9, 2), 10);
+    const day = parseInt(str.substr(8, 2), 10);
     let jalaali = require('jalaali-js');
     const g = jalaali.toGregorian(year, month, day);
     const date = new Date();
     date.setDate(g.gd);
-    date.setMonth(g.gm);
+    date.setMonth(g.gm - 1);
     date.setFullYear(g.gy);
-    return (`${year} ${months[month-1]} ${date.getDay()}`);
+    return (`${weekDays[date.getDay()]} ${day} ${months[month - 1]}`);
   }
 
   _init() {
@@ -163,22 +130,18 @@ class MainPage extends Component {
   parseGeorgianDate() {
     let date = new Date();
     date.setDate(date.getDate() + this.difference);
-    let value = date.getDate() + " " + gMonths[date.getMonth()] + "\n" + date.getFullYear();
+    let value = date.getDate() + " " + gMonths[date.getMonth()] + " " + date.getFullYear() +
+      "\n" + date.getDate() + " / " + date.getMonth() + " / " + date.getFullYear();
     let chars = value.split('');
-    for (let index in chars)
-      if (chars[index] >= '0' && chars[index] <= '9')
-        chars[index] = arabicNumbers[chars[index] - '0'];
     return chars.join('');
   }
 
   parseHijriDate() {
     let hijri = require('hijri');
     let date = hijri.convert(new Date(), this.difference);
-    let value = date.dayOfMonth + " " + date.monthText + "\n" + date.year;
+    let value = date.dayOfMonth + " " + date.monthText + " " + date.year +
+      "\n" + date.year + " / " + date.month + " / " + date.dayOfMonth;
     let chars = value.split('');
-    for (let index in chars)
-      if (chars[index] >= '0' && chars[index] <= '9')
-        chars[index] = arabicNumbers[chars[index] - '0'];
     return chars.join('');
   }
 
@@ -249,66 +212,23 @@ class MainPage extends Component {
             </View>
             <Text
               style={{
-                fontFamily: 'byekan',
                 fontSize: 13,
                 color: '#FFFFFF',
                 width: '100%',
                 textAlign: 'center',
-                paddingEnd: 10,
-                paddingStart: 10,
-                marginTop: 25
+                paddingEnd: 30,
+                paddingStart: 0,
+                marginTop: 35
               }}>
-              {this.state.todayGeorgian}
+              {this.state.todayGeorgian.substr(0, this.state.todayGeorgian.search("\n"))}
+              <Text
+                style={{
+                  fontFamily: 'arial'
+                }}
+              >
+                {this.state.todayGeorgian.substr(this.state.todayGeorgian.search("\n"))}
+              </Text>
             </Text>
-          </View>
-          <View
-            style={{
-              width: 90,
-              height: 90,
-              borderRadius: 45,
-              backgroundColor: '#6f67d9',
-              marginTop: 10
-            }}>
-            <View style={{flex: 1, justifyContent: 'center'}}>
-              <Text
-                style={{
-                  fontFamily: 'byekan',
-                  fontSize: 13,
-                  color: '#FFFFFF',
-                  width: '100%',
-                  textAlign: 'center',
-                  paddingEnd: 10,
-                  paddingStart: 10
-                }}>
-                {this.state.todayPersian1}
-              </Text>
-              <Text
-                style={{
-                  fontFamily: 'byekan',
-                  fontSize: 40,
-                  color: '#FFFFFF',
-                  width: '100%',
-                  textAlign: 'center',
-                  paddingEnd: 10,
-                  paddingStart: 10,
-                  marginTop: -10
-                }}>
-                {this.state.todayPersian2}
-              </Text>
-              <Text
-                style={{
-                  fontFamily: 'byekan',
-                  fontSize: 13,
-                  color: '#FFFFFF',
-                  width: '100%',
-                  textAlign: 'center',
-                  paddingEnd: 10,
-                  paddingStart: 10,
-                  marginTop: -10
-                }}>
-                {this.state.todayPersian3}
-              </Text>
-            </View>
           </View>
           <View
             style={{
@@ -322,7 +242,8 @@ class MainPage extends Component {
                   width: 20,
                   height: 20,
                   margin: 10,
-                  marginRight: 20
+                  marginRight: 30,
+                  transform: [{rotateY: '180deg'}]
                 }}
                 tintColor={'#FFFFFF'}
                 source={require("./images/nav_icon.png")}/>
@@ -334,26 +255,29 @@ class MainPage extends Component {
                 color: '#FFFFFF',
                 width: '100%',
                 textAlign: 'center',
-                paddingEnd: 10,
-                paddingStart: 10,
+                paddingEnd: 0,
+                paddingStart: 30,
                 marginTop: 15
               }}>
-              {this.state.todayHijri}
+              {this.state.todayHijri.substr(0, this.state.todayHijri.search("\n"))}
+              <Text
+                style={{
+                  fontFamily: 'arial'
+                }}
+              >
+                {this.state.todayHijri.substr(this.state.todayHijri.search("\n"))}
+              </Text>
             </Text>
           </View>
         </View>
-        <View
-          style={{
-            height: 1,
-            width: '100%'
-          }}/>
         <View
           style={{
             flex: 10,
             backgroundColor: '#FFFFFF',
             marginHorizontal: 20,
             borderRadius: 20,
-            marginBottom: 35
+            marginBottom: 30,
+            paddingTop: 15,
           }}>
           <Text
             style={{
@@ -379,17 +303,18 @@ class MainPage extends Component {
             renderItem={(item) =>
               <CalendarItem
                 callback={this._itemClicked}
-                share={() => NavigationService.navigate('Share')}
+                share={() => NavigationService.navigate('Share',{session_id: item.item.id})}
                 item={item}/>}
           />
           <Modal
             isVisible={this.state.visible}
-            onBackdropPress={() => this.setState({visible: false})}>
+            onBackdropPress={() => this.setState({visible: false})}
+            onBackButtonPress={() => this.setState({visible: false})}>
             <View
               style={{
                 backgroundColor: "#FFFFFF",
                 height: '80%',
-                justifyContent: 'space-between',
+                alignItems: 'center',
                 borderRadius: 10,
                 marginStart: 10,
                 marginEnd: 10,
@@ -397,56 +322,56 @@ class MainPage extends Component {
                 paddingEnd: 10,
                 paddingBottom: 5
               }}>
-              <Text style={{
-                fontFamily: 'byekan',
-                color: '#6f67d9',
-                fontSize: 18,
-                textAlign: 'center'
-              }}>
+              <Text
+                style={{
+                  fontFamily: 'byekan',
+                  color: '#6f67d9',
+                  fontSize: 18,
+                  textAlign: 'center'
+                }}>
                 خلاصه ای از جلسه
               </Text>
-              <View style={{flexDirection: 'row', marginTop: 10}}>
-                <Text style={{fontFamily: 'byekan', flex: 1}}>
+              <View style={{flexDirection: 'row', marginVertical: 10}}>
+                <Text style={{fontFamily: 'byekan', flex: 1, textAlign: 'right'}}>
                   {this.result[0].meeting_title}
                 </Text>
                 <Image
-                  style={{width: 12, height: 12, margin: 5}}
-                  tintColor={'#6f67d9'}
+                  style={{width: 12, height: 12, margin: 5, marginLeft: 20}}
+                  tintColor={'#CCC'}
                   source={require('./images/ic_title.png')}/>
               </View>
-              <View style={{flexDirection: 'row', marginTop: 5}}>
+              <View style={{height: 1, width: '80%', backgroundColor: '#CCC'}}/>
+              <View style={{flexDirection: 'row', marginVertical: 10}}>
                 <Text style={{fontFamily: 'byekan', flex: 1}}>
                   {MainPage.prettifyTime(this.result[0].start_time)}
                 </Text>
                 <Image
-                  style={{width: 12, height: 12, margin: 5}}
-                  tintColor={'#6f67d9'}
-                  source={require('./images/ic_title.png')}/>
+                  style={{width: 12, height: 12, margin: 5, marginLeft: 20}}
+                  tintColor={'#CCC'}
+                  source={require('./images/ic_calendar.png')}/>
               </View>
-              <View style={{flexDirection: 'row', marginTop: 5}}>
+              <View style={{height: 1, width: '80%', backgroundColor: '#CCC'}}/>
+              <View style={{flexDirection: 'row', marginVertical: 10}}>
                 <Text style={{fontFamily: 'byekan', flex: 1}}>
-                  {this.result[0].start_time}
+                  {this.result[0].start_time === undefined ? '' :
+                    `از ساعت ${this.result[0].start_time.substr(12, 5)} تا ساعت${this.result[0].end_time.substr(12, 5)}`}
                 </Text>
-                <Text style={{fontFamily: 'byekan', flex: 1}}>
-                  ساعت شروع:
-                </Text>
+                <Image
+                  style={{width: 12, height: 12, margin: 5, marginLeft: 20}}
+                  tintColor={'#CCC'}
+                  source={require('./images/ic_clock.png')}/>
               </View>
-              <View style={{flexDirection: 'row', marginTop: 5}}>
-                <Text style={{fontFamily: 'byekan', flex: 1}}>
-                  {this.result[0].end_time}
+              <View style={{height: 1, width: '80%', backgroundColor: '#CCC'}}/>
+              <View style={{flexDirection: 'row', marginVertical: 10}}>
+                <Text style={{fontFamily: 'byekan', flex: 1, textAlign:'right'}}>
+                  {this.result[0].place_address}
                 </Text>
-                <Text style={{fontFamily: 'byekan', flex: 1}}>
-                  ساعت پایان:
-                </Text>
+                <Image
+                  style={{width: 12, height: 12, margin: 5, marginLeft: 20}}
+                  tintColor={'#CCC'}
+                  source={require('./images/ic_location.png')}/>
               </View>
-              <View style={{flexDirection: 'row', marginTop: 5}}>
-                <Text style={{fontFamily: 'byekan', flex: 1}}>
-                  {this.result[0].meeting_owner}
-                </Text>
-                <Text style={{fontFamily: 'byekan', flex: 1}}>
-                  مدیر جلسه:
-                </Text>
-              </View>
+              <View style={{height: 1, width: '80%', backgroundColor: '#CCC'}}/>
               {this.sessionDetilItem()}
             </View>
           </Modal>
@@ -489,30 +414,170 @@ class MainPage extends Component {
             </View>
           </TouchableWithoutFeedback>
         </View>
+        <View
+          style={{
+            position: 'absolute',
+            width: DEVICE_WIDTH/4,
+            height: DEVICE_WIDTH/4,
+            borderRadius: DEVICE_WIDTH/8,
+            top: 0,
+            left: (DEVICE_WIDTH - DEVICE_WIDTH/4) / 2,
+            right: (DEVICE_WIDTH - DEVICE_WIDTH/4) / 2,
+            backgroundColor: '#6f67d9',
+            zIndex: 100,
+            marginTop: DEVICE_HEIGHT/30
+          }}>
+          <View style={{flex: 1, justifyContent: 'center'}}>
+            <Text
+              style={{
+                fontFamily: 'byekan',
+                fontSize: 13,
+                color: '#FFFFFF',
+                width: '100%',
+                textAlign: 'center',
+                paddingEnd: 10,
+                paddingStart: 10
+              }}>
+              {this.state.todayPersian1}
+            </Text>
+            <Text
+              style={{
+                fontFamily: 'byekan',
+                fontSize: 40,
+                color: '#FFFFFF',
+                width: '100%',
+                textAlign: 'center',
+                paddingEnd: 10,
+                paddingStart: 10,
+                marginTop: -10
+              }}>
+              {this.state.todayPersian2}
+            </Text>
+            <Text
+              style={{
+                fontFamily: 'byekan',
+                fontSize: 13,
+                color: '#FFFFFF',
+                width: '100%',
+                textAlign: 'center',
+                paddingEnd: 10,
+                paddingStart: 10,
+                marginTop: -10
+              }}>
+              {this.state.todayPersian3}
+            </Text>
+          </View>
+        </View>
       </ImageBackground>
     );
   }
 
   sessionDetilItem() {
-    let keys = Object.keys(this.people);
     return (
       <View>
-        <Text style={{
-          fontFamily: 'byekan', textAlign: 'center',
-          color: '#6f67d9', marginTop: 10
-        }}>
-          افراد حاضر در جلسه
-        </Text>
-        {keys.map((val, index) =>
-          <View style={{flexDirection: 'row', marginTop: 5}} key={index}>
-            <View style={{flex: 1}}/>
-            <Text style={{fontFamily: 'byekan'}}>
-              {this.people[val].last_name}
+        <View style={{flexDirection: 'row', marginVertical: 10}}>
+          <Text style={{fontFamily: 'byekan', flex: 1}}>
+            افرادی که در جلسه حضور دارند
+          </Text>
+          <Image
+            style={{width: 12, height: 12, margin: 5, marginLeft: 20}}
+            tintColor={'#CCC'}
+            source={require('./images/ic_location.png')}/>
+        </View>
+        <View style={{height: 1, width: '90%', backgroundColor: '#CCC'}}/>
+        <View
+          style={{
+            alignItems: 'center'
+          }}
+        >
+          <View
+            style={{
+              flexDirection: 'row',
+              width: '100%',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              borderRadius: 10,
+              paddingTop: 5,
+              paddingBottom: 5,
+            }}>
+            <Text
+              style={{
+                flex: 1,
+                fontFamily: 'byekan',
+                textAlign: 'right',
+                color: '#6f67d9'
+              }}>
+              {this.result[0].meeting_owner}
             </Text>
-            <Text style={{fontFamily: 'byekan'}}>
-              {this.people[val].first_name}
-            </Text>
-            <View style={{flex: 1}}/>
+            <View
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: 25,
+                overflow: 'hidden',
+                borderWidth: 2,
+                borderColor: '#00b',
+                margin: 10,
+              }}
+            >
+              <Image
+                style={{
+                  width: 50,
+                  height: 50,
+                  resizeMode: 'contain',
+                }}
+                source={{uri: this.result[0].owner_image}}/>
+            </View>
+          </View>
+          <View style={{height: 1, width: '90%', backgroundColor: '#CCC'}}/>
+        </View>
+        {this.result[0].people.map((val, index) =>
+          <View
+            style={{
+              alignItems: 'center'
+            }}
+          >
+            <View
+              style={{
+                flexDirection: 'row',
+                width: '100%',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                borderRadius: 10,
+                paddingTop: 5,
+                paddingBottom: 5,
+              }}>
+              <Text
+                style={{
+                  flex: 1,
+                  fontFamily: 'byekan',
+                  textAlign: 'right',
+                  color: '#6f67d9'
+                }}>
+                {this.result[0].people[index].last_name + " " +
+                this.result[0].people[index].first_name}
+              </Text>
+              <View
+                style={{
+                  width: 50,
+                  height: 50,
+                  borderRadius: 25,
+                  overflow: 'hidden',
+                  borderWidth: 2,
+                  borderColor: '#00b',
+                  margin: 10,
+                }}
+              >
+                <Image
+                  style={{
+                    width: 50,
+                    height: 50,
+                    resizeMode: 'contain',
+                  }}
+                  source={{uri: this.result[0].people[index].image}}/>
+              </View>
+            </View>
+            <View style={{height: 1, width: '90%', backgroundColor: '#CCC'}}/>
           </View>
         )}
       </View>
@@ -527,24 +592,101 @@ const MyDrawerNavigator = createDrawerNavigator({
       title: 'صفحه اصلی',
     }),
   },
-  AddNewSession: {
-    screen: AddNewSession,
-    navigationOptions: ({navigation}) => ({
-      title: 'ثبت جلسه جدید',
-    }),
-  },
   CalendarPage: {
     screen: CalendarPage,
     navigationOptions: ({navigation}) => ({
-      title: 'مشاهده تقویم من',
+      title: 'تماس با ما',
+    }),
+  },
+  Test: {
+    screen: CalendarPage,
+    navigationOptions: ({navigation}) => ({
+      title: 'پرداخت ها',
+    }),
+  },
+  Test1: {
+    screen: CalendarPage,
+    navigationOptions: ({navigation}) => ({
+      title: 'گزارش گیری',
+    }),
+  },
+  Test2: {
+    screen: CalendarPage,
+    navigationOptions: ({navigation}) => ({
+      title: 'درخواست خودرو',
+    }),
+  },
+  Test3: {
+    screen: CalendarPage,
+    navigationOptions: ({navigation}) => ({
+      title: 'نظرسنجی',
     }),
   },
 }, {
+  drawerBackgroundColor: '#FFFFFF00',
   contentComponent: (props) => (
-    <View>
-      <DrawerItems {...props} />
-    </View>
+    <ImageBackground
+      source={require("./images/drawer.png")}
+      resizeMode='cover'
+      style={{
+        flex: 2,
+        paddingStart: DEVICE_HEIGHT * 0.14
+      }}
+    >
+      <View
+        style={{
+          flex: 2,
+          width: '100%',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+        <View
+          style={{
+            width: 100,
+            height: 100,
+            borderRadius: 50,
+            borderWidth: 2,
+            borderColor: '#FFF',
+            overflow: 'hidden'
+          }}
+        >
+          <Image
+            style={{
+              width: 100,
+              height: 100,
+              resizeMode: 'contain'
+            }}
+            source={require('./images/ic_profile.png')}
+          />
+        </View>
+      </View>
+      <DrawerItems
+        {...props}
+      />
+      <View
+        style={{
+          flex: 2,
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        <Image
+          style={{
+            width: 150,
+            height: 150,
+            tintColor: 'rgb(148,142,246)',
+            resizeMode: 'contain'
+          }}
+          source={require('./images/ic_clock.png')}
+        />
+      </View>
+    </ImageBackground>
   ),
+  contentOptions: {
+    itemStyle: {justifyContent: 'flex-end'},
+    inactiveLabelStyle: {fontFamily: 'byekan', textAlign: 'right', color: '#CCC'},
+    activeLabelStyle: {fontFamily: 'byekan', textAlign: 'right', color: '#FFF'},
+  },
   drawerPosition: 'right'
 });
 

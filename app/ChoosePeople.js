@@ -39,7 +39,7 @@ class ChoosePeople extends Component {
         first_name: mme[0].fields.first_name,
         last_name: mme[0].fields.last_name,
         mobile: mme[0].fields.mobile,
-        pic: 'http://127.0.0.1:8001/static/uploads/' + mme[0].fields.image,
+        pic: 'http://185.211.57.73/static/uploads/' + mme[0].fields.image,
         rank: 'خودم'
       }
     };
@@ -98,7 +98,6 @@ class ChoosePeople extends Component {
       this.congestion = json;
       this._toggleCongestion();
     }
-    console.log('json is ', json);
   }
 
   render() {
@@ -171,8 +170,10 @@ class ChoosePeople extends Component {
             </View>
           </TouchableWithoutFeedback>
         </View>
-        <Modal isVisible={this.state.showDialog}
-               onBackdropPress={this._toggleModal}>
+        <Modal
+          isVisible={this.state.showDialog}
+          onBackdropPress={this._toggleModal}
+        >
           <View
             style={{
               backgroundColor: "#FFFFFF",
@@ -251,8 +252,9 @@ class ChoosePeople extends Component {
             </View>
           </View>
         </Modal>
-        <Modal isVisible={this.state.showCongestion}
-               onBackdropPress={this._toggleCongestion}>
+        <Modal
+          isVisible={this.state.showCongestion}
+          onBackdropPress={this._toggleCongestion}>
           <View
             style={{
               backgroundColor: "#FFFFFF",
@@ -269,9 +271,9 @@ class ChoosePeople extends Component {
                 fontSize: 18,
                 marginTop: 10
               }}>
-              متاسفانه در هنگام ایجاد جلسه خطایی رخ داد
+              تعدادی از افراد انتخاب شده در زمان تعیین شده در جلسه دیگری نیز حضور دارند
               {"\n"}
-              {this.congestion}
+              آیا همچنان مایل به ثبت جلسه هستید؟ برای بررسی مجدد خیر را انتخاب نمایید.
             </Text>
             <View
               style={{

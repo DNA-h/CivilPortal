@@ -148,6 +148,7 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-immersive')
     implementation project(':react-native-linear-gradient')
     implementation project(':react-native-splash-screen')
     implementation project(':@mapbox_react-native-mapbox-gl')

@@ -8,14 +8,15 @@ import NavigationService from "./Service/NavigationService";
 import Item from "./Components/Item";
 import SplashScreen from "react-native-splash-screen";
 import {RequestsController} from "./Utils/RequestController";
-import Carousel from 'react-native-snap-carousel';
+import Carousel, {getInputRangeFromIndexes} from 'react-native-snap-carousel';
 import Modal from "react-native-modal";
+import Globals from "./Utils/Globals";
 
 let dailyHour = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
 let dailyMinutes = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '55', '50', '55'];
 let monthsDays = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31'];
 let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
-let days = [`دو${'\n'}شنبه`, `سه${'\n'}شنبه`, `چهار${'\n'}شنبه`, `پنج${'\n'}شنبه`, `جمعه`, `شنبه`, `یک${'\n'}شنبه`];
+let days = [`یک${'\n'}شنبه`,`دو${'\n'}شنبه`, `سه${'\n'}شنبه`, `چهار${'\n'}شنبه`, `پنج${'\n'}شنبه`, `جمعه`, `شنبه`];
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
 
@@ -76,8 +77,10 @@ class AddNewSession extends Component {
       endHour: 0,
       endMinute: date.getMinutes() - (date.getMinutes() % 5),
       currentPlace: -1,
+      currentPlaceTitle: '',
       places: [],
       selectPlace: false,
+      createNewVisible: false
     };
     this.handleScroll = this.handleScroll.bind(this);
     this._loadPlaces = this._loadPlaces.bind(this);
@@ -106,11 +109,20 @@ class AddNewSession extends Component {
     this.state.places = [];
     for (let index in result) {
       let item = {
-        pk: result[index].pk, title: result[index].fields.place_title
+        pk: result[index].pk,
+        title: result[index].fields.place_title,
       };
       this.state.places.push(item);
     }
     this.setState({places: this.state.places});
+  }
+
+  _scrollInterpolator(index, carouselProps) {
+    const range = [3, 2, 1, 0, -1, -2, -3];
+    const inputRange = getInputRangeFromIndexes(range, index, carouselProps);
+    const outputRange = range;
+
+    return {inputRange, outputRange};
   }
 
   render() {
@@ -195,8 +207,8 @@ class AddNewSession extends Component {
                   enableMomentum
                   useScrollView={false}
                   activeSlideAlignment={"start"}
-                  contentContainerCustomStyle={{paddingStart: 0, paddingEnd: 0}}
-                  containerCustomStyle={{paddingStart: 0, paddingEnd: 0}}
+                  contentContainerCustomStyle={{paddingHorizontal:0, paddingVertical:0}}
+                  containerCustomStyle={{paddingHorizontal:0, paddingVertical:0}}
                   onSnapToItem={(item) => {
                     console.log('item ', item);
                     let date = new Date();
@@ -207,59 +219,85 @@ class AddNewSession extends Component {
                     this.state.selectedDay = jalali.jd - 1;
                   }}
                   ListHeaderComponent={
-                    <View style={{flexDirection: 'row', width: DEVICE_WIDTH / 2 - 60, justifyContent:'space-around'}}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        width: DEVICE_WIDTH / 2 - 60,
+                        justifyContent: 'space-around',
+                      }}>
                       <Item
                         date={this.extras[2].date}
                         month={this.extras[2].month}
                         day={this.extras[2].day}
+                        opacity={0.1}
                       />
                       <Item
                         date={this.extras[1].date}
                         month={this.extras[1].month}
                         day={this.extras[1].day}
+                        opacity={0.5}
                       />
                       <Item
                         date={this.extras[0].date}
                         month={this.extras[0].month}
                         day={this.extras[0].day}
+                        opacity={0.8}
                       />
                     </View>}
                   ListFooterComponent={
-                    <View style={{flexDirection: 'row'}}>
+                    <View
+                      style={{
+                      flexDirection: 'row',
+                      width: DEVICE_WIDTH / 2 - 60,
+                      justifyContent: 'space-around',
+                    }}>
                       <Item
                         date={this.extras[3].date}
                         month={this.extras[3].month}
                         day={this.extras[3].day}
+                        opacity={0.8}
                       />
                       <Item
                         date={this.extras[4].date}
                         month={this.extras[4].month}
                         day={this.extras[4].day}
+                        opacity={0.5}
                       />
                       <Item
                         date={this.extras[5].date}
                         month={this.extras[5].month}
                         day={this.extras[5].day}
+                        opacity={0.1}
                       />
                     </View>}
                   layout={'default'}
                   ref={(c) => {
                     this.mainC = c;
                   }}
+                  scrollInterpolator={this._scrollInterpolator}
                   slideInterpolatedStyle={(index, animatedValue, carouselProps) => {
                     return {
+                      opacity: animatedValue.interpolate({
+                        inputRange: [-3, -2, -1, 0, 1, 2, 3],
+                        outputRange: [0.1, 0.5, 0.8, 1, 0.8, 0.5, 0.1],
+                        extrapolate: 'clamp'
+                      }),
                       transform: [{
                         scale: animatedValue.interpolate({
-                          inputRange: [0, 1], outputRange: [1, 1.4]
-                        })
+                          inputRange: [-3, -2, -1, 0, 1, 2, 3],
+                          outputRange: [1, 1, 1, 1.4, 1, 1, 1]
+                        }),
                       }],
                     }
                   }}
-                  renderItem={({item, index}) => <Item
-                    date={item.date}
-                    month={item.month}
-                    day={item.day}
-                  />}/>
+                  renderItem={({item, index}) =>
+                    <Item
+                      date={item.date}
+                      month={item.month}
+                      day={item.day}
+                    />
+                  }
+                />
                 <TouchableWithoutFeedback
                   onPress={() => {
                     this.mainC.snapToNext();
@@ -344,17 +382,21 @@ class AddNewSession extends Component {
                       backgroundColor: '#FFFFFF',
                       borderRadius: 15
                     }}
-                    renderItem={({item, index}) => <View
-                      style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
-                      <Text
-                        style={{
-                          fontSize: 18,
-                          fontFamily: 'byekan',
-                          borderRadius: 12,
-                          textAlign: 'center'
-                        }}>
-                        {item}
-                      </Text></View>}/>
+                    renderItem={({item, index}) =>
+                      <View
+                        style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
+                        <Text
+                          style={{
+                            fontSize: 18,
+                            fontFamily: 'byekan',
+                            borderRadius: 12,
+                            textAlign: 'center'
+                          }}>
+                          {item}
+                        </Text>
+                      </View>
+                    }
+                  />
 
                 </View>
                 <Text style={{marginHorizontal: 10, color: '#FFFFFF'}}>:</Text>
@@ -536,6 +578,7 @@ class AddNewSession extends Component {
                   backgroundColor: '#FFFFFF',
                   flexDirection: 'row',
                   alignItems: 'center',
+                  justifyContent: 'center',
                   marginHorizontal: 30,
                   marginTop: 5
                 }}>
@@ -548,15 +591,10 @@ class AddNewSession extends Component {
                     fontFamily: 'byekan',
                     marginHorizontal: 20,
                     borderRadius: 20,
-                    height: 40,
                   }}
-                  autoCapitalize="none"
-                  onChangeText={(text) => {
-                    this.address = text;
-                  }}
-                  autoCorrect={false}
-                  returnKeyType="next"
-                  placeholderTextColor='#909090'/>
+                >
+                  {this.state.currentPlaceTitle}
+                </Text>
                 <View
                   style={{
                     backgroundColor: '#675ec9',
@@ -593,13 +631,13 @@ class AddNewSession extends Component {
                     <Text
                       style={{
                         fontFamily: 'byekan',
-                        fontSize:18,
+                        fontSize: 18,
                         color: '#888',
                         backgroundColor: '#FFF',
                         textAlign: 'center',
                         borderWidth: 2,
                         borderRadius: 25,
-                        marginTop:5,
+                        marginTop: 5,
                         borderColor: '#808080',
                         paddingHorizontal: 10,
                       }}>
@@ -610,69 +648,179 @@ class AddNewSession extends Component {
               </TouchableWithoutFeedback>
             </View>
             <Modal
+              onBackdropPress={() => this.setState({selectPlace: false})}
               isVisible={this.state.selectPlace}
-              style={{justifyContent: "flex-end"}}
-              onBackdropPress={() => this.setState({selectPlace: false})}>
+            >
               <View
                 style={{
-                  backgroundColor: "#FFFFFF",
-                  borderRadius: 10,
-                  marginStart: 10,
-                  marginEnd: 10,
-                  paddingStart: 10,
-                  paddingEnd: 10,
-                  paddingBottom: 5
-                }}>
-                <View style={{flexDirection: 'row'}}>
-                  <TouchableWithoutFeedback
-                    onPress={() => NavigationService.navigate('Save')}>
-                    <Text
-                      style={{color: '#000'}}>
-                      آدرس جدید
-                    </Text>
-                  </TouchableWithoutFeedback>
-                  <TextInput
+                  height: 300,
+                  width: '95%',
+                  backgroundColor: 'rgba(255,255,255,0.6)',
+                  borderRadius: 15,
+                }}
+              >
+                <FlatList
+                  style={{height: 300}}
+                  data={this.state.places}
+                  renderItem={({item, index}) =>
+                    <TouchableWithoutFeedback
+                      onPress={() => {
+                        this.setState({
+                          currentPlace: item.pk,
+                          currentPlaceTitle: item.title,
+                          selectPlace: false
+                        });
+                      }}>
+                      <View
+                        style={{
+                          marginHorizontal: 15,
+                          marginVertical: 10,
+                          paddingVertical: 6,
+                          borderRadius: 10,
+                          backgroundColor: 'rgb(80,80,80)',
+                          width: '85%',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: '#FFFFFF',
+                            fontFamily: 'byekan'
+                          }}
+                        >
+                          {item.title}
+                        </Text>
+                      </View>
+                    </TouchableWithoutFeedback>
+                  }
+                />
+                <TouchableWithoutFeedback
+                  onPress={() => {
+                    this.setState({createNewVisible: true});
+                  }}
+                >
+                  <View
                     style={{
-                      backgroundColor: '#FFFFFF',
-                      color: '#000',
-                      flex: 1,
-                      textAlign: 'center',
-                      fontFamily: 'byekan',
-                      marginHorizontal: 20,
-                      borderRadius: 20,
-                      height: 40,
+                      marginHorizontal: 15,
+                      marginVertical: 10,
+                      paddingVertical: 5,
+                      backgroundColor: '#675ec9',
+                      borderRadius: 10,
+                      width: '85%',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexDirection: 'row',
                     }}
-                    autoCapitalize="none"
-                    onChangeText={(text) => {
-                      this.address = text;
-                    }}
-                    autoCorrect={false}
-                    returnKeyType="next"
-                    placeholderTextColor='#909090'/>
-                </View>
-                <View>
-                  <FlatList
-                    style={{height: 300}}
-                    data={this.state.places}
-                    renderItem={({item, index}) =>
-                      <TouchableWithoutFeedback
-                        onPress={() => {
-                          this.setState({
-                            currentPlace: index,
-                            selectPlace: false
-                          });
-                        }}>
-                        <View>
-                          <Text>
-                            {item.title}
-                          </Text>
-                        </View>
-                      </TouchableWithoutFeedback>
-                    }
-                  />
-                </View>
+                  >
+                    <Image
+                      source={require('./images/ic_location.png')}
+                      style={{
+                        width: 25,
+                        height: 25,
+                        resizeMode: 'contain',
+                        marginVertical: 5,
+                        marginHorizontal: 10,
+                      }}
+                    />
+                    <Text
+                      style={{
+                        color: '#FFFFFF',
+                        textAlign: 'center',
+                        fontFamily: 'byekan',
+                        flex: 1,
+                      }}
+                    >
+                      اضافه کردن مکان جدید
+                    </Text>
+                  </View>
+                </TouchableWithoutFeedback>
               </View>
             </Modal>
+
+            <Modal
+              onBackdropPress={() => this.setState({createNewVisible: false})}
+              isVisible={this.state.createNewVisible}
+            >
+              <View
+                style={{
+                  backgroundColor: '#818181',
+                  borderRadius: 5,
+                  paddingBottom: 15,
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <TextInput
+                  placeholder="عنوان آدرس (مثلا دفتر مرکزی) ..."
+                  style={{
+                    color: '#FFFFFF',
+                    textAlign: 'center',
+                    backgroundColor: '#636363',
+                    borderRadius: 5,
+                    marginStart: 15,
+                    marginEnd: 15,
+                    marginTop: 15,
+                  }}
+                  placeholderTextColor='#FFFFFF'
+                  onChangeText={(text) => {
+                    this.address = text;
+                  }}
+                />
+                <TextInput
+                  placeholder="آدرس (به صورت کامل) ..."
+                  style={{
+                    color: '#FFFFFF',
+                    textAlign: 'center',
+                    backgroundColor: '#636363',
+                    borderRadius: 5,
+                    marginStart: 15,
+                    marginEnd: 15,
+                    marginTop: 15,
+                  }}
+                  placeholderTextColor='#FFFFFF'
+                  onChangeText={(text) => {
+                    this.text = text;
+                  }}
+                />
+                <TouchableWithoutFeedback
+                  onPress={async () => {
+                    let result = await RequestsController.saveAddress(this.address, this.text, 0, 0);
+                    this.setState({
+                      selectPlace: false,
+                      createNewVisible: false,
+                      currentPlace: result[result.length - 1].pk,
+                      currentPlaceTitle: result[result.length - 1].fields.place_title,
+                    });
+                  }}
+                >
+                  <View
+                    style={{
+                      marginHorizontal: 15,
+                      marginVertical: 10,
+                      paddingVertical: 5,
+                      backgroundColor: '#675ec9',
+                      borderRadius: 10,
+                      width: '85%',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexDirection: 'row',
+                    }}>
+                    <Text
+                      style={{
+                        color: '#FFFFFF',
+                        textAlign: 'center',
+                        fontFamily: 'byekan',
+                        flex: 1,
+                      }}
+                    >
+                      تایید
+                    </Text>
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+            </Modal>
+
             <TouchableWithoutFeedback
               onPress={() => NavigationService.navigate('ChoosePeople', {
                 date: '1398-' + (this.state.selectedMonth + 1) + '-' + (this.state.selectedDay + 1),

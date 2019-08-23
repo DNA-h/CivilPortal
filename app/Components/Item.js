@@ -18,11 +18,12 @@ export default class Item extends React.Component {
             alignItems: 'center',
             marginVertical: 20,
             padding: 5,
+            opacity: this.props.opacity !== undefined ? this.props.opacity : 1
           }}>
           <Text
             style={{
-              color: '#000000',
-              fontSize: 13,
+              color:this.props.day ==='جمعه' ? '#ff2c05' : '#000000',
+              fontSize: 12,
               fontFamily: 'byekan',
               textAlign: 'center'
             }}>
@@ -30,16 +31,16 @@ export default class Item extends React.Component {
           </Text>
           <Text
             style={{
-              color: '#000000',
-              fontSize: 15,
+              color:this.props.day ==='جمعه' ? '#ff2c05' :  '#000000',
+              fontSize: 12,
               fontFamily: 'byekan'
             }}>
             {this.props.date}
           </Text>
           <Text
             style={{
-              color: '#000000',
-              fontSize: 11,
+              color:this.props.day ==='جمعه' ? '#ff2c05' :  '#000000',
+              fontSize: 10,
               textAlign: 'center',
               fontFamily: 'byekan'
             }}>
