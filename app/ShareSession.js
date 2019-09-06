@@ -99,6 +99,7 @@ class ShareSession extends Component {
             renderItem={(item) =>
               <PeopleItem
                 showCheck={false}
+                share={true}
                 callback={this._itemClicked}
                 item={item}/>}
           />

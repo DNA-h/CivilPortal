@@ -14,10 +14,12 @@ class PeopleItem extends Component {
   }
 
   render() {
-    let check = this.props.showCheck === false ? null :
+    let check = this.props.share ? null :
       <CheckBox
-        value={this.state.isSelected}
+        value={this.props.showCheck ? this.state.isSelected : true}
+        disabled={!this.props.showCheck}
         onValueChange={() => {
+          if (!this.props.showCheck) return;
           this.setState(() => {
               this.props.callback(
                 this.props.item.item.first_name,
@@ -28,7 +30,8 @@ class PeopleItem extends Component {
               return {isSelected: !this.state.isSelected}
             }
           );
-        }}/>;
+        }}
+      />;
     // console.log('str ', typeof str);
     return (
       <TouchableWithoutFeedback

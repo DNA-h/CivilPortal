@@ -115,7 +115,7 @@ export class RequestsController {
         force: force, audiences: aud
       }),
       headers, true);
-    // console.log('json is ', json);
+    console.log('json is ', json);
     return json;
   }
 }

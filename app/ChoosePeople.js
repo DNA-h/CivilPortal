@@ -1,12 +1,13 @@
 import React, {Component} from "react";
-import {FlatList, View, Text, SafeAreaView, TouchableWithoutFeedback, Image, CheckBox} from 'react-native';
-import Wallpaper from "./Components/Wallpaper";
+import {Dimensions, FlatList, Image, View, Text, SafeAreaView, TouchableWithoutFeedback} from 'react-native';
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "./Actions/index";
 import PeopleItem from "./Components/PeopleItem";
 import Modal from "react-native-modal";
 import {RequestsController} from "./Utils/RequestController";
 import NavigationService from "./Service/NavigationService";
+
+const {width} = Dimensions.get('window');
 
 class ChoosePeople extends Component {
 
@@ -46,20 +47,14 @@ class ChoosePeople extends Component {
     this.setState({selectedData: this.state.selectedData});
   }
 
-  _toggleModal = () =>
+  _toggleModal = () => {
+    if (this.state.selectedData.length === 0)
+      return;
     this.setState({showDialog: !this.state.showDialog});
+  };
 
   _toggleCongestion = () =>
     this.setState({showCongestion: !this.state.showCongestion});
-
-  _findPeopleFromId(id) {
-    for (let j = 0; j < this.state.sampleData.length; j++) {
-      if (this.state.sampleData[j].id === id) {
-        return j;
-      }
-    }
-    return -1;
-  }
 
   _itemClicked(first, last, mobile, rank, flag) {
     if (!flag) {
@@ -81,7 +76,7 @@ class ChoosePeople extends Component {
     }
   }
 
-  async _saveSession() {
+  async _saveSession(force) {
     let json = await RequestsController.saveSession(
       this.props.navigation.getParam("date") + " " +
       this.props.navigation.getParam("start") + ":00",
@@ -89,7 +84,7 @@ class ChoosePeople extends Component {
       this.props.navigation.getParam("date") + " " +
       this.props.navigation.getParam("end") + ":00",
       this.props.navigation.getParam("meeting_title"),
-      0,
+      force,
       this.state.selectedData
     );
     if (json.meeting_title !== undefined)
@@ -177,73 +172,128 @@ class ChoosePeople extends Component {
           <View
             style={{
               backgroundColor: "#FFFFFF",
-              borderRadius: 10,
+              borderRadius: 25,
               marginStart: 10,
               marginEnd: 10,
               paddingStart: 10,
               paddingEnd: 10,
               paddingBottom: 5
             }}>
-            <Text
-              style={{
-                fontFamily: 'IRANSansMobile',
-                fontSize: 18,
-                marginTop: 10
-              }}>
-              شما در حال اضافه کردن {this.state.selectedData.length} نفر هستید
-              {"\n"}
-              آیا از ایجاد جلسه جدید مطمئن هستید؟
-            </Text>
             <View
               style={{
                 flexDirection: 'row',
-                margin: 10,
-                justifyContent: 'space-between',
-                paddingEnd: 25,
-                paddingStart: 25
+                marginTop: 10
+              }}
+            >
+              <Image
+                style={{
+                  height: 20,
+                  width: 20,
+                  marginLeft: 10,
+                  tintColor: '#6f67d9'
+                }}
+                source={require("./images/ic_back.png")}
+              />
+              <Text
+                style={{
+                  flex: 1,
+                  textAlign: 'center',
+                  fontFamily: 'byekan',
+                  color: '#6f67d9'
+                }}
+              >
+                تکمیل فرایند
+              </Text>
+              <View
+                style={{
+                  borderColor: '#6f67d9',
+                  borderWidth: 2,
+                  borderRadius: 12,
+                  marginRight: 10,
+                }}
+              >
+                <Image
+                  style={{
+                    height: 20,
+                    width: 20,
+                    tintColor: '#6f67d9'
+                  }}
+                  source={require("./images/ic_question.png")}
+                />
+              </View>
+            </View>
+            <View
+              style={{
+                height: 1,
+                width: '90%',
+                alignSelf: 'center',
+                marginTop: 5,
+                backgroundColor: '#CCC'
+              }}
+            />
+            <Text
+              style={{
+                fontFamily: 'byekan',
+                fontSize: 20,
+                marginTop: 10,
+                marginHorizontal: 20,
+                marginVertical: 10,
+                color: '#888'
+              }}>
+              شما {this.state.selectedData.length + 1} نفر را به جلسه دعوت کرده اید، آیا از دعوت آنها اطمینان دارید؟
+            </Text>
+            <View
+              style={{
+                height: 1,
+                width: '90%',
+                alignSelf: 'center',
+                marginTop: 5,
+                backgroundColor: '#CCC'
+              }}
+            />
+            <View
+              style={{
+                flexDirection: 'row',
+                height: 40,
+                alignItems: 'center',
+                width: width * 0.9
               }}>
               <TouchableWithoutFeedback
                 onPress={this._toggleModal}>
                 <View>
                   <Text
                     style={{
-                      fontFamily: 'IRANSansMobile',
-                      paddingEnd: 15,
-                      paddingStart: 15,
-                      marginTop: 5,
-                      marginBottom: 5,
+                      fontFamily: 'byekan',
                       fontSize: 17,
-                      color: "#50E3C2",
-                      borderWidth: 1,
-                      borderColor: "#50E3C2",
-                      borderRadius: 10,
-                      marginStart: 15,
-                      marginEnd: 15
+                      color: "#e36c35",
+                      width: (width * 0.8) / 2,
+                      textAlign: 'center'
                     }}>
                     خیر
                   </Text>
                 </View>
               </TouchableWithoutFeedback>
+              <View
+                style={{
+                  height: 40,
+                  width: 1,
+                  marginTop: 2,
+                  backgroundColor: '#CCC'
+                }}
+              />
               <TouchableWithoutFeedback
                 onPress={() => {
-                  this._saveSession();
+                  this._saveSession(0);
                   this._toggleModal();
                 }}>
                 <View>
                   <Text
                     style={{
-                      fontFamily: 'IRANSansMobile',
-                      paddingEnd: 15,
-                      paddingStart: 15,
-                      marginTop: 5,
-                      marginBottom: 5,
+                      fontFamily: 'byekan',
                       fontSize: 17,
-                      color: "#D0021B",
-                      borderWidth: 1,
-                      borderColor: "#D0021B",
-                      borderRadius: 10,
-                      marginStart: 15,
-                      marginEnd: 15
+                      color: "#7445e3",
+                      width: (width * 0.8) / 2,
+                      textAlign: 'center'
                     }}>
                     بله
                   </Text>
@@ -265,43 +315,123 @@ class ChoosePeople extends Component {
               paddingEnd: 10,
               paddingBottom: 5
             }}>
-            <Text
-              style={{
-                fontFamily: 'IRANSansMobile',
-                fontSize: 18,
-                marginTop: 10
-              }}>
-              تعدادی از افراد انتخاب شده در زمان تعیین شده در جلسه دیگری نیز حضور دارند
-              {"\n"}
-              آیا همچنان مایل به ثبت جلسه هستید؟ برای بررسی مجدد خیر را انتخاب نمایید.
-            </Text>
             <View
               style={{
                 flexDirection: 'row',
-                margin: 10,
-                justifyContent: 'space-between',
-                paddingEnd: 25,
-                paddingStart: 25
+                marginTop: 10
+              }}
+            >
+              <Image
+                style={{
+                  height: 20,
+                  width: 20,
+                  marginLeft: 10,
+                  tintColor: '#6f67d9'
+                }}
+                source={require("./images/ic_back.png")}
+              />
+              <Text
+                style={{
+                  flex: 1,
+                  textAlign: 'center',
+                  fontFamily: 'byekan',
+                  color: '#6f67d9'
+                }}
+              >
+                وجود تداخل
+              </Text>
+              <View
+                style={{
+                  borderColor: '#6f67d9',
+                  borderWidth: 2,
+                  borderRadius: 12,
+                  marginRight: 10,
+                }}
+              >
+                <Image
+                  style={{
+                    height: 20,
+                    width: 20,
+                    tintColor: '#6f67d9'
+                  }}
+                  source={require("./images/ic_question.png")}
+                />
+              </View>
+            </View>
+            <View
+              style={{
+                height: 1,
+                width: '90%',
+                alignSelf: 'center',
+                marginTop: 5,
+                backgroundColor: '#CCC'
+              }}
+            />
+            <Text
+              style={{
+                fontFamily: 'byekan',
+                marginHorizontal: 20,
+                fontSize: 18,
+                marginTop: 10,
+                textAlign:'center'
+              }}>
+              کابر گرامی تعدادی از کارمندان یا پرسنل شما در این بازه زمانی زمانی در جلسه دیگری حضور دارند و امکان دارد
+              در این جلسه حضور پیدا نکنند. مایل به ادامه دادن هستید؟
+            </Text>
+            <View
+            style={{
+              height: 1,
+              width: '90%',
+              alignSelf: 'center',
+              marginTop: 5,
+              backgroundColor: '#CCC'
+            }}
+          />
+            <View
+              style={{
+                flexDirection: 'row',
+                height: 40,
+                alignItems: 'center',
+                width: width * 0.9
               }}>
               <TouchableWithoutFeedback
                 onPress={this._toggleCongestion}>
                 <View>
                   <Text
                     style={{
-                      fontFamily: 'IRANSansMobile',
-                      paddingEnd: 15,
-                      paddingStart: 15,
-                      marginTop: 5,
-                      marginBottom: 5,
+                      fontFamily: 'byekan',
                       fontSize: 17,
-                      color: "#50E3C2",
-                      borderWidth: 1,
-                      borderColor: "#50E3C2",
-                      borderRadius: 10,
-                      marginStart: 15,
-                      marginEnd: 15
+                      color: "#e36c35",
+                      width: (width * 0.8) / 2,
+                      textAlign: 'center'
                     }}>
-                    متوجه شدم
+                    خیر
+                  </Text>
+                </View>
+              </TouchableWithoutFeedback>
+              <View
+                style={{
+                  height: 40,
+                  width: 1,
+                  marginTop: 2,
+                  backgroundColor: '#CCC'
+                }}
+              />
+              <TouchableWithoutFeedback
+                onPress={() => {
+                  this._saveSession(1);
+                  this._toggleCongestion();
+                }}>
+                <View>
+                  <Text
+                    style={{
+                      fontFamily: 'byekan',
+                      fontSize: 17,
+                      color: "#7445e3",
+                      width: (width * 0.8) / 2,
+                      textAlign: 'center'
+                    }}>
+                    بله
                   </Text>
                 </View>
               </TouchableWithoutFeedback>

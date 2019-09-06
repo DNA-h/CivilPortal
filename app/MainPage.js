@@ -11,6 +11,7 @@ import SplashScreen from 'react-native-splash-screen';
 import {createDrawerNavigator, DrawerItems, DrawerActions} from "react-navigation";
 import AddNewSession from "./AddNewSession";
 import CalendarPage from "./CalendarPage";
+import RequestCar from "./RequestCar";
 import DBManager from "./Utils/DBManager";
 import {RequestsController} from "./Utils/RequestController";
 import Modal from "react-native-modal";
@@ -69,15 +70,27 @@ class MainPage extends Component {
   async componentDidMount() {
     SplashScreen.hide();
     await this.checkToken();
-    StatusBar.setBackgroundColor('#6A61D1')
+    StatusBar.setBackgroundColor('#6A61D1');
+    this.routeSubscription = this.props.navigation.addListener(
+      'willFocus',
+      this.fetchData,
+    );
   }
+
+  componentWillUnmount(): void {
+    if (this.routeSubscription) {
+      this.routeSubscription.remove();
+    }
+  }
+
+  fetchData = async () => {
+    this._loadSessions();
+  };
 
   async checkToken() {
     let token = await DBManager.getSettingValue('token');
     if (token === undefined || token === null || token.length !== 40)
       NavigationService.navigate('Login', null);
-    else
-      await this._loadSessions();
   }
 
   static prettifyTime(str) {
@@ -611,7 +624,7 @@ const MyDrawerNavigator = createDrawerNavigator({
     }),
   },
   Test2: {
-    screen: CalendarPage,
+    screen: RequestCar,
     navigationOptions: ({navigation}) => ({
       title: 'درخواست خودرو',
     }),
@@ -624,12 +637,13 @@ const MyDrawerNavigator = createDrawerNavigator({
   },
 }, {
   drawerBackgroundColor: '#FFFFFF00',
+  drawerWidth:DEVICE_HEIGHT/2.5,
   contentComponent: (props) => (
     <ImageBackground
       source={require("./images/drawer.png")}
-      resizeMode='cover'
+      resizeMode='contain'
       style={{
-        flex: 2,
+        flex: 1,
         paddingStart: DEVICE_HEIGHT * 0.14
       }}
     >
