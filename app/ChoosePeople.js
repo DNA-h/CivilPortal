@@ -15,10 +15,7 @@ class ChoosePeople extends Component {
     super(props);
     this.mIDs = [];
     this.state = {
-      showDialog: false,
-      showCongestion: false,
-      sampleData: [],
-      selectedData: []
+      showDialog: false, showCongestion: false, sampleData: [], selectedData: []
     };
     this.me = {item: {rank: 'خودم', first_name: '', last_name: ''}};
     this._loadPeople = this._loadPeople.bind(this);
@@ -48,21 +45,16 @@ class ChoosePeople extends Component {
   }
 
   _toggleModal = () => {
-    if (this.state.selectedData.length === 0)
-      return;
+    if (this.state.selectedData.length === 0) return;
     this.setState({showDialog: !this.state.showDialog});
   };
 
-  _toggleCongestion = () =>
-    this.setState({showCongestion: !this.state.showCongestion});
+  _toggleCongestion = () => this.setState({showCongestion: !this.state.showCongestion});
 
   _itemClicked(first, last, mobile, rank, flag) {
     if (!flag) {
       this.state.selectedData.push({
-        first_name: first,
-        last_name: last,
-        mobile: mobile,
-        rank: rank
+        first_name: first, last_name: last, mobile: mobile, rank: rank
       });
       this.setState({selectedData: this.state.selectedData});
     } else {
@@ -77,73 +69,48 @@ class ChoosePeople extends Component {
   }
 
   async _saveSession(force) {
-    let json = await RequestsController.saveSession(
-      this.props.navigation.getParam("date") + " " +
-      this.props.navigation.getParam("start") + ":00",
-      this.props.navigation.getParam("place"),
-      this.props.navigation.getParam("date") + " " +
-      this.props.navigation.getParam("end") + ":00",
-      this.props.navigation.getParam("meeting_title"),
-      force,
-      this.state.selectedData
-    );
-    if (json.meeting_title !== undefined)
-      NavigationService.navigate("MainPage");
-    else {
+    let json = await RequestsController.saveSession(this.props.navigation.getParam("date") + " " + this.props.navigation.getParam("start") + ":00", this.props.navigation.getParam("place"), this.props.navigation.getParam("date") + " " + this.props.navigation.getParam("end") + ":00", this.props.navigation.getParam("meeting_title"), force, this.state.selectedData);
+    if (json.meeting_title !== undefined) NavigationService.navigate("MainPage"); else {
       this.congestion = json;
       this._toggleCongestion();
     }
   }
 
   render() {
-    return (
-      <SafeAreaView style={{
-        flex: 1,
-        backgroundColor: '#6b62d2',
-      }}>
+    return (<SafeAreaView
+        style={{
+          flex: 1, backgroundColor: '#6b62d2',
+        }}
+      >
         <View
           style={{
-            flex: 1,
-            margin: 10,
-            backgroundColor: '#FFFFFF',
-            marginTop: 20,
-            borderRadius: 25
+            flex: 1, margin: 10, backgroundColor: '#FFFFFF', marginTop: 20, borderRadius: 25
           }}>
           <Text
             style={{
-              color: '#6f67d9',
-              textAlign: 'center',
-              width: '100%',
-              fontFamily: 'byekan',
-              fontSize: 18,
-              marginTop: 10
+              color: '#6f67d9', textAlign: 'center', width: '100%', fontFamily: 'byekan', fontSize: 18, marginTop: 10
             }}>
             انتخاب نفرات
           </Text>
           <FlatList
             style={{
-              flex: 1,
-              marginBottom: 20
+              flex: 1, marginBottom: 20
             }}
             keyExtractor={(item, index) => index.toString()}
             data={this.state.sampleData}
-            ListHeaderComponent={
-              <PeopleItem
-                showCheck={false}
-                callback={() => {
-                }}
-                item={this.me}/>
-            }
-            renderItem={(item) =>
-              <PeopleItem
-                showCheck={true}
-                callback={this._itemClicked}
-                item={item}/>}
+            ListHeaderComponent={<PeopleItem
+              showCheck={false}
+              callback={() => {
+              }}
+              item={this.me} />}
+            renderItem={(item) => <PeopleItem
+              showCheck={true}
+              callback={this._itemClicked}
+              item={item} />}
           />
           <TouchableWithoutFeedback
             style={{
-              marginVertical: 40,
-              marginBottom: 10,
+              marginVertical: 40, marginBottom: 10,
             }}
             onPress={this._toggleModal}>
             <View>
@@ -171,52 +138,34 @@ class ChoosePeople extends Component {
         >
           <View
             style={{
-              backgroundColor: "#FFFFFF",
-              borderRadius: 25,
-              marginStart: 10,
-              marginEnd: 10,
-              paddingStart: 10,
-              paddingEnd: 10,
-              paddingBottom: 5
+              backgroundColor: "#FFFFFF", borderRadius: 25, marginStart: 10, marginEnd: 10, paddingStart: 10, paddingEnd: 10, paddingBottom: 5
             }}>
             <View
               style={{
-                flexDirection: 'row',
-                marginTop: 10
+                flexDirection: 'row', marginTop: 10
               }}
             >
               <Image
                 style={{
-                  height: 20,
-                  width: 20,
-                  marginLeft: 10,
-                  tintColor: '#6f67d9'
+                  height: 20, width: 20, marginLeft: 10, tintColor: '#6f67d9'
                 }}
                 source={require("./images/ic_back.png")}
               />
               <Text
                 style={{
-                  flex: 1,
-                  textAlign: 'center',
-                  fontFamily: 'byekan',
-                  color: '#6f67d9'
+                  flex: 1, textAlign: 'center', fontFamily: 'byekan', color: '#6f67d9'
                 }}
               >
                 تکمیل فرایند
               </Text>
               <View
                 style={{
-                  borderColor: '#6f67d9',
-                  borderWidth: 2,
-                  borderRadius: 12,
-                  marginRight: 10,
+                  borderColor: '#6f67d9', borderWidth: 2, borderRadius: 12, marginRight: 10,
                 }}
               >
                 <Image
                   style={{
-                    height: 20,
-                    width: 20,
-                    tintColor: '#6f67d9'
+                    height: 20, width: 20, tintColor: '#6f67d9'
                   }}
                   source={require("./images/ic_question.png")}
                 />
@@ -224,50 +173,30 @@ class ChoosePeople extends Component {
             </View>
             <View
               style={{
-                height: 1,
-                width: '90%',
-                alignSelf: 'center',
-                marginTop: 5,
-                backgroundColor: '#CCC'
+                height: 1, width: '90%', alignSelf: 'center', marginTop: 5, backgroundColor: '#CCC'
               }}
             />
             <Text
               style={{
-                fontFamily: 'byekan',
-                fontSize: 20,
-                marginTop: 10,
-                marginHorizontal: 20,
-                marginVertical: 10,
-                color: '#888'
+                fontFamily: 'byekan', fontSize: 20, marginTop: 10, marginHorizontal: 20, marginVertical: 10, color: '#888'
               }}>
               شما {this.state.selectedData.length + 1} نفر را به جلسه دعوت کرده اید، آیا از دعوت آنها اطمینان دارید؟
             </Text>
             <View
               style={{
-                height: 1,
-                width: '90%',
-                alignSelf: 'center',
-                marginTop: 5,
-                backgroundColor: '#CCC'
+                height: 1, width: '90%', alignSelf: 'center', marginTop: 5, backgroundColor: '#CCC'
               }}
             />
             <View
               style={{
-                flexDirection: 'row',
-                height: 40,
-                alignItems: 'center',
-                width: width * 0.9
+                flexDirection: 'row', height: 40, alignItems: 'center', width: width * 0.9
               }}>
               <TouchableWithoutFeedback
                 onPress={this._toggleModal}>
                 <View>
                   <Text
                     style={{
-                      fontFamily: 'byekan',
-                      fontSize: 17,
-                      color: "#e36c35",
-                      width: (width * 0.8) / 2,
-                      textAlign: 'center'
+                      fontFamily: 'byekan', fontSize: 17, color: "#e36c35", width: (width * 0.8) / 2, textAlign: 'center'
                     }}>
                     خیر
                   </Text>
@@ -275,10 +204,7 @@ class ChoosePeople extends Component {
               </TouchableWithoutFeedback>
               <View
                 style={{
-                  height: 40,
-                  width: 1,
-                  marginTop: 2,
-                  backgroundColor: '#CCC'
+                  height: 40, width: 1, marginTop: 2, backgroundColor: '#CCC'
                 }}
               />
               <TouchableWithoutFeedback
@@ -289,11 +215,7 @@ class ChoosePeople extends Component {
                 <View>
                   <Text
                     style={{
-                      fontFamily: 'byekan',
-                      fontSize: 17,
-                      color: "#7445e3",
-                      width: (width * 0.8) / 2,
-                      textAlign: 'center'
+                      fontFamily: 'byekan', fontSize: 17, color: "#7445e3", width: (width * 0.8) / 2, textAlign: 'center'
                     }}>
                     بله
                   </Text>
@@ -307,52 +229,34 @@ class ChoosePeople extends Component {
           onBackdropPress={this._toggleCongestion}>
           <View
             style={{
-              backgroundColor: "#FFFFFF",
-              borderRadius: 10,
-              marginStart: 10,
-              marginEnd: 10,
-              paddingStart: 10,
-              paddingEnd: 10,
-              paddingBottom: 5
+              backgroundColor: "#FFFFFF", borderRadius: 10, marginStart: 10, marginEnd: 10, paddingStart: 10, paddingEnd: 10, paddingBottom: 5
             }}>
             <View
               style={{
-                flexDirection: 'row',
-                marginTop: 10
+                flexDirection: 'row', marginTop: 10
               }}
             >
               <Image
                 style={{
-                  height: 20,
-                  width: 20,
-                  marginLeft: 10,
-                  tintColor: '#6f67d9'
+                  height: 20, width: 20, marginLeft: 10, tintColor: '#6f67d9'
                 }}
                 source={require("./images/ic_back.png")}
               />
               <Text
                 style={{
-                  flex: 1,
-                  textAlign: 'center',
-                  fontFamily: 'byekan',
-                  color: '#6f67d9'
+                  flex: 1, textAlign: 'center', fontFamily: 'byekan', color: '#6f67d9'
                 }}
               >
                 وجود تداخل
               </Text>
               <View
                 style={{
-                  borderColor: '#6f67d9',
-                  borderWidth: 2,
-                  borderRadius: 12,
-                  marginRight: 10,
+                  borderColor: '#6f67d9', borderWidth: 2, borderRadius: 12, marginRight: 10,
                 }}
               >
                 <Image
                   style={{
-                    height: 20,
-                    width: 20,
-                    tintColor: '#6f67d9'
+                    height: 20, width: 20, tintColor: '#6f67d9'
                   }}
                   source={require("./images/ic_question.png")}
                 />
@@ -360,50 +264,31 @@ class ChoosePeople extends Component {
             </View>
             <View
               style={{
-                height: 1,
-                width: '90%',
-                alignSelf: 'center',
-                marginTop: 5,
-                backgroundColor: '#CCC'
+                height: 1, width: '90%', alignSelf: 'center', marginTop: 5, backgroundColor: '#CCC'
               }}
             />
             <Text
               style={{
-                fontFamily: 'byekan',
-                marginHorizontal: 20,
-                fontSize: 18,
-                marginTop: 10,
-                textAlign:'center'
+                fontFamily: 'byekan', marginHorizontal: 20, fontSize: 18, marginTop: 10, textAlign: 'center'
               }}>
               کابر گرامی تعدادی از کارمندان یا پرسنل شما در این بازه زمانی زمانی در جلسه دیگری حضور دارند و امکان دارد
               در این جلسه حضور پیدا نکنند. مایل به ادامه دادن هستید؟
             </Text>
             <View
-            style={{
-              height: 1,
-              width: '90%',
-              alignSelf: 'center',
-              marginTop: 5,
-              backgroundColor: '#CCC'
-            }}
-          />
+              style={{
+                height: 1, width: '90%', alignSelf: 'center', marginTop: 5, backgroundColor: '#CCC'
+              }}
+            />
             <View
               style={{
-                flexDirection: 'row',
-                height: 40,
-                alignItems: 'center',
-                width: width * 0.9
+                flexDirection: 'row', height: 40, alignItems: 'center', width: width * 0.9
               }}>
               <TouchableWithoutFeedback
                 onPress={this._toggleCongestion}>
                 <View>
                   <Text
                     style={{
-                      fontFamily: 'byekan',
-                      fontSize: 17,
-                      color: "#e36c35",
-                      width: (width * 0.8) / 2,
-                      textAlign: 'center'
+                      fontFamily: 'byekan', fontSize: 17, color: "#e36c35", width: (width * 0.8) / 2, textAlign: 'center'
                     }}>
                     خیر
                   </Text>
@@ -411,10 +296,7 @@ class ChoosePeople extends Component {
               </TouchableWithoutFeedback>
               <View
                 style={{
-                  height: 40,
-                  width: 1,
-                  marginTop: 2,
-                  backgroundColor: '#CCC'
+                  height: 40, width: 1, marginTop: 2, backgroundColor: '#CCC'
                 }}
               />
               <TouchableWithoutFeedback
@@ -425,11 +307,7 @@ class ChoosePeople extends Component {
                 <View>
                   <Text
                     style={{
-                      fontFamily: 'byekan',
-                      fontSize: 17,
-                      color: "#7445e3",
-                      width: (width * 0.8) / 2,
-                      textAlign: 'center'
+                      fontFamily: 'byekan', fontSize: 17, color: "#7445e3", width: (width * 0.8) / 2, textAlign: 'center'
                     }}>
                     بله
                   </Text>
@@ -439,8 +317,7 @@ class ChoosePeople extends Component {
           </View>
         </Modal>
 
-      </SafeAreaView>
-    );
+      </SafeAreaView>);
   }
 }
 

@@ -8,7 +8,7 @@ export class RequestsController {
     headers.append('Content-Type', 'application/json');
     let json = await ConnectionManager.doFetch("http://185.211.57.73/auth/mobile/", 'POST',
       JSON.stringify({'mobile': mobile}), headers, true);
-    // console.log('json is ', json);
+    console.log('json is ', json);
     return json.detail;
   }
 

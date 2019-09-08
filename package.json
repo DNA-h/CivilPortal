@@ -10,6 +10,7 @@
     "@mapbox/react-native-mapbox-gl": "https://github.com/nitaliano/react-native-mapbox-gl#master",
     "hijri": "^0.5.0",
     "jalaali-js": "^1.1.0",
+    "jetifier": "^1.6.4",
     "react": "16.6.3",
     "react-native": "0.59.9",
     "react-native-action-button": "^2.8.5",

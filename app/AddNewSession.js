@@ -22,10 +22,10 @@ class AddNewSession extends Component {
 
   constructor(props) {
     super(props);
-    this._startHour = undefined;
-    this._startMinute = undefined;
-    this._endHour = undefined;
-    this._endMinute = undefined;
+    this._startHour = 0;
+    this._startMinute = 0;
+    this._endHour = 0;
+    this._endMinute = 0;
     let jalaali = require('jalaali-js');
     let date = new Date();
     let jalali = jalaali.toJalaali(date);
