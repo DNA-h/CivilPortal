@@ -1,7 +1,7 @@
 import React, {Component} from "react";
-import Wallpaper from "./Components/Wallpaper";
+import Wallpaper from "../Components/Wallpaper";
 import {connect} from "react-redux";
-import {counterAdd, counterSub} from "./Actions";
+import {counterAdd, counterSub} from "../../actions";
 import {ImageBackground, Text, Image, Dimensions, View} from 'react-native';
 
 let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
@@ -56,7 +56,7 @@ class CalendarPage extends Component {
     let todayHijri = this.parseHijriDate();
     return (
       <ImageBackground
-        source={require('./images/menu.png')}
+        source={require('../../images/menu.png')}
         style={{flex: 1, width: DEVICE_WIDTH,}}
       >
         <View
@@ -83,7 +83,7 @@ class CalendarPage extends Component {
                 marginLeft: 10,
                 tintColor: '#6f67d9'
               }}
-              source={require("./images/ic_back.png")}
+              source={require("../../images/ic_back.png")}
             />
             <Text
               style={{
@@ -107,7 +107,7 @@ class CalendarPage extends Component {
                   width: 20,
                   tintColor: '#6f67d9'
                 }}
-                source={require("./images/car.png")}
+                source={require("../../images/car.png")}
               />
             </View>
           </View>
@@ -122,7 +122,7 @@ class CalendarPage extends Component {
           />
           <View style={{flex:1}}/>
           <Image
-            source={require("./images/ic_car.png")}
+            source={require("../../images/ic_car.png")}
             style={{
               flex:2,
               aspectRatio:1,

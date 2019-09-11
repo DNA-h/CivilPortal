@@ -1,7 +1,7 @@
 import React, {Component} from "react";
-import Wallpaper from "./Components/Wallpaper";
+import Wallpaper from "../Components/Wallpaper";
 import {connect} from "react-redux";
-import {counterAdd, counterSub} from "./Actions";
+import {counterAdd, counterSub} from "../../actions";
 import {ImageBackground, Text, Image, Dimensions, View} from 'react-native';
 
 let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
@@ -56,7 +56,7 @@ class CalendarPage extends Component {
     let todayHijri = this.parseHijriDate();
     return (
       <ImageBackground
-        source={require('./images/menu.png')}
+        source={require('../../images/menu.png')}
         style={{flex: 1, width: DEVICE_WIDTH,}}
       >
         <View
@@ -70,7 +70,7 @@ class CalendarPage extends Component {
             justifyContent:'center',
           }}>
           <Image
-            source={require("./images/ic_clock.png")}
+            source={require("../../images/ic_clock.png")}
             style={{
               height: 150,
               width: 150,

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {StyleSheet, View, ImageBackground, Dimensions} from 'react-native';
 
-import bgSrc from '../images/wallpaper.png';
+import bgSrc from '../../images/wallpaper.png';
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;

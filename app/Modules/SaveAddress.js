@@ -3,9 +3,9 @@ import {TextInput, Text, View, Image, Dimensions, TouchableWithoutFeedback} from
 import MapboxGL from '@mapbox/react-native-mapbox-gl';
 import ActionButton from "react-native-action-button";
 import Modal from "react-native-modal";
-import {RequestsController} from "./Utils/RequestController";
+import {RequestsController} from "../Utils/RequestController";
 import SplashScreen from "react-native-splash-screen";
-import NavigationService from "./Service/NavigationService";
+import NavigationService from "../service/NavigationService";
 
 MapboxGL.setAccessToken("pk.eyJ1IjoiZG5hLWgiLCJhIjoiY2p2eGN3ZG1lMDNpcTQ0cnpvMHBobm5ubSJ9.anMU_gz8N2Hl7H0oTgtINg");
 
@@ -65,7 +65,7 @@ export default class SaveAddress extends React.Component {
                             resizeMode: 'contain',
                             tintColor: '#ff6b06'
                         }}
-                        source={require("./images/ic_location.png")}/>
+                        source={require("../images/ic_location.png")}/>
                 </TouchableWithoutFeedback>
                 <Modal
                     isVisible={this.state.visible}

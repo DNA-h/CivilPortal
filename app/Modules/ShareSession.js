@@ -2,11 +2,11 @@ import React, {Component} from "react";
 import {FlatList, View, Text, Button, TouchableWithoutFeedback, Image, CheckBox} from 'react-native';
 import Wallpaper from "./Components/Wallpaper";
 import {connect} from "react-redux";
-import {counterAdd, counterSub} from "./Actions/index";
+import {counterAdd, counterSub} from "../actions";
 import PeopleItem from "./Components/PeopleItem";
 import Modal from "react-native-modal";
-import {RequestsController} from "./Utils/RequestController";
-import NavigationService from "./Service/NavigationService";
+import {RequestsController} from "../Utils/RequestController";
+import NavigationService from "../service/NavigationService";
 
 class ShareSession extends Component {
 

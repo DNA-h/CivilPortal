@@ -3,12 +3,13 @@ import {
   StyleSheet, View, Image, TouchableWithoutFeedback, Text, FlatList, ImageBackground, Keyboard, Dimensions, TextInput
 } from 'react-native';
 import {connect} from "react-redux";
-import {counterAdd, counterSub} from "./Actions/index";
-import NavigationService from "./Service/NavigationService";
+import {counterAdd, counterSub} from "../actions";
+import NavigationService from "../service/NavigationService";
 import Item from "./Components/Item";
-import {RequestsController} from "./Utils/RequestController";
+import {RequestsController} from "../Utils/RequestController";
 import Carousel, {getInputRangeFromIndexes} from 'react-native-snap-carousel';
 import Modal from "react-native-modal";
+import DBManager from "../Utils/DBManager";
 
 let dailyHour = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
 let dailyMinutes = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '55', '50', '55'];
@@ -178,7 +179,7 @@ class AddNewSession extends Component {
   render() {
     return (
       <ImageBackground
-        source={require('./images/menu.png')}
+        source={require('../images/menu.png')}
         style={{flex: 1, width: DEVICE_WIDTH, height: DEVICE_HEIGHT,}}
       >
         <TouchableWithoutFeedback
@@ -192,7 +193,7 @@ class AddNewSession extends Component {
               marginRight: 10
             }}
             tintColor={'#FFFFFF'}
-            source={require('./images/ic_back.png')}
+            source={require('../images/ic_back.png')}
           />
         </TouchableWithoutFeedback>
         <View
@@ -207,7 +208,7 @@ class AddNewSession extends Component {
             }}
           >
             <Image
-              source={require('./images/top_curve_border.png')}
+              source={require('../images/top_curve_border.png')}
               style={{
                 position: 'absolute',
                 left: 20,
@@ -248,19 +249,19 @@ class AddNewSession extends Component {
                   tintColor: '#FFFFFF',
                   zIndex: 10
                 }}
-                source={require("./images/ic_back.png")}/>
+                source={require("../images/ic_back.png")}/>
             </TouchableWithoutFeedback>
             <Carousel
               data={this.data}
-              itemWidth={45}
+              itemWidth={DBManager.RFValue(58)}
               itemHeight={140}
               sliderWidth={DEVICE_WIDTH}
               sliderHeight={140}
               enableMomentum
               useScrollView={false}
               activeSlideAlignment={"start"}
-              contentContainerCustomStyle={{paddingHorizontal: 0, paddingVertical: 0}}
-              containerCustomStyle={{paddingHorizontal: 0, paddingVertical: 0}}
+              contentContainerCustomStyle={{paddingLeft:0, paddingVertical: 0}}
+              containerCustomStyle={{paddingLeft: 0, paddingVertical: 0}}
               onSnapToItem={(item) => {
                 console.log('item ', item);
                 let date = new Date();
@@ -362,7 +363,7 @@ class AddNewSession extends Component {
                   zIndex: 10,
                   transform: [{rotate: '180deg'}]
                 }}
-                source={require("./images/ic_back.png")}/>
+                source={require("../images/ic_back.png")}/>
             </TouchableWithoutFeedback>
 
           </View>
@@ -375,7 +376,7 @@ class AddNewSession extends Component {
             marginTop: 10
           }}>
           <Image
-            source={require('./images/top_curve_border.png')}
+            source={require('../images/top_curve_border.png')}
             style={{
               position: 'absolute',
               left: 20,
@@ -562,7 +563,7 @@ class AddNewSession extends Component {
         <TouchableWithoutFeedback
           onPress={() => NavigationService.navigate('Save')}>
           <ImageBackground
-            source={require('./images/ic_map.png')}
+            source={require('../images/ic_map.png')}
             style={{
               resizeMode: 'cover',
               flex: 1,
@@ -659,7 +660,7 @@ class AddNewSession extends Component {
                 }}
               >
                 <Image
-                  source={require('./images/ic_location.png')}
+                  source={require('../images/ic_location.png')}
                   style={{
                     width: 25,
                     height: 25,

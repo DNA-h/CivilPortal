@@ -1,9 +1,9 @@
 import React from "react";
 import {create} from "react-test-renderer";
-import CalendarItem from "../app/Components/CalendarItem";
+import CalendarItem from "../app/Modules/Components/CalendarItem";
 import {Provider} from 'react-redux';
 import {createStore} from 'redux';
-import reducer from '../app/Reducers/ReducerOne';
+import reducer from '../app/reducers/reducers';
 
 const store = createStore(reducer);
 let item = {

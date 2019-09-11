@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {Text, View, CheckBox, Image, TouchableWithoutFeedback} from 'react-native';
 import Wallpaper from "./Wallpaper";
 import {connect} from "react-redux";
-import {counterAdd, counterSub} from "../Actions";
+import {counterAdd, counterSub} from "../../actions";
 
 class PeopleItem extends Component {
 

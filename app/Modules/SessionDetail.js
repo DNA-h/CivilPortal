@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {Text, View, ScrollView, Image, FlatList, Dimensions} from 'react-native';
 import Wallpaper from "./Components/Wallpaper";
 import {connect} from "react-redux";
-import {counterAdd, counterSub} from "./Actions";
+import {counterAdd, counterSub} from "../actions";
 import PeopleItem from "./Components/PeopleItem";
 
 let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",

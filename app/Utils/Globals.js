@@ -1,8 +1,4 @@
 export default {
-    BASE_URL: "http://farmaniehdrycleaning.com/shahrdari/",
-    //BASE_URL: "http://164.138.18.61:7000",
-    URL_PEOPLE: 'rest.php',
-    URL_SMS:'sms/GetSmsLines.php',
-    URL_SESSIONS:'rest4.php',
-    URL_LOAD_SESSIONS:'rest5.php'
+  PRIMARY_WHITE:'#ffffff',
+  PRIMARY_BLUE:'#6f67d9',
 }

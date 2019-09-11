@@ -1,11 +1,11 @@
 import React, {Component} from "react";
 import {Dimensions, FlatList, Image, View, Text, SafeAreaView, TouchableWithoutFeedback} from 'react-native';
 import {connect} from "react-redux";
-import {counterAdd, counterSub} from "./Actions/index";
+import {counterAdd, counterSub} from "../actions";
 import PeopleItem from "./Components/PeopleItem";
 import Modal from "react-native-modal";
-import {RequestsController} from "./Utils/RequestController";
-import NavigationService from "./Service/NavigationService";
+import {RequestsController} from "../Utils/RequestController";
+import NavigationService from "../service/NavigationService";
 
 const {width} = Dimensions.get('window');
 
@@ -149,7 +149,7 @@ class ChoosePeople extends Component {
                 style={{
                   height: 20, width: 20, marginLeft: 10, tintColor: '#6f67d9'
                 }}
-                source={require("./images/ic_back.png")}
+                source={require("../images/ic_back.png")}
               />
               <Text
                 style={{
@@ -167,7 +167,7 @@ class ChoosePeople extends Component {
                   style={{
                     height: 20, width: 20, tintColor: '#6f67d9'
                   }}
-                  source={require("./images/ic_question.png")}
+                  source={require("../images/ic_question.png")}
                 />
               </View>
             </View>
@@ -240,7 +240,7 @@ class ChoosePeople extends Component {
                 style={{
                   height: 20, width: 20, marginLeft: 10, tintColor: '#6f67d9'
                 }}
-                source={require("./images/ic_back.png")}
+                source={require("../images/ic_back.png")}
               />
               <Text
                 style={{
@@ -258,7 +258,7 @@ class ChoosePeople extends Component {
                   style={{
                     height: 20, width: 20, tintColor: '#6f67d9'
                   }}
-                  source={require("./images/ic_question.png")}
+                  source={require("../images/ic_question.png")}
                 />
               </View>
             </View>

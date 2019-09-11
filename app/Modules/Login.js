@@ -1,11 +1,11 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
-import {counterAdd, counterSub} from './Actions'
+import {counterAdd, counterSub} from '../actions'
 import {ScrollView, View, Dimensions, Text, TouchableWithoutFeedback, Image, TextInput, Button} from 'react-native';
 import SplashScreen from "react-native-splash-screen";
-import {RequestsController} from "./Utils/RequestController";
-import NavigationService from "./Service/NavigationService";
-import DBManager from "./Utils/DBManager";
+import {RequestsController} from "../Utils/RequestController";
+import NavigationService from "../service/NavigationService";
+import DBManager from "../Utils/DBManager";
 
 
 class Login extends Component {
@@ -111,7 +111,7 @@ class Login extends Component {
         }}>
 
         <Image
-          source={require('./images/logo.png')}
+          source={require('../images/logo.png')}
           resizeMode={'contain'}
           style={{
             width: '20%',
@@ -150,7 +150,7 @@ class Login extends Component {
                 height: 20,
                 resizeMode: 'contain'
               }}
-              source={require("./images/ic_user.png")}
+              source={require("../images/ic_user.png")}
             />
           </View>
 
@@ -192,7 +192,7 @@ class Login extends Component {
             alignContent: 'center',
             resizeMode: 'contain'
           }}
-          source={require('./images/user_login.png')}/>
+          source={require('../images/user_login.png')}/>
       </View>
     );
   }
