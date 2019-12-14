@@ -16,6 +16,15 @@ export const navSendCode = () => {
     }
 };
 
+export const setURI = (uri, x, y) => {
+  return {
+    type : 'setURI',
+    uri: uri,
+    x:x,
+    y:y
+  }
+};
+
 export const setValues = (mobile, code) => {
     return {
         type: 'SET',

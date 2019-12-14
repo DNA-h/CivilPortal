@@ -2,13 +2,20 @@ import {ConnectionManager} from "./ConnectionManager";
 import DBManager from "./DBManager";
 
 export class RequestsController {
+  static async loadTodayEvents(shD,shM,wcD,wcM,icD,icM) {
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    let json = await ConnectionManager.doFetch(
+      `https://farsicalendar.com/api/sh,wc,ic/${shD},${wcD},${icD}/${shM},${wcM},${icM}`, 'GET',
+      null, headers, true);
+    return json;
+  }
 
   static async loadToken(mobile) {
     let headers = new Headers();
     headers.append('Content-Type', 'application/json');
     let json = await ConnectionManager.doFetch("http://185.211.57.73/auth/mobile/", 'POST',
       JSON.stringify({'mobile': mobile}), headers, true);
-    console.log('json is ', json);
     return json.detail;
   }
 
@@ -37,6 +44,36 @@ export class RequestsController {
     headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
     let json = await ConnectionManager.doFetch("http://185.211.57.73/api/session-by-id/", 'POST',
       JSON.stringify({'id': id}), headers, true);
+    // console.log('json is ', json);
+    return json;
+  }
+
+  static async seenSession(id) {
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
+    let json = await ConnectionManager.doFetch("http://185.211.57.73/api/seen-session-by-ppl/", 'POST',
+      JSON.stringify({'session_id': id}), headers, false);
+    // console.log('json is ', json);
+    return json;
+  }
+
+  static async sendFCMToken(token) {
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
+    let json = await ConnectionManager.doFetch("http://185.211.57.73/api/api/set_fcm_token/", 'POST',
+      JSON.stringify({'fcm_token': token}), headers, false);
+    // console.log('json is ', json);
+    return json;
+  }
+
+  static async deleteSession(id) {
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
+    let json = await ConnectionManager.doFetch("http://185.211.57.73/api/sessions/" + id + "/", 'DELETE',
+      null, headers, true);
     // console.log('json is ', json);
     return json;
   }
@@ -86,21 +123,21 @@ export class RequestsController {
     return json;
   }
 
-  static async shareSession(session, user) {
+  static async shareSession(session, user, force) {
     let headers = new Headers();
-    console.log("session ", session);
     headers.append('Content-Type', 'application/json');
     headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
     let json = await ConnectionManager.doFetch("http://185.211.57.73/api/replaces/", 'POST',
       JSON.stringify({
-          rep_ppl: user,
-          session_id: session,
-          force: 0
-        }), headers, true);
+        rep_ppl: user,
+        session_id: session,
+        force: force
+      }), headers, true);
     return json;
   }
 
-  static async saveSession(start_time, place, end_time, meeting_title, force, audiences) {
+  static async saveSession(
+    start_time, end_time, place, meeting_title, audiences, lng, lat, self, force) {
     let headers = new Headers();
     headers.append('Content-Type', 'application/json');
     headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
@@ -110,12 +147,17 @@ export class RequestsController {
     }
     let json = await ConnectionManager.doFetch("http://185.211.57.73/api/sessions/", 'POST',
       JSON.stringify({
-        start_time: start_time, place: place,
-        end_time: end_time, meeting_title: meeting_title,
-        force: force, audiences: aud
+        start_time: start_time,
+        end_time: end_time,
+        address: place,
+        Longitude: lng,
+        Latitude: lat,
+        meeting_title: meeting_title,
+        audiences: aud,
+        selfPresent: self,
+        force: force,
       }),
       headers, true);
-    console.log('json is ', json);
     return json;
   }
 }

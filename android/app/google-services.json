@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "450574045620",
+    "firebase_url": "https://civilportal-1549702250468.firebaseio.com",
+    "project_id": "civilportal-1549702250468",
+    "storage_bucket": "civilportal-1549702250468.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:450574045620:android:9cb13796e9b63d6c",
+        "android_client_info": {
+          "package_name": "com.civilportal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "450574045620-mdgvuikolno1q781l00hfle75647gcsh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.civilportal",
+            "certificate_hash": "82de679c7ecbdf1f9e096b5f5e47c275fd8b004e"
+          }
+        },
+        {
+          "client_id": "450574045620-co99m60g45u10ugkhl8f7cs83k6q00if.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCoXl8HtgAsugS-T1FuJkr3TLAL8PhBvnU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "450574045620-co99m60g45u10ugkhl8f7cs83k6q00if.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

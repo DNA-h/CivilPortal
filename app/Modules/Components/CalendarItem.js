@@ -8,157 +8,314 @@ import {counterAdd, counterSub} from "../../actions";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import DBManager from "../../Utils/DBManager";
 import Globals from "../../Utils/Globals";
+import {RequestsController} from "../../Utils/RequestController";
+import MainPage from "../MainPage";
 
 const DEVICE_WIDTH = Dimensions.get('window').width;
 const DEVICE_HEIGHT = Dimensions.get('window').height;
 
 class CalendarItem extends Component {
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      viewCount: undefined,
+      replaced: false
+    };
+    this.result = undefined;
+    this.me = undefined;
+  }
+
+  async componentDidMount(): void {
+    let count = 0;
+    let flag = false;
+    this.me = await RequestsController.loadMyself();
+    await RequestsController.seenSession(this.props.item.item.id);
+    this.result = await RequestsController.specificSession(this.props.item.item.id);
+    for (let index = 0; index < this.result[0].people.length; index++) {
+      if (this.result[0].people[index].rep_first_name === null) {
+        if (this.result[0].people[index].seen)
+          count++;
+      } else {
+        if (this.result[0].people[index].rep_seen)
+          count++;
+      }
+      if ((this.result[0].people[index].first_name === this.me[0].fields.first_name &&
+        this.result[0].people[index].last_name === this.me[0].fields.last_name &&
+        this.result[0].people[index].rep_first_name !== null) ||
+        (this.result[0].people[index].rep_first_name === this.me[0].fields.first_name &&
+          this.result[0].people[index].rep_last_name === this.me[0].fields.last_name &&
+          this.result[0].people[index].rep_first_name !== null)
+      ) {
+        flag = true;
+      }
+    }
+    this.setState({viewCount: count, replaced: flag})
+  }
+
   _renderLeft() {
     return (
       <View
-        style={styles.parent}>
-        <TouchableWithoutFeedback
-          onPress={() => this.props.callback(this.props.item.item.id)}>
-          <ImageBackground
-            source={require("../../images/background_shape_left.png")}
-            resizeMode={'contain'}
-            style={styles.cardLeft}>
-            <Image
-              style={styles.profile}
-              source={{uri: this.props.item.item.image}}/>
-            <TouchableWithoutFeedback
-              onPress={() => this.props.callback(this.props.item.item.id)}>
-              <View style={{flex: 1}}>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={styles.textLeft}>
-                    {this.props.item.item.meeting_title}
-                  </Text>
-                  <Image
-                    style={styles.imageLeft}
-                    source={require('../../images/ic_title.png')}/>
+        style={{
+          height: hp(20),
+          width: '100%',
+          alignSelf: 'center',
+          paddingHorizontal: 5,
+          marginVertical: 5,
+          flexDirection: 'column',
+        }}
+      >
+        <View
+          style={styles.parent}>
+          <TouchableWithoutFeedback
+            onPress={() => this.props.callback(this.props.item.item.id)}>
+            <View
+              style={[styles.cardLeft,
+                {backgroundColor: !this.state.replaced ? '#bbbbbb' : Globals.PRIMARY_SHARED}]}
+            >
+              <Image
+                style={styles.profile}
+                source={{uri: this.props.item.item.image}}/>
+              <TouchableWithoutFeedback
+                onPress={() => this.props.callback(this.props.item.item.id)}>
+                <View style={{flex: 1}}>
+                  <View style={{flexDirection: 'row'}}>
+                    <Text style={styles.textLeft}>
+                      {this.props.item.item.meeting_title}
+                    </Text>
+                    <Image
+                      style={styles.imageLeft}
+                      source={require('../../images/ic_title.png')}/>
+                  </View>
+                  <View style={{flexDirection: 'row'}}>
+                    <Text style={styles.textLeft}>
+                      ساعت {this.props.item.item.start_time.substring(11, 16)} تا {this.props.item.item.end_time.substring(11, 16)}
+                    </Text>
+                    <Image
+                      style={styles.imageLeft}
+                      source={require('../../images/ic_clock.png')}/>
+                  </View>
+                  <View style={{flexDirection: 'row'}}>
+                    <Text style={styles.textLeft}>
+                      مکان: {this.props.item.item.place_address}
+                    </Text>
+                    <Image
+                      style={styles.imageLeft}
+                      source={require('../../images/ic_location.png')}/>
+                  </View>
                 </View>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={styles.textLeft}>
-                    ساعت {this.props.item.item.start_time.substring(11, 16)} تا {this.props.item.item.end_time.substring(11, 16)}
-                  </Text>
-                  <Image
-                    style={styles.imageLeft}
-                    source={require('../../images/ic_clock.png')}/>
-                </View>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={styles.textLeft}>
-                    مکان: {this.props.item.item.place_address}
-                  </Text>
-                  <Image
-                    style={styles.imageLeft}
-                    source={require('../../images/ic_location.png')}/>
-                </View>
-              </View>
-            </TouchableWithoutFeedback>
-          </ImageBackground>
-        </TouchableWithoutFeedback>
-        <TouchableWithoutFeedback
-          onPress={this.props.share}>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback
+            disabled={this.props.item.item.replace}
+            onPress={this.props.share}>
+            <View
+              style={{
+                flex: 1,
+                height: hp(15),
+                backgroundColor: !this.state.replaced ? '#bbbbbb' : Globals.PRIMARY_SHARED,
+                borderBottomLeftRadius: 20,
+                borderBottomRightRadius: 20,
+                borderTopRightRadius: 20,
+                marginHorizontal: 3,
+                alignItems: 'center',
+                justifyContent: 'center',
+                alignSelf: 'flex-start',
+                paddingVertical: 8
+              }}>
+              <Image
+                style={{
+                  width: 12,
+                  height: 12,
+                  margin: 5
+                }}
+                tintColor={this.props.item.item.replace ? '#dedede' : '#000000'}
+                source={require('../../images/ic_share.png')}/>
+            </View>
+          </TouchableWithoutFeedback>
+          <View style={{flex: 1}}/>
+        </View>
+        <View
+          style={{flexDirection: 'row'}}
+        >
           <View
             style={{
-              flex: 1,
-              height: DEVICE_WIDTH / 4.5,
-              backgroundColor: '#6A6A6A55',
-              borderBottomLeftRadius: 20,
-              borderBottomRightRadius: 20,
-              borderTopRightRadius: 20,
-              marginHorizontal: 3,
-              alignItems: 'center',
-              justifyContent: 'center',
+              height: hp(5),
+              width: hp(5),
               alignSelf: 'flex-start',
-              paddingVertical: 8
-            }}>
-            <Image style={{width: 12, height: 12, margin: 5}} tintColor={'#000000'}
-                   source={require('../../images/basket.png')}/>
-            <Image style={{width: 12, height: 12, margin: 5}} tintColor={'#000000'}
-                   source={require('../../images/ic_brief.png')}/>
-            <Image style={{width: 12, height: 12, margin: 5}} tintColor={'#000000'}
-                   source={require('../../images/ic_share.png')}/>
+              overflow: 'hidden',
+            }}
+          >
+            <View
+              style={{
+                height: hp(5),
+                width: hp(5),
+                backgroundColor: !this.state.replaced ? '#bbbbbb' : Globals.PRIMARY_SHARED,
+                overflow: 'hidden',
+                transform: [{rotate: '-45deg'}, {translateY: -hp(3.53)}]
+              }}
+            />
           </View>
-        </TouchableWithoutFeedback>
-        <View style={{flex: 1}}/>
+          <View
+            style={{flex: 1}}
+          >
+            <Text style={{fontFamily: 'byekan'}}>
+              {
+                this.state.viewCount !== undefined && this.state.viewCount !== this.result[0].people.length &&
+                `✓ ${this.state.viewCount} از ${this.result[0].people.length} `
+              }
+              {
+                this.state.viewCount !== undefined && this.state.viewCount === this.result[0].people.length &&
+                `✓✓`
+              }
+            </Text>
+          </View>
+          <View style={{flex: 2}}/>
+        </View>
       </View>
     );
   }
 
   _renderRight() {
     return (
-      <View style={styles.parent}>
-        <View style={{flex: 1}}/>
-        <TouchableWithoutFeedback
-          onPress={this.props.share}>
+      <View
+        style={{
+          height: hp(20),
+          width: '100%',
+          alignSelf: 'center',
+          paddingHorizontal: 5,
+          marginVertical: 5,
+          flexDirection: 'column',
+        }}
+      >
+        <View style={styles.parent}>
+          <View style={{flex: 1}}/>
           <View
             style={styles.smallCard}>
-            <Image
-              style={styles.image}
-              source={require('../../images/basket.png')}
-            />
-            <Image
-              style={styles.image}
-              source={require('../../images/ic_brief.png')}/>
-            <Image
-              style={styles.image}
-              source={require('../../images/ic_share.png')}/>
-          </View>
-        </TouchableWithoutFeedback>
-        <TouchableWithoutFeedback
-          onPress={() => this.props.callback(this.props.item.item.id)}>
-          <ImageBackground
-            tintColor={Globals.PRIMARY_BLUE}
-            source={require("../../images/background_shape.png")}
-            resizeMode={'contain'}
-            style={styles.card}>
             <TouchableWithoutFeedback
-              onPress={() => this.props.callback(this.props.item.item.id)}>
-              <View style={{flex: 1}}>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={styles.text}>
-                    {this.props.item.item.meeting_title}
-                  </Text>
-                  <Image
-                    style={styles.image}
-                    source={require('../../images/ic_title.png')}
-                  />
-                </View>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={styles.text}>
-                    ساعت {this.props.item.item.start_time.substring(11, 16)} تا {this.props.item.item.end_time.substring(11, 16)}
-                  </Text>
-                  <Image
-                    style={styles.image}
-                    source={require('../../images/ic_clock.png')}/>
-                </View>
-                <View style={{flexDirection: 'row'}}>
-                  <Text style={styles.text}>
-                    مکان: {this.props.item.item.place_address}
-                  </Text>
-                  <Image
-                    style={styles.image}
-                    source={require('../../images/ic_location.png')}/>
-                </View>
-              </View>
+              onPress={this.props.share}>
+              <Image
+                style={styles.image}
+                source={require('../../images/ic_share.png')}
+              />
             </TouchableWithoutFeedback>
-            <Image
-              style={styles.profile}
-              source={{uri: this.props.item.item.image}}/>
-          </ImageBackground>
-        </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback
+              onPress={() => this.props.delete(this.props.item.item.id)}>
+              <Image
+                style={styles.image}
+                source={require('../../images/basket.png')}
+              />
+            </TouchableWithoutFeedback>
+          </View>
+          <TouchableWithoutFeedback
+            onPress={() => this.props.callback(this.props.item.item.id)}>
+            <View
+              style={styles.card}>
+              <TouchableWithoutFeedback
+                onPress={() => this.props.callback(this.props.item.item.id)}>
+                <View style={{flex: 1}}>
+                  <View style={{flexDirection: 'row'}}>
+                    <Text style={styles.text}>
+                      {this.props.item.item.meeting_title}
+                    </Text>
+                    <Image
+                      style={styles.image}
+                      source={require('../../images/ic_title.png')}
+                    />
+                  </View>
+                  <View style={{flexDirection: 'row'}}>
+                    <Text style={styles.text}>
+                      ساعت {this.props.item.item.start_time.substring(11, 16)} تا {this.props.item.item.end_time.substring(11, 16)}
+                    </Text>
+                    <Image
+                      style={styles.image}
+                      source={require('../../images/ic_clock.png')}/>
+                  </View>
+                  <View style={{flexDirection: 'row'}}>
+                    <Text style={styles.text}>
+                      مکان: {this.props.item.item.place_address}
+                    </Text>
+                    <Image
+                      style={styles.image}
+                      source={require('../../images/ic_location.png')}/>
+                  </View>
+                </View>
+              </TouchableWithoutFeedback>
+              <Image
+                style={styles.profile}
+                source={{uri: this.props.item.item.image}}/>
+              {this.state.replaced && <View
+                style={{
+                  height: 20,
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  borderRadius: 35,
+                  marginRight: 30,
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <Text style={[
+                  styles.text, {color: '#000'}
+                ]}>
+                  اشتراک گذاشته شد
+                </Text>
+              </View>
+              }
+            </View>
+          </TouchableWithoutFeedback>
+
+        </View>
+        <View
+          style={{flexDirection: 'row'}}
+        >
+          <View style={{flex: 2}}/>
+          <View
+            style={{flex: 1}}
+          >
+            <Text style={{fontFamily: 'byekan'}}>
+              {
+                this.state.viewCount !== undefined && this.state.viewCount !== this.result[0].people.length &&
+                `✓ ${this.state.viewCount} از ${this.result[0].people.length} `
+              }
+              {
+                this.state.viewCount !== undefined && this.state.viewCount === this.result[0].people.length &&
+                `✓✓`
+              }
+            </Text>
+          </View>
+          <View
+            style={{
+              height: hp(5),
+              width: hp(5),
+              alignSelf: 'flex-end',
+              overflow: 'hidden',
+            }}
+          >
+            <View
+              style={{
+                height: hp(5),
+                width: hp(5),
+                backgroundColor: Globals.PRIMARY_BLUE,
+                overflow: 'hidden',
+                transform: [{rotate: '45deg'}, {translateY: -hp(3.53)}]
+              }}
+            />
+          </View>
+        </View>
       </View>
     );
   }
 
   render() {
-    let left = !this.props.item.item.owner ? this._renderLeft() : this._renderRight();
+    let renderFunc = !this.props.item.item.owner ? this._renderLeft() : this._renderRight();
     return (
       <View
         style={{flexDirection: 'row'}}>
-        {left}
+        {renderFunc}
       </View>
     );
   }
@@ -168,13 +325,13 @@ const styles = StyleSheet.create({
   text: {
     flex: 1,
     color: Globals.PRIMARY_WHITE,
-    fontSize: DBManager.RFValue(14),
+    fontSize: DBManager.RFWidth(4),
     fontFamily: 'byekan',
     textAlign: 'right'
   },
   textLeft: {
     flex: 1,
-    fontSize: DBManager.RFValue(14),
+    fontSize: DBManager.RFWidth(4),
     fontFamily: 'byekan',
     textAlign: 'right'
   },
@@ -202,42 +359,45 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 5,
+    backgroundColor: Globals.PRIMARY_BLUE,
+    borderTopRightRadius: 25,
+    borderBottomLeftRadius: 25,
     height: hp(15),
     flexDirection: 'row',
     alignItems: 'center',
-    paddingBottom: 15,
+    paddingRight: 10,
     justifyContent: 'center',
+    overflow: 'hidden'
   },
   cardLeft: {
     flex: 5,
     height: hp(15),
+    backgroundColor: '#bbbbbb',
+    borderTopLeftRadius: 25,
+    borderBottomRightRadius: 25,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingBottom: 15,
     justifyContent: 'center',
-    paddingRight:20,
-    paddingLeft:5,
+    paddingRight: 20,
+    paddingLeft: 5,
   },
   smallCard: {
     flex: 1,
-    height: hp(12),
+    height: hp(15),
     backgroundColor: Globals.PRIMARY_BLUE,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     borderTopLeftRadius: 20,
     marginHorizontal: 3,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-around',
     paddingVertical: 8
   },
   parent: {
     flex: 1,
+    width: '100%',
     height: hp(15),
     flexDirection: 'row',
-    marginStart: 5,
-    marginEnd: 5,
-    marginTop: 10,
-    marginBottom: 10
   }
 });
 

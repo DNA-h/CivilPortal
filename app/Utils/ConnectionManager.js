@@ -11,7 +11,7 @@ export class ConnectionManager {
             try {
                 let response = await ConnectionManager.helperFetch(url, method, body, headers);
                 // console.log('url ', url);
-                // console.log('response', response);
+                // console.log('response', await response.text());
                 return await response.json();
             } catch (e) {
                 // console.log(e.toString());

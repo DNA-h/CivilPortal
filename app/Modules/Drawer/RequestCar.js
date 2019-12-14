@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import Wallpaper from "../Components/Wallpaper";
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "../../actions";
-import {ImageBackground, Text, Image, Dimensions, View} from 'react-native';
+import {ImageBackground, Text, Image, Dimensions, View, TouchableOpacity} from 'react-native';
 
 let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
   "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
@@ -62,8 +62,8 @@ class CalendarPage extends Component {
         <View
           style={{
             flex: 1,
-            marginHorizontal:10,
-            marginVertical:50,
+            marginHorizontal: 10,
+            marginVertical: 50,
             backgroundColor: '#FFFFFF',
             borderRadius: 25,
             alignItems: 'center',
@@ -76,15 +76,20 @@ class CalendarPage extends Component {
               marginTop: 10
             }}
           >
-            <Image
-              style={{
-                height: 20,
-                width: 20,
-                marginLeft: 10,
-                tintColor: '#6f67d9'
-              }}
-              source={require("../../images/ic_back.png")}
-            />
+
+            <TouchableOpacity
+              onPress={() => this.props.navigation.goBack()}
+            >
+              <Image
+                style={{
+                  height: 20,
+                  width: 20,
+                  marginLeft: 10,
+                  tintColor: '#6f67d9'
+                }}
+                source={require("../../images/ic_back.png")}
+              />
+            </TouchableOpacity>
             <Text
               style={{
                 flex: 1,
@@ -120,19 +125,19 @@ class CalendarPage extends Component {
               backgroundColor: '#CCC'
             }}
           />
-          <View style={{flex:1}}/>
+          <View style={{flex: 1}}/>
           <Image
             source={require("../../images/ic_car.png")}
             style={{
-              flex:2,
-              aspectRatio:1,
-              resizeMode:'contain'
+              flex: 2,
+              aspectRatio: 1,
+              resizeMode: 'contain'
             }}
           />
-          <View style={{flex:1}}/>
+          <View style={{flex: 1}}/>
           <Text
             style={{
-              flex:1,
+              flex: 1,
               fontFamily: 'byekan',
               fontSize: 18,
               textAlign: 'center',

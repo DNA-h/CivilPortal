@@ -1,5 +1,6 @@
 import React, {Component} from "react";
-import {Text, View, CheckBox, Image, TouchableWithoutFeedback} from 'react-native';
+import {Text, View, Image, TouchableWithoutFeedback} from 'react-native';
+import {CheckBox} from 'react-native-elements'
 import Wallpaper from "./Wallpaper";
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "../../actions";
@@ -16,9 +17,10 @@ class PeopleItem extends Component {
   render() {
     let check = this.props.share ? null :
       <CheckBox
-        value={this.props.showCheck ? this.state.isSelected : true}
+        checked={this.props.showCheck ? this.state.isSelected : true}
         disabled={!this.props.showCheck}
-        onValueChange={() => {
+        checkedIcon={'square'}
+        onPress={() => {
           if (!this.props.showCheck) return;
           this.setState(() => {
               this.props.callback(
@@ -35,7 +37,7 @@ class PeopleItem extends Component {
     // console.log('str ', typeof str);
     return (
       <TouchableWithoutFeedback
-        onPress={()=>{
+        onPress={() => {
           if (!this.props.showCheck)
             this.props.callback(this.props.item.item.first_name,
               this.props.item.item.last_name,
@@ -63,29 +65,32 @@ class PeopleItem extends Component {
             <View>
               <Text
                 style={{
-                  flex: 1,
                   fontFamily: 'byekan',
-                  textAlign: 'center',
-                  color: '#6f67d9'
-                }}>
-                {this.props.item.item.rank_name}
-              </Text>
-              <Text
-                style={{
-                  flex: 1,
-                  fontFamily: 'byekan',
+                  fontSize: 15,
                   textAlign: 'center',
                   color: '#6f67d9'
                 }}>
                 {this.props.item.item.first_name + " " +
                 this.props.item.item.last_name}
               </Text>
+              <Text
+                style={{
+                  fontFamily: 'byekan',
+                  fontSize: 15,
+                  textAlign: 'center',
+                  color: '#7e7e7e',
+                  backgroundColor: '#dddddd',
+                  borderRadius: 15,
+                  paddingVertical: 4
+                }}>
+                {this.props.item.item.rank === 'خودم' ? 'خودم' : this.props.item.item.rank_name}
+              </Text>
             </View>
             <View
               style={{
-                width: 50,
-                height: 50,
-                borderRadius: 25,
+                width: 60,
+                height: 60,
+                borderRadius: 30,
                 overflow: 'hidden',
                 borderWidth: 2,
                 borderColor: '#00b',
@@ -94,8 +99,8 @@ class PeopleItem extends Component {
             >
               <Image
                 style={{
-                  width: 50,
-                  height: 50,
+                  width: 60,
+                  height: 60,
                   resizeMode: 'contain',
                 }}
                 source={{uri: this.props.item.item.pic}}/>

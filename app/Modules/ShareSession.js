@@ -1,5 +1,15 @@
 import React, {Component} from "react";
-import {FlatList, View, Text, Button, TouchableWithoutFeedback, Image, CheckBox} from 'react-native';
+import {
+  FlatList,
+  View,
+  Text,
+  Button,
+  TouchableWithoutFeedback,
+  Image,
+  CheckBox,
+  SafeAreaView,
+  Dimensions
+} from 'react-native';
 import Wallpaper from "./Components/Wallpaper";
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "../actions";
@@ -7,6 +17,8 @@ import PeopleItem from "./Components/PeopleItem";
 import Modal from "react-native-modal";
 import {RequestsController} from "../Utils/RequestController";
 import NavigationService from "../service/NavigationService";
+
+const {width} = Dimensions.get('window');
 
 class ShareSession extends Component {
 
@@ -19,7 +31,7 @@ class ShareSession extends Component {
       sampleData: []
     };
     this.replaced = undefined;
-    this.replacedName =undefined;
+    this.replacedName = undefined;
     this._loadPeople = this._loadPeople.bind(this);
     this._itemClicked = this._itemClicked.bind(this);
     this._shareSession = this._shareSession.bind(this);
@@ -48,18 +60,19 @@ class ShareSession extends Component {
     this._toggleModal();
   }
 
-  async _shareSession() {
+  async _shareSession(force) {
     let json = await RequestsController.shareSession(
       this.props.navigation.getParam("session_id"),
-      this.replaced
+      this.replaced,
+      force
     );
-    // if (json.meeting_title !== undefined)
+    if (json.length === 1)
       NavigationService.navigate("MainPage");
-    // else {
-    //   this.congestion = json;
-    //   this._toggleCongestion();
-    // }
-    console.log('json is ', json);
+    else
+      this.setState({
+        showDialog: false,
+        showCongestion: true,
+      })
   }
 
   render() {
@@ -101,7 +114,9 @@ class ShareSession extends Component {
                 showCheck={false}
                 share={true}
                 callback={this._itemClicked}
-                item={item}/>}
+                item={item}
+              />
+            }
           />
         </View>
         <Modal
@@ -124,7 +139,7 @@ class ShareSession extends Component {
                 fontSize: 18,
                 marginTop: 10
               }}>
-              آیا مایل  جناب {this.replacedName} به عنوان جایگزین شما در جلسه شرکت نماید؟
+              آیا مایل جناب {this.replacedName} به عنوان جایگزین شما در جلسه شرکت نماید؟
             </Text>
             <View
               style={{
@@ -158,7 +173,7 @@ class ShareSession extends Component {
               </TouchableWithoutFeedback>
               <TouchableWithoutFeedback
                 onPress={() => {
-                  this._shareSession();
+                  this._shareSession(0);
                   this._toggleModal();
                 }}>
                 <View>
@@ -184,8 +199,10 @@ class ShareSession extends Component {
             </View>
           </View>
         </Modal>
-        <Modal isVisible={this.state.showCongestion}
-               onBackdropPress={this._toggleCongestion}>
+
+        <Modal
+          isVisible={this.state.showCongestion}
+          onBackdropPress={() => this.setState({showCongestion: false})}>
           <View
             style={{
               backgroundColor: "#FFFFFF",
@@ -196,43 +213,93 @@ class ShareSession extends Component {
               paddingEnd: 10,
               paddingBottom: 5
             }}>
+            <View
+              style={{
+                flexDirection: 'row', marginTop: 10
+              }}
+            >
+              <Image
+                style={{
+                  height: 20, width: 20, marginLeft: 10, tintColor: '#6f67d9'
+                }}
+                source={require("../images/ic_back.png")}
+              />
+              <Text
+                style={{
+                  flex: 1, textAlign: 'center', fontFamily: 'byekan', color: '#6f67d9'
+                }}
+              >
+                وجود تداخل
+              </Text>
+              <View
+                style={{
+                  borderColor: '#6f67d9', borderWidth: 2, borderRadius: 12, marginRight: 10,
+                }}
+              >
+                <Image
+                  style={{
+                    height: 20, width: 20, tintColor: '#6f67d9'
+                  }}
+                  source={require("../images/ic_question.png")}
+                />
+              </View>
+            </View>
+            <View
+              style={{
+                height: 1, width: '90%', alignSelf: 'center', marginTop: 5, backgroundColor: '#CCC'
+              }}
+            />
             <Text
               style={{
-                fontFamily: 'IRANSansMobile',
-                fontSize: 18,
-                marginTop: 10
+                fontFamily: 'byekan', marginHorizontal: 20, fontSize: 18, marginTop: 10, textAlign: 'center'
               }}>
-              متاسفانه در هنگام ایجاد جلسه خطایی رخ داد
-              {"\n"}
-              {this.congestion}
+              کابر گرامی کارمند یا پرسنل شما در این بازه زمانی زمانی در جلسه دیگری حضور دارد و امکان دارد
+              در این جلسه حضور پیدا نکند. مایل به ادامه دادن هستید؟
             </Text>
             <View
               style={{
-                flexDirection: 'row',
-                margin: 10,
-                justifyContent: 'space-between',
-                paddingEnd: 25,
-                paddingStart: 25
+                height: 1, width: '90%', alignSelf: 'center', marginTop: 5, backgroundColor: '#CCC'
+              }}
+            />
+            <View
+              style={{
+                flexDirection: 'row', height: 40, alignItems: 'center', width: width * 0.9
               }}>
               <TouchableWithoutFeedback
-                onPress={this._toggleCongestion}>
+                onPress={() => this.setState({showCongestion: false})}>
                 <View>
                   <Text
                     style={{
-                      fontFamily: 'IRANSansMobile',
-                      paddingEnd: 15,
-                      paddingStart: 15,
-                      marginTop: 5,
-                      marginBottom: 5,
+                      fontFamily: 'byekan',
                       fontSize: 17,
-                      color: "#50E3C2",
-                      borderWidth: 1,
-                      borderColor: "#50E3C2",
-                      borderRadius: 10,
-                      marginStart: 15,
-                      marginEnd: 15
+                      color: "#e36c35",
+                      width: (width * 0.8) / 2,
+                      textAlign: 'center'
                     }}>
-                    متوجه شدم
+                    خیر
+                  </Text>
+                </View>
+              </TouchableWithoutFeedback>
+              <View
+                style={{
+                  height: 40, width: 1, marginTop: 2, backgroundColor: '#CCC'
+                }}
+              />
+              <TouchableWithoutFeedback
+                onPress={() => {
+                  this._shareSession(1);
+                  this.setState({showCongestion: false});
+                }}>
+                <View>
+                  <Text
+                    style={{
+                      fontFamily: 'byekan',
+                      fontSize: 17,
+                      color: "#7445e3",
+                      width: (width * 0.8) / 2,
+                      textAlign: 'center'
+                    }}>
+                    بله
                   </Text>
                 </View>
               </TouchableWithoutFeedback>

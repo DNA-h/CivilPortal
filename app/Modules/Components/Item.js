@@ -6,22 +6,27 @@ export default class Item extends React.Component {
 
   render() {
     return (
-      <View style={{flexDirection: 'row', height: 120}}>
+      <View
+        style={{
+          flexDirection: 'row',
+          height: 140
+        }}>
         <Animated.View
-          style={{
+          style={[{
             marginHorizontal: 10,
-            width: DBManager.RFValue(36),
+            width: DBManager.RFWidth(12),
             backgroundColor: '#FFFFFF',
             borderRadius: 25,
             justifyContent: 'center',
             alignItems: 'center',
             marginVertical: 20,
             padding: 1,
-            opacity: this.props.opacity !== undefined ? this.props.opacity : 1
-          }}>
+          },
+            this.props.extraStyle
+          ]}>
           <Text
             style={{
-              color:this.props.day ==='جمعه' ? '#ff2c05' : '#000000',
+              color: this.props.day === 'جمعه' ? '#ff2c05' : '#000000',
               fontSize: DBManager.RFValue(12),
               fontFamily: 'byekan',
               textAlign: 'center'
@@ -30,7 +35,7 @@ export default class Item extends React.Component {
           </Text>
           <Text
             style={{
-              color:this.props.day ==='جمعه' ? '#ff2c05' :  '#000000',
+              color: this.props.day === 'جمعه' ? '#ff2c05' : '#000000',
               fontSize: DBManager.RFValue(12),
               fontFamily: 'byekan'
             }}>
@@ -38,7 +43,7 @@ export default class Item extends React.Component {
           </Text>
           <Text
             style={{
-              color:this.props.day ==='جمعه' ? '#ff2c05' :  '#000000',
+              color: this.props.day === 'جمعه' ? '#ff2c05' : '#000000',
               fontSize: DBManager.RFValue(10),
               textAlign: 'center',
               fontFamily: 'byekan'

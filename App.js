@@ -9,6 +9,7 @@ import ChoosePeople from "./app/Modules/ChoosePeople";
 import SessionDetail from "./app/Modules/SessionDetail";
 import CalendarPage from "./app/Modules/Drawer/CalendarPage";
 import SaveAddress from "./app/Modules/SaveAddress";
+import ShowAddress from "./app/Modules/ShowAddress";
 import ShareSession from "./app/Modules/ShareSession";
 import {Immersive} from 'react-native-immersive'
 
@@ -21,6 +22,7 @@ const RootStack = createStackNavigator(
     SessionDetail: {screen: SessionDetail, navigationOptions: {header: null}},
     CalendarPage: {screen: CalendarPage, navigationOptions: {header: null}},
     Save: {screen: SaveAddress, navigationOptions: {header: null}},
+    Show: {screen: ShowAddress, navigationOptions: {header: null}},
     Share: {screen: ShareSession, navigationOptions: {header: null}},
   },
   {
@@ -32,20 +34,21 @@ const RootStack = createStackNavigator(
 const AppContainer = createAppContainer(RootStack);
 
 export default class App extends React.Component {
+
   componentDidMount() {
     Immersive.on();
     Immersive.setImmersive(true);
 
-    const restoreImmersive = () => {
+    this.restoreImmersive = () => {
       StatusBar.setHidden(true);
       Immersive.on();
       Immersive.setImmersive(true);
     };
-    Immersive.addImmersiveListener(restoreImmersive);
+    Immersive.addImmersiveListener(this.restoreImmersive);
   }
 
   componentWillUnmount(){
-    Immersive.removeImmersiveListener(restoreImmersive);
+    Immersive.removeImmersiveListener(this.restoreImmersive);
   }
 
   render() {
