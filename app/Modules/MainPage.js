@@ -4,7 +4,7 @@ import {
   Dimensions,
   FlatList,
   Image,
-  ImageBackground,
+  ImageBackground, Linking,
   ScrollView,
   StatusBar,
   Text,
@@ -29,6 +29,7 @@ import PersianCalendarPicker from 'react-native-persian-calendar-picker';
 import Globals from "../Utils/Globals";
 import firebase from 'react-native-firebase';
 import SimpleImage from "./Components/SimpleImage";
+import Login from "./Login";
 
 let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
 let gMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -46,13 +47,15 @@ class MainPage extends Component {
     else if (label === 'تماس با ما')
       return require("../images/viber.png");
     else if (label === 'پرداخت ها')
-      return require("../images/crediCard.png");
+      return require("../images/creditCard.png");
     else if (label === 'گزارش گیری')
       return require("../images/newspaper.png");
     else if (label === 'درخواست خودرو')
       return require("../images/sedanCarFront.png");
     else if (label === 'نظرسنجی')
       return require("../images/survey.png");
+    else if (label === 'خروج')
+      return require("../images/ic_logout.png");
   }
 
   constructor(props) {
@@ -101,6 +104,11 @@ class MainPage extends Component {
         return true;
       }
     );
+    result.sort(function(a, b){
+      if (a.start_time.substring(11, 16) > b.start_time.substring(11, 16))
+        return 1;
+      return -1;
+    });
     this.setState({sampleData: result});
   }
 
@@ -120,6 +128,7 @@ class MainPage extends Component {
     await this.checkToken();
     StatusBar.setBackgroundColor('#6A61D1');
     this.routeSubscription = this.props.navigation.addListener('willFocus', this.fetchData,);
+    this.fetchData();
   }
 
   componentWillUnmount(): void {
@@ -133,7 +142,13 @@ class MainPage extends Component {
   };
 
   async checkToken() {
-    console.log('error');
+    let token = await DBManager.getSettingValue('token');
+    let onboarding = await DBManager.getSettingValue('onboarding','N/A');
+    if (token === undefined || token === null || token.length !== 40) {
+      NavigationService.reset('Login');
+    }else if(onboarding==='N/A'){
+      NavigationService.reset('OnBoarding');
+    }
     firebase.messaging().getToken()
       .then(fcmToken => {
         if (fcmToken) {
@@ -152,14 +167,12 @@ class MainPage extends Component {
         .setBody(message._data.body);
       firebase.notifications().displayNotification(notification);
     });
-    let token = await DBManager.getSettingValue('token');
-    if (token === undefined || token === null || token.length !== 40) NavigationService.navigate('Login', null);
   }
 
   static prettifyTime(str) {
     if (str === undefined) return;
     const year = parseInt(str.substr(0, 4), 10);
-    const month = parseInt(str.substr(6, 2), 10);
+    const month = parseInt(str.substr(5, 2), 10);
     const day = parseInt(str.substr(8, 2), 10);
     let jalaali = require('jalaali-js');
     const g = jalaali.toGregorian(year, month, day);
@@ -205,7 +218,7 @@ class MainPage extends Component {
   parseGeorgianDate() {
     let date = new Date();
     date.setDate(date.getDate() + this.difference);
-    let value = date.getDate() + " " + gMonths[date.getMonth()] + " " + date.getFullYear() + "\n" + date.getDate() + " / " + date.getMonth() + " / " + date.getFullYear();
+    let value = date.getDate() + " " + gMonths[date.getMonth()] + " " + date.getFullYear() + "\n" + date.getDate() + " / " + (date.getMonth() + 1) + " / " + date.getFullYear();
     let chars = value.split('');
     return chars.join('');
   }
@@ -255,13 +268,16 @@ class MainPage extends Component {
   render() {
     return (
       <ImageBackground
-        source={require('../images/main.png')}
         style={{
           flex: 1,
+          backgroundColor: Globals.PRIMARY_BLUE
         }}>
-        <View
+        <ImageBackground
+          source={require("../images/main2.png")}
+          resizeMode={'contain'}
           style={{
-            flex: 2,
+            width: DEVICE_WIDTH,
+            height: DEVICE_WIDTH / 3.25,
             flexDirection: 'row'
           }}>
           <View
@@ -352,7 +368,7 @@ class MainPage extends Component {
               </Text>
             </Text>
           </View>
-        </View>
+        </ImageBackground>
         <GestureRecognizer
           style={{flex: 10}}
           onSwipeLeft={() => this._dayPressed(true)}
@@ -379,7 +395,7 @@ class MainPage extends Component {
                   flex: 1,
                   textAlign: 'center',
                   color: '#6f67d9',
-                  fontSize:12,
+                  fontSize: 12,
                   fontFamily: 'byekan',
                 }}>
                 {this.state.occasion}
@@ -458,83 +474,141 @@ class MainPage extends Component {
                   backgroundColor: "#FFFFFF",
                   height: '80%',
                   alignItems: 'center',
-                  borderRadius: 10,
+                  borderRadius: 60,
                   marginStart: 10,
                   marginEnd: 10,
                   paddingStart: 10,
                   paddingEnd: 10,
                   paddingBottom: 5
                 }}>
-                <Text
+                <View
                   style={{
-                    fontFamily: 'byekan', color: '#6f67d9', fontSize: 18, textAlign: 'center'
-                  }}>
-                  خلاصه ای از جلسه
-                </Text>
-                <View style={{flexDirection: 'row', marginVertical: 10}}>
+                    flexDirection: 'row',
+                    marginVertical: 15
+                  }}
+                >
+                  <TouchableWithoutFeedback
+                    onPress={() => this.setState({visible: false})}
+                  >
+                    <Image
+                      style={{
+                        height: 20,
+                        width: 20,
+                        marginLeft: 30,
+                        tintColor: '#6f67d9'
+                      }}
+                      source={require("../images/ic_back.png")}
+                    />
+                  </TouchableWithoutFeedback>
+                  <Text
+                    style={{
+                      flex: 1,
+                      textAlign: 'center',
+                      fontFamily: 'byekan',
+                      fontSize: 20,
+                      color: '#6f67d9'
+                    }}
+                  >
+                    خلاصه ای از جلسه
+                  </Text>
+                  <View
+                    style={{
+                      marginRight: 30,
+                      marginTop: 5
+                    }}
+                  >
+                    <Image
+                      style={{
+                        height: 16,
+                        width: 17,
+                        tintColor: '#6f67d9'
+                      }}
+                      source={require("../images/ic_dialog.png")}
+                    />
+                  </View>
+                </View>
+                <View style={{flexDirection: 'row', marginVertical: 10, paddingRight: 15}}>
                   <Text style={{fontFamily: 'byekan', flex: 1, textAlign: 'right'}}>
                     {this.result[0].meeting_title}
                   </Text>
                   <Image
-                    style={{width: 12, height: 12, margin: 5, marginLeft: 20}}
+                    style={{width: 16, height: 13, margin: 5, marginLeft: 20, resizeMode: 'contain'}}
                     tintColor={'#CCC'}
                     source={require('../images/ic_title.png')}/>
                 </View>
-                <View style={{height: 1, width: '80%', backgroundColor: '#CCC'}}/>
-                <View style={{flexDirection: 'row', marginVertical: 10}}>
+                <View style={{height: 1, width: '90%', backgroundColor: '#CCC'}}/>
+                <View style={{flexDirection: 'row', marginVertical: 10, paddingRight: 15}}>
                   <Text style={{fontFamily: 'byekan', flex: 1}}>
                     {MainPage.prettifyTime(this.result[0].start_time)}
                   </Text>
                   <Image
-                    style={{width: 12, height: 12, margin: 5, marginLeft: 20}}
+                    style={{width: 16, height: 16, margin: 5, marginLeft: 20, resizeMode: 'contain'}}
                     tintColor={'#CCC'}
                     source={require('../images/ic_calendar.png')}/>
                 </View>
-                <View style={{height: 1, width: '80%', backgroundColor: '#CCC'}}/>
-                <View style={{flexDirection: 'row', marginVertical: 10}}>
-                  <Text style={{fontFamily: 'byekan', flex: 1}}>
-                    {this.result[0].start_time === undefined ? '' : `از ساعت ${this.result[0].start_time.substr(12, 5)} تا ساعت${this.result[0].end_time.substr(12, 5)}`}
-                  </Text>
-                  <Image
-                    style={{width: 12, height: 12, margin: 5, marginLeft: 20}}
-                    tintColor={'#CCC'}
-                    source={require('../images/ic_clock.png')}/>
-                </View>
-                <View style={{height: 1, width: '80%', backgroundColor: '#CCC'}}/>
-                <View style={{flexDirection: 'row', marginVertical: 10}}>
+                <View style={{height: 1, width: '90%', backgroundColor: '#CCC'}}/>
+                <View style={{flexDirection: 'row', marginVertical: 10, paddingRight: 15}}>
                   {
                     this.result[0].lat !== '0E-15' &&
-                    <Button
-                      title={'مشاهده روی نقشه'}
+                    <TouchableOpacity
                       onPress={() => {
                         this.setState({visible: false});
-                        NavigationService.navigate('Show', {
-                          centerX: parseFloat(this.result[0].lng),
-                          centerY: parseFloat(this.result[0].lat)
-                        })
+                        Linking.openURL(`geo:${this.result[0].lat},${this.result[0].lng}?q=${this.result[0].lat},${this.result[0].lng}(${this.result[0].meeting_title})`)
                       }}
-                    />
+                    >
+                      <Image
+                        style={{height: 40, width: 40}}
+                        source={require("../images/ic_launcher.png")}
+                      />
+                    </TouchableOpacity>
                   }
                   <Text style={{fontFamily: 'byekan', flex: 1, textAlign: 'right'}}>
                     {this.result[0].place_address}
                   </Text>
                   <Image
-                    style={{width: 12, height: 12, margin: 5, marginLeft: 20}}
+                    style={{width: 16, height: 16, margin: 5, marginLeft: 20, resizeMode: 'contain'}}
                     tintColor={'#CCC'}
                     source={require('../images/ic_location.png')}
                   />
                 </View>
-                <View style={{height: 1, width: '80%', backgroundColor: '#CCC'}}/>
-                <View style={{flexDirection: 'row', marginVertical: 10}}>
+                <View style={{height: 1, width: '90%', backgroundColor: '#CCC'}}/>
+                <View style={{flexDirection: 'row', marginVertical: 10, paddingRight: 15}}>
                   <Text style={{fontFamily: 'byekan', flex: 1}}>
-                    افرادی که در جلسه حضور دارند
+                    {this.result[0].start_time === undefined ? '' : `از ساعت ${this.result[0].start_time.substr(12, 5)} تا ساعت${this.result[0].end_time.substr(12, 5)}`}
                   </Text>
                   <Image
-                    style={{width: 12, height: 12, margin: 5, marginLeft: 20}}
+                    style={{width: 16, height: 16, margin: 5, marginLeft: 20, resizeMode: 'contain', tintColor: '#000'}}
                     tintColor={'#CCC'}
-                    source={require('../images/ic_location.png')}/>
+                    source={require('../images/alarm_clock.png')}/>
                 </View>
+                <View style={{height: 1, width: '90%', backgroundColor: '#CCC'}}/>
+                <View style={{flexDirection: 'row', marginVertical: 10, paddingRight: 15}}>
+                  <Text style={{fontFamily: 'byekan', flex: 1}}>
+                    اعضایی که در جلسه حضور دارند
+                  </Text>
+                  <Image
+                    style={{width: 16, height: 16, margin: 5, marginLeft: 20, resizeMode: 'contain'}}
+                    tintColor={'#CCC'}
+                    source={require('../images/ic_user.png')}/>
+                </View>
+                <View style={{height: 2, width: '90%', backgroundColor: Globals.PRIMARY_BLUE}}/>
                 {this.sessionDetilItem()}
+                <View style={{flex:1}}/>
+                <View style={{height: 1, width: '90%', backgroundColor: '#CCC'}}/>
+                <TouchableOpacity onPress={() => this.setState({visible: false})}>
+                  <View>
+                    <Text
+                      style={{
+                        fontFamily: 'byekan',
+                        fontSize: 18,
+                        textAlign: 'center',
+                        color: '#675ec9',
+                        alignSelf: 'center',
+                      }}>
+                      متوجه شدم
+                    </Text>
+                  </View>
+                </TouchableOpacity>
               </View>
             </Modal>
             <Modal
@@ -668,6 +742,7 @@ class MainPage extends Component {
                 }}
               >
                 <PersianCalendarPicker
+                  isRTL
                   textStyle={{fontFamily: 'byekan'}}
                   onDateChange={(date) => {
                     let today = new Date();
@@ -730,15 +805,14 @@ class MainPage extends Component {
           <View
             style={{
               position: 'absolute',
-              width: DEVICE_WIDTH / 3.25,
-              height: DEVICE_WIDTH / 3.25,
-              borderRadius: DEVICE_WIDTH / 6.5,
+              width: DEVICE_WIDTH / 3.75,
+              height: DEVICE_WIDTH / 3.75,
+              borderRadius: DEVICE_WIDTH / 7.5,
               top: 0,
-              left: (DEVICE_WIDTH - DEVICE_WIDTH / 3.25) / 2,
-              right: (DEVICE_WIDTH - DEVICE_WIDTH / 3.25) / 2,
+              left: (DEVICE_WIDTH - DEVICE_WIDTH / 3.75) / 2 - 2,
               backgroundColor: '#866ef6',
               zIndex: 100,
-              marginTop: DEVICE_HEIGHT / 25,
+              marginTop: (DEVICE_WIDTH / 3.25) * 0.22,
             }}
           >
             <View
@@ -812,14 +886,20 @@ class MainPage extends Component {
                   paddingTop: 5,
                   paddingBottom: 5,
                 }}>
-                <Text style={{fontFamily: 'byekan', color: this.result[0].people[index].seen ? '#27ffac' : '#ff8125'}}>
-                  ✓
-                </Text>
+                {this.result[0].people[index].seen && !this.result[0].people[index].rep_last_name &&
+                  <Image
+                    source={require("../images/ic_visibility.png")}
+                    style={{height:20, width:20}}
+                  />
+                }
                 <Text
                   style={{
-                    flex: 1, fontFamily: 'byekan', textAlign: 'right', color: '#6f67d9'
+                    flex: 1,
+                    fontFamily: 'byekan',
+                    textAlign: 'right',
+                    color: this.result[0].people[index].rep_last_name ? 'rgba(145,107,255,0.44)' : '#6f67d9',
                   }}>
-                  {this.result[0].people[index].last_name + " " + this.result[0].people[index].first_name}
+                  {this.result[0].people[index].first_name + " " + this.result[0].people[index].last_name}
                 </Text>
                 <View
                   style={{
@@ -840,28 +920,6 @@ class MainPage extends Component {
                 </View>
               </View>
               {this.result[0].people[index].rep_last_name &&
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text style={{
-                  color: Globals.PRIMARY_BLUE,
-                  fontSize: DBManager.RFValue(12),
-                  fontFamily: 'byekan',
-                  textAlign: 'right'
-                }}>
-                  اشتراک گذاشته شد
-                </Text>
-                < Image
-                  style={{
-                    width: 50,
-                    height: 50,
-                    resizeMode: 'contain',
-                    tintColor: Globals.PRIMARY_BLUE,
-                    transform: [{rotate: '90deg'}]
-                  }}
-                  source={require("../images/arrow.png")}/>
-
-              </View>
-              }
-              {this.result[0].people[index].rep_last_name &&
               <View
                 style={{
                   flexDirection: 'row',
@@ -870,19 +928,18 @@ class MainPage extends Component {
                   justifyContent: 'flex-end',
                   borderRadius: 10,
                   paddingBottom: 5,
+                  marginTop:-50
                 }}>
-                <Text
-                  style={{
-                    fontFamily: 'byekan',
-                    color: this.result[0].people[index].rep_seen ? '#27ffac' : '#ff8125'
-                  }}>
-                  ✓
-                </Text>
+                <Image
+                  source={require("../images/ic_visibility.png")}
+                  style={{height:20, width:20}}
+                  resizeMode={"cover"}
+                />
                 <Text
                   style={{
                     flex: 1, fontFamily: 'byekan', textAlign: 'right', color: '#6f67d9'
                   }}>
-                  {this.result[0].people[index].rep_last_name + " " + this.result[0].people[index].rep_first_name}
+                  {this.result[0].people[index].rep_first_name + " " + this.result[0].people[index].rep_last_name}
                 </Text>
                 <View
                   style={{
@@ -897,7 +954,7 @@ class MainPage extends Component {
                 >
                   <Image
                     style={{
-                      width: 50, height: 50, resizeMode: 'contain',
+                      width: 50, height: 50, resizeMode: 'cover',
                     }}
                     source={{uri: this.result[0].people[index].rep_image}}/>
                 </View>
@@ -937,7 +994,11 @@ const MyDrawerNavigator = createDrawerNavigator({
       screen: CalendarPage, navigationOptions: ({navigation}) => ({
         title: 'نظرسنجی',
       }),
-    },
+    }, Logout: {
+      screen: Login, navigationOptions: ({navigation}) => ({
+        title: 'خروج',
+      }),
+    }
   },
   {
     drawerBackgroundColor: '#FFFFFF00',
@@ -959,18 +1020,7 @@ const MyDrawerNavigator = createDrawerNavigator({
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-            <View
-              style={{
-                width: 120,
-                height: 120,
-                borderRadius: 60,
-                borderWidth: 2,
-                borderColor: '#FFF',
-                overflow: 'hidden'
-              }}
-            >
-              <SimpleImage/>
-            </View>
+            <SimpleImage/>
           </View>
           <DrawerItems
             {...props}
@@ -979,7 +1029,8 @@ const MyDrawerNavigator = createDrawerNavigator({
                 <View
                   style={{
                     flexDirection: 'row',
-                    paddingVertical: 10
+                    width:'85%',
+                    paddingVertical:10
                   }}
                 >
                   <Text

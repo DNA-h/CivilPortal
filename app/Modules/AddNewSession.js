@@ -1,12 +1,12 @@
 import React, {Component} from "react";
 import {
-  StyleSheet, View, Image, TouchableWithoutFeedback, Text,
-  FlatList, ImageBackground, KeyboardAvoidingView, Dimensions,
+  StyleSheet, View, Image, TouchableWithoutFeedback, Text, TouchableOpacity,
+  FlatList, ImageBackground, KeyboardAvoidingView, Dimensions, TouchableHighlight,
   TextInput, ToastAndroid, ScrollView
 } from 'react-native';
 import {connect} from "react-redux";
 import Tabs from 'react-native-scrollable-tab-view';
-import {counterAdd, counterSub} from "../actions";
+import {counterAdd, counterSub, setURI} from "../actions";
 import NavigationService from "../service/NavigationService";
 import Item from "./Components/Item";
 import {RequestsController} from "../Utils/RequestController";
@@ -14,10 +14,11 @@ import Carousel, {getInputRangeFromIndexes} from 'react-native-snap-carousel';
 import Modal from "react-native-modal";
 import DBManager from "../Utils/DBManager";
 import Autocomplete from 'react-native-autocomplete-input';
+import Globals from "../Utils/Globals";
 
-let dailyHour = ['', '00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11',
-  '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', ''];
-let dailyMinutes = ['', '00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', ''];
+let dailyHour = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11',
+  '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
+let dailyMinutes = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'];
 let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
 let days = [`یک${'\n'}شنبه`, `دو${'\n'}شنبه`, `سه${'\n'}شنبه`, `چهار${'\n'}شنبه`, `پنج${'\n'}شنبه`, `جمعه`, `شنبه`];
 const DEVICE_WIDTH = Dimensions.get('window').width;
@@ -29,9 +30,10 @@ class AddNewSession extends Component {
     super(props);
     let date = new Date();
     this._startHour = date.getHours();
-    this._startMinute = (date.getMinutes() - date.getMinutes() % 5) / 5;
+    this._startMinute = Math.floor((date.getMinutes() - date.getMinutes() % 5) / 5);
     this._endHour = date.getHours() === 23 ? 0 : date.getHours() + 1;
-    this._endMinute = (date.getMinutes() - date.getMinutes() % 5) / 5;
+    this.endHour = '';
+    this._endMinute = Math.floor((date.getMinutes() - date.getMinutes() % 5) / 5);
     let jalaali = require('jalaali-js');
     let jalali = jalaali.toJalaali(date);
     let month = jalali.jm - 1;
@@ -84,25 +86,22 @@ class AddNewSession extends Component {
       places: [],
       selectPlace: false,
       createNewVisible: false,
-      loading: true,
       title: '',
-      titleY: -100,
       titles: [],
       focusTitle: false,
       address: '',
-      addressY: -100,
       addresses: [],
       focusAddress: false
     };
     this._loadPlaces = this._loadPlaces.bind(this);
     this.saveValue = this.saveValue.bind(this);
-    this.saveAddress = this.saveAddress.bind(this);
     this._compareTitle = this._compareTitle.bind(this);
     this._compareAddress = this._compareAddress.bind(this);
   }
 
   async componentDidMount() {
     // this._loadPlaces();
+    this.props.setURI(null, 0, 0);
     const titles = [];
     const addresses = [];
     const countTitle = parseInt(await DBManager.getSettingValue('titleCount', '0'), 10);
@@ -122,36 +121,31 @@ class AddNewSession extends Component {
   }
 
   async saveValue() {
-    return;
     if (!this.state.titles.some(e => e === this.state.title)) {
       const count = parseInt(await DBManager.getSettingValue('titleCount', '0'), 10);
       await DBManager.saveSettingValue(`title${count}`, this.state.title);
       await DBManager.saveSettingValue(`titleCount`, count + 1);
       this.state.titles.push(this.state.title);
       this.setState({titles: this.state.titles});
-      ToastAndroid.show('موضوع با موفقیت ذخیره شد !', ToastAndroid.SHORT);
     }
-  }
 
-  async saveAddress() {
     if (!this.state.addresses.some(e => e === this.state.address)) {
       const count = parseInt(await DBManager.getSettingValue('addressCount', '0'), 10);
       await DBManager.saveSettingValue(`address${count}`, this.state.address);
       await DBManager.saveSettingValue(`addressCount`, count + 1);
       this.state.addresses.push(this.state.address);
       this.setState({addresses: this.state.addresses});
-      ToastAndroid.show('آدرس با موفقیت ذخیره شد !', ToastAndroid.SHORT);
     }
   }
 
   _compareTitle(a) {
     // return this.state.query === '';
-    return a.includes(this.state.title);
+    return a.includes(this.state.title) && a !== this.state.title;
   }
 
   _compareAddress(a) {
     // return this.state.query === '';
-    return a.includes(this.state.address);
+    return a.includes(this.state.address) && a !== this.state.address;
   }
 
   async _loadPlaces() {
@@ -168,7 +162,7 @@ class AddNewSession extends Component {
   }
 
   _scrollInterpolator(index, carouselProps) {
-    const range = [3, 2, 1, 0, -1, -2, -3];
+    const range = [6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5, -6];
     const inputRange = getInputRangeFromIndexes(range, index, carouselProps);
     const outputRange = range;
 
@@ -231,212 +225,125 @@ class AddNewSession extends Component {
     return (
       <KeyboardAvoidingView
         style={{
-          flex:1,
+          flex: 1,
         }}
       >
         <ImageBackground
           source={require('../images/menu.png')}
           style={{
-            flex:1,
+            flex: 1,
           }}
         >
-          <TouchableWithoutFeedback
+          <TouchableOpacity
+            style={{
+              paddingLeft: 5, paddingRight: 15, alignSelf: 'flex-start'
+            }}
             onPress={NavigationService.goBack}
           >
             <Image
               style={{
                 width: 25,
                 height: 25,
-                marginTop: 10,
+                marginTop: 5,
                 marginRight: 10
               }}
               tintColor={'#FFFFFF'}
               source={require('../images/ic_back.png')}
             />
-          </TouchableWithoutFeedback>
-          <View style={{flex: 1, justifyContent: 'center'}}>
-            <View
-              style={{
-                width: '100%',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <Image
-                source={require('../images/top_curve_border.png')}
+          </TouchableOpacity>
+          <View
+            style={{
+              flexDirection: 'row'
+            }}
+          >
+            <View style={{flex: 1, justifyContent: 'center', marginTop: 0}}>
+              <View
                 style={{
-                  position: 'absolute',
-                  left: 20,
-                  right: 20,
-                  top: 8,
-                  width: DEVICE_WIDTH - 40,
-                  height: (DEVICE_WIDTH - 40) / 16,
-                  resizeMode: 'contain'
+                  width: '100%',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}
-              />
-              <Text
-                style={{
-                  fontSize: 13,
-                  fontFamily: 'byekan',
-                  backgroundColor: 'white',
-                  borderRadius: 12,
-                  paddingHorizontal: 15,
-                  textAlign: 'center'
-                }}>
-                تعیین روز
-              </Text>
-            </View>
-            <View
-              style={{
-                height: 140,
-                marginHorizontal: 10,
-                flexDirection: 'row',
-                alignItems: 'center'
-              }}>
-              <TouchableWithoutFeedback
-                onPress={() => {
-                  this.mainC.snapToPrev();
-                }}>
+              >
                 <Image
+                  source={require('../images/top_curve_border.png')}
                   style={{
-                    width: 25,
-                    height: 25,
-                    tintColor: '#FFFFFF',
-                    zIndex: 10
+                    position: 'absolute',
+                    left: 20,
+                    right: 20,
+                    top: 8,
+                    width: DEVICE_WIDTH - 40,
+                    height: (DEVICE_WIDTH - 40) / 16,
+                    resizeMode: 'contain'
                   }}
-                  source={require("../images/ic_back.png")}/>
-              </TouchableWithoutFeedback>
-              <Carousel
-                data={this.data}
-                itemWidth={DBManager.RFWidth(15)}
-                itemHeight={140}
-                sliderWidth={DEVICE_WIDTH - 50}
-                sliderHeight={140}
-                enableMomentum
-                useScrollView={false}
-                activeSlideAlignment={"start"}
-                contentContainerCustomStyle={{paddingLeft: 0, paddingVertical: 0}}
-                containerCustomStyle={{paddingLeft: 0, paddingVertical: 0}}
-                onSnapToItem={(item) => {
-                  let date = new Date();
-                  date.setDate(date.getDate() + item);
-                  let jalaali = require('jalaali-js');
-                  let jalali = jalaali.toJalaali(date);
-                  this.state.selectedMonth = jalali.jm - 1;
-                  this.state.selectedDay = jalali.jd - 1;
-                }}
-                ListHeaderComponent={
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      width: DEVICE_WIDTH / 2 - 60,
-                      justifyContent: 'space-around',
-                    }}>
-                    <Item
-                      date={this.extras[2].date}
-                      month={this.extras[2].month}
-                      day={this.extras[2].day}
-                      extraStyle={{
-                        opacity: 0.1,
-                        transform: [{scale: 0.75}]
-                      }}
-                    />
-                    <Item
-                      date={this.extras[1].date}
-                      month={this.extras[1].month}
-                      day={this.extras[1].day}
-                      extraStyle={{
-                        opacity: 0.5,
-                        transform: [{scale: 0.75}]
-                      }}
-                    />
-                    <Item
-                      date={this.extras[0].date}
-                      month={this.extras[0].month}
-                      day={this.extras[0].day}
-                      extraStyle={{
-                        opacity: 0.8,
-                        transform: [{scale: 0.75}]
-                      }}
-                    />
-                  </View>}
-                ListFooterComponent={
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      width: DEVICE_WIDTH / 2 - 60,
-                      justifyContent: 'space-around',
-                    }}>
-                    <Item
-                      date={this.extras[3].date}
-                      month={this.extras[3].month}
-                      day={this.extras[3].day}
-                      extraStyle={{
-                        opacity: 0.8,
-                        transform: [{scale: 0.75}]
-                      }}
-                    />
-                    <Item
-                      date={this.extras[4].date}
-                      month={this.extras[4].month}
-                      day={this.extras[4].day}
-                      extraStyle={{
-                        opacity: 0.5,
-                        transform: [{scale: 0.75}]
-                      }}
-                    />
-                    <Item
-                      date={this.extras[5].date}
-                      month={this.extras[5].month}
-                      day={this.extras[5].day}
-                      extraStyle={{
-                        opacity: 0.1,
-                        transform: [{scale: 0.75}]
-                      }}
-                    />
-                  </View>}
-                layout={'default'}
-                ref={(c) => {
-                  this.mainC = c;
-                }}
-                scrollInterpolator={this._scrollInterpolator}
-                slideInterpolatedStyle={(index, animatedValue, carouselProps) => {
-                  return {
-                    opacity: animatedValue.interpolate({
-                      inputRange: [-3, -2, -1, 0, 1, 2, 3],
-                      outputRange: [0.1, 0.5, 0.8, 1, 0.8, 0.5, 0.1],
-                      extrapolate: 'clamp'
-                    }),
-                    transform: [{
-                      scale: animatedValue.interpolate({
-                        inputRange: [-3, -2, -1, 0, 1, 2, 3],
-                        outputRange: [0.75, 0.75, 0.75, 1, 0.75, 0.75, 0.75]
+                />
+                <Text
+                  style={{
+                    fontSize: 15,
+                    fontFamily: 'byekan',
+                    backgroundColor: 'white',
+                    borderRadius: 12,
+                    paddingHorizontal: 15,
+                    textAlign: 'center'
+                  }}>
+                  تعیین روز
+                </Text>
+              </View>
+              <View
+                style={{
+                  height: 200,
+                  flexDirection: 'row',
+                  alignItems: 'center'
+                }}>
+                <Carousel
+                  data={this.data}
+                  extras={this.extras}
+                  itemWidth={DBManager.RFWidth(15)}
+                  itemHeight={200}
+                  sliderWidth={DEVICE_WIDTH}
+                  sliderHeight={200}
+                  enableMomentum
+                  useScrollView={false}
+                  activeSlideAlignment={"start"}
+                  onBeforeSnapToItem={(index, animatedValue) => {
+                    console.log('onbefore', index, " : ", animatedValue)
+                  }}
+                  onSnapToItem={(item) => {
+                    let date = new Date();
+                    date.setDate(date.getDate() + item);
+                    let jalaali = require('jalaali-js');
+                    let jalali = jalaali.toJalaali(date);
+                    this.state.selectedMonth = jalali.jm - 1;
+                    this.state.selectedDay = jalali.jd - 1;
+                  }}
+                  layout={'default'}
+                  ref={(c) => {
+                    this.mainC = c;
+                  }}
+                  scrollInterpolator={this._scrollInterpolator}
+                  slideInterpolatedStyle={(index, animatedValue, carouselProps) => {
+                    return {
+                      opacity: animatedValue.interpolate({
+                        inputRange: [-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6],
+                        outputRange: [0.8, 0.5, 0.1, 0.1, 0.5, 0.8, 1, 0.8, 0.5, 0.1, 0.1, 0.5, 0.8],
+                        extrapolate: 'clamp'
                       }),
-                    }],
-                  }
-                }}
-                renderItem={({item, index}) =>
-                  <Item
-                    date={item.date}
-                    month={item.month}
-                    day={item.day}
-                  />
-                }
-              />
-              <TouchableWithoutFeedback
-                onPress={() => {
-                  this.mainC.snapToNext();
-                }}>
-                <Image
-                  style={{
-                    width: 25,
-                    height: 25,
-                    tintColor: '#FFFFFF',
-                    zIndex: 10,
-                    transform: [{rotate: '180deg'}]
+                      transform: [{
+                        scale: animatedValue.interpolate({
+                          inputRange: [-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6],
+                          outputRange: [0.8, 0.6, 0.5, 0.5, 0.6, 0.8, 1, 0.8, 0.6, 0.5, 0.5, 0.6, 0.8]
+                        }),
+                      }],
+                    }
                   }}
-                  source={require("../images/ic_back.png")}/>
-              </TouchableWithoutFeedback>
+                  renderItem={({item, index}) =>
+                    <Item
+                      date={item.date}
+                      month={item.month}
+                      day={item.day}
+                    />
+                  }
+                />
+              </View>
             </View>
           </View>
           <View
@@ -459,7 +366,7 @@ class AddNewSession extends Component {
             />
             <Text
               style={{
-                fontSize: 13,
+                fontSize: 15,
                 fontFamily: 'byekan',
                 backgroundColor: 'white',
                 borderRadius: 12,
@@ -469,19 +376,14 @@ class AddNewSession extends Component {
               تعیین ساعت
             </Text>
           </View>
+
           <View
-            onLayout={() => {
-              if (this.state.loading) {
-                setTimeout(() => {
-                  this.setState({loading: false})
-                }, 1000)
-              }
-            }}
             style={{
               alignItems: 'center',
               justifyContent: 'space-around',
               flexDirection: 'row',
               marginVertical: 20,
+              marginTop: 10
             }}>
             <View
               style={{
@@ -493,13 +395,13 @@ class AddNewSession extends Component {
               <View style={{flex: 1}}/>
               {
                 this.renderCarousel(dailyHour, this._endHour, (index) => {
-                  this._endHour = index / 50;
+                  this._endHour = Math.floor(index / 50);
                 })
               }
               <Text style={{marginHorizontal: 10, color: '#FFFFFF'}}>:</Text>
               {
                 this.renderCarousel(dailyMinutes, this._endMinute, (index) => {
-                  this._endMinute = index / 50;
+                  this._endMinute = Math.floor(index / 50);
                 })
               }
               <View style={{flex: 1}}/>
@@ -526,13 +428,13 @@ class AddNewSession extends Component {
               <View style={{flex: 1}}/>
               {
                 this.renderCarousel(dailyHour, this._startHour, (index) => {
-                  this._startHour = index / 50;
+                  this._startHour = Math.floor(index / 50);
                 })
               }
               <Text style={{marginHorizontal: 10, color: '#FFFFFF'}}>:</Text>
               {
                 this.renderCarousel(dailyMinutes, this._startMinute, (index) => {
-                  this._startMinute = index / 50;
+                  this._startMinute = Math.floor(index / 50);
                 })
               }
               <View style={{flex: 1}}/>
@@ -544,45 +446,141 @@ class AddNewSession extends Component {
               از
             </Text>
           </View>
-          <View
-            onLayout={(evt) => {
-              this.setState({titleY: evt.nativeEvent.layout.y})
-            }}
-            style={{
-              flexDirection: 'row'
-            }}
+
+          <Modal
+            onBackdropPress={() => this.setState({focusTitle: false, focusAddress: false})}
+            onBackButtonPress={() => this.setState({focusTitle: false, focusAddress: false})}
+            isVisible={this.state.focusTitle || this.state.focusAddress}
           >
-            <TouchableWithoutFeedback
-              onPress={this.saveValue}
+            <View
+              style={{
+                height: 300,
+                width: '95%',
+                backgroundColor: 'rgba(176,176,176,0.6)',
+                borderRadius: 15,
+                alignItems: 'center',
+              }}
             >
               <View
                 style={{
-                  height: 40,
-                  borderRadius: 20,
-                  borderColor: '#FFF',
-                  borderWidth: 1,
                   flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginHorizontal: 10,
-                  marginTop: 5
-                }}>
-                <Text
+                }}
+              >
+                <View
                   style={{
-                    color: '#FFFFFF',
-                    fontSize: 12,
-                    paddingHorizontal: 5,
-                    textAlign: 'center',
-                    fontFamily: 'byekan',
+                    flex: 1,
+                    justifyContent: 'center',
                   }}
                 >
-                  تعیین موضوع
-                </Text>
+                  <TextInput
+                    placeholder={this.state.focusAddress ? "آدرس ..." : "موضوع ..."}
+                    value={this.state.focusAddress ? this.state.address : this.state.title}
+                    style={{
+                      color: '#FFFFFF',
+                      textAlign: 'center',
+                      fontFamily: 'byekan',
+                      backgroundColor: '#636363',
+                      borderRadius: 10,
+                      marginStart: 15,
+                      marginEnd: 15,
+                      marginTop: 15,
+                    }}
+                    placeholderTextColor='#FFFFFF'
+                    onChangeText={(text) => {
+                      if (this.state.focusAddress)
+                        this.setState({address: text});
+                      else
+                        this.setState({title: text});
+                    }}
+                  />
+                </View>
               </View>
-            </TouchableWithoutFeedback>
+              <View style={{width: '90%', height: 1, backgroundColor: '#FFFFFF', marginVertical: 10}}/>
+              <Text
+                style={{
+                  color: '#FFFFFF',
+                  fontSize: 15,
+                  width: '100%',
+                  fontFamily: 'byekan',
+                  textAlign: 'center',
+                }}
+              >
+                موارد پیشین
+              </Text>
+              <FlatList
+                data={this.state.focusAddress ? this.state.addresses : this.state.titles}
+                keyExtractor={(_, i) => i.toString()}
+                style={{
+                  flex: 1,
+                  width: '85%',
+                }}
+                renderItem={({item}) => (
+                  <TouchableWithoutFeedback
+                    onPress={() => {
+                      if (this.state.focusTitle)
+                        this.setState({focusTitle: false, title: item});
+                      else
+                        this.setState({focusAddress: false, address: item});
+                    }}
+                  >
+                    <View
+                      style={{
+                        marginHorizontal: 15,
+                        marginVertical: 10,
+                        paddingVertical: 6,
+                        backgroundColor: 'rgba(255,255,255,0.6)',
+                        borderRadius: 10,
+                        width: '85%',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Text style={{color: '#000000', fontFamily: 'byekan'}}>
+                        {`${item}`}
+                      </Text>
+                    </View>
+                  </TouchableWithoutFeedback>
+                )}
+              />
+              <TouchableWithoutFeedback
+                onPress={() => {
+                  this.setState({focusTitle: false, focusAddress: false});
+                }}
+              >
+                <View
+                  style={{
+                    marginHorizontal: 15,
+                    marginVertical: 10,
+                    paddingVertical: 5,
+                    backgroundColor: Globals.PRIMARY_BLUE,
+                    borderRadius: 10,
+                    width: '85%',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexDirection: 'row',
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: '#FFFFFF',
+                      fontFamily: 'byekan',
+                      textAlign: 'center',
+                      flex: 1,
+                    }}
+                  >
+                    تایید
+                  </Text>
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          </Modal>
+          <TouchableWithoutFeedback
+            onPress={() => {
+              this.setState({focusTitle: true})
+            }}
+          >
             <View
               style={{
-                flex: 1,
                 height: 40,
                 borderRadius: 20,
                 backgroundColor: '#FFFFFF',
@@ -605,187 +603,23 @@ class AddNewSession extends Component {
                   موضوع
                 </Text>
               </View>
-            </View>
-          </View>
-          <View
-            style={{
-              position: 'absolute',
-              top: this.state.titleY,
-              left: 80,
-              right: 35,
-              height: 50,
-              marginHorizontal: 0,
-              zIndex: 2000,
-            }}
-          >
-            <Autocomplete
-              autoCapitalize='none'
-              autoCorrect={false}
-              inputContainerStyle={{
-                borderWidth: 0
-              }}
-              containerStyle={{
-                flex: 1,
-                left: 0,
-                position: 'absolute',
-                justifyContent: 'center',
-                right: 40,
-                top: 6.5,
-                zIndex: 2002,
-                borderRadius: 15,
-                overflow: 'hidden',
-              }}
-              data={this.state.focusTitle ? this.state.titles.filter(this._compareTitle) : []}
-              renderTextInput={(props) => (
-                <TextInput
-                  {...props}
-                  placeholderTextColor='#CCC'
-                  style={[
-                    {
-                      color: '#000000',
-                      textAlign: 'right',
-                      fontSize: 12,
-                      fontFamily: 'byekan',
-                      paddingRight: 15,
-                      borderRadius: 15,
-                      overflow: 'hidden',
-                      paddingVertical: 0,
-                      zIndex: 2003
-                    }]}
-                />
-              )}
-              onFocus={() => {
-                this.setState({focusTitle: true});
-              }}
-              onBlur={() => {
-                this.setState({focusTitle: false});
-              }}
-              defaultValue={this.state.title}
-              onChangeText={text => {
-                this.setState({title: text});
-              }}
-              placeholder='...'
-              renderItem={({item}) => (
-                <TouchableWithoutFeedback
-                  onPress={() => this.setState({title: item})}
-                >
-                  <Text style={{zIndex: 3000, textAlign: 'center'}}>
-                    {item}
-                  </Text>
-                </TouchableWithoutFeedback>
-              )}
-            />
-          </View>
 
-          <View
-            style={{
-              position: 'absolute',
-              top: this.state.addressY + 5,
-              left: 80,
-              right: 35,
-              height: 50,
-              marginHorizontal: 0,
-              zIndex: 2000,
-            }}
-          >
-            <Autocomplete
-              autoCapitalize='none'
-              autoCorrect={false}
-              inputContainerStyle={{
-                borderWidth: 0
-              }}
-              containerStyle={{
-                flex: 1,
-                left: 0,
-                position: 'absolute',
-                justifyContent: 'center',
-                right: 40,
-                top: 6.5,
-                zIndex: 2002,
-                borderRadius: 15,
-                overflow: 'hidden',
-              }}
-              data={this.state.focusAddress ? this.state.addresses.filter(this._compareAddress) : []}
-              renderTextInput={(props) => (
-                <TextInput
-                  {...props}
-                  placeholderTextColor='#CCC'
-                  style={[
-                    {
-                      color: '#000000',
-                      textAlign: 'right',
-                      fontSize: 12,
-                      fontFamily: 'byekan',
-                      paddingRight: 15,
-                      borderRadius: 15,
-                      overflow: 'hidden',
-                      paddingVertical: 0,
-                      zIndex: 2003
-                    }]}
-                />
-              )}
-              onFocus={() => {
-                this.setState({focusAddress: true});
-              }}
-              onBlur={() => {
-                this.setState({focusAddress: false});
-              }}
-              defaultValue={this.state.address}
-              onChangeText={text => {
-                this.setState({address: text});
-              }}
-              placeholder='...'
-              renderItem={({item}) => (
-                <TouchableWithoutFeedback
-                  onPress={() => this.setState({address: item})}
-                >
-                  <Text style={{zIndex: 3000, textAlign: 'center'}}>
-                    {item}
-                  </Text>
-                </TouchableWithoutFeedback>
-              )}
-            />
-          </View>
-
-          <View
-            onLayout={(evt) => {
-              this.setState({addressY: evt.nativeEvent.layout.y})
-            }}
-            style={{
-              flexDirection: 'row'
-            }}
-          >
-            <TouchableWithoutFeedback
-              onPress={this.saveAddress}
-            >
-              <View
+              <Text
                 style={{
-                  height: 40,
-                  borderRadius: 20,
-                  borderColor: '#FFF',
-                  borderWidth: 1,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginHorizontal: 10,
-                  marginTop: 5
-                }}>
-                <Text
-                  style={{
-                    color: '#FFFFFF',
-                    fontSize: 12,
-                    paddingHorizontal: 5,
-                    textAlign: 'center',
-                    fontFamily: 'byekan',
-                  }}
-                >
-                  {'تعیین آدرس '}
-                </Text>
-              </View>
-            </TouchableWithoutFeedback>
+                  marginRight: 15,
+                  fontFamily: 'byekan'
+                }}
+              >
+                {this.state.title}
+              </Text>
+            </View>
+
+          </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback
+            onPress={() => this.setState({focusAddress: true})}
+          >
             <View
               style={{
-                flex: 1,
                 height: 40,
                 borderRadius: 20,
                 backgroundColor: '#FFFFFF',
@@ -793,20 +627,17 @@ class AddNewSession extends Component {
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginHorizontal: 5,
-                marginTop: 5
+                marginTop: 15
               }}>
               <Text
                 style={{
-                  backgroundColor: '#FFFFFF',
-                  color: '#000',
+                  marginRight: 15,
                   flex: 1,
-                  textAlign: 'center',
-                  fontFamily: 'byekan',
-                  marginHorizontal: 20,
-                  borderRadius: 20,
+                  textAlign: 'right',
+                  fontFamily: 'byekan'
                 }}
               >
-                {this.state.currentPlaceTitle}
+                {this.state.address}
               </Text>
               <View
                 style={{
@@ -820,57 +651,64 @@ class AddNewSession extends Component {
                   justifyContent: 'center',
                 }}>
                 <Text style={{color: '#FFFFFF', fontFamily: 'byekan'}}>
-                  آدرس
+                  {"آدرس "}
                 </Text>
               </View>
             </View>
-          </View>
+          </TouchableWithoutFeedback>
+
+          <Text
+            style={{
+              fontFamily: 'byekan',
+              fontSize: 16,
+              color: '#888',
+              width: '50%',
+              alignSelf: 'center',
+              backgroundColor: '#FFF',
+              textAlign: 'center',
+              borderWidth: 2,
+              borderRadius: 25,
+              marginTop: 5,
+              borderColor: '#808080',
+              paddingHorizontal: 10,
+            }}>
+            انتخاب از روی نقشه
+          </Text>
           <TouchableWithoutFeedback
             onPress={() => NavigationService.navigate('Save')}>
-            <ImageBackground
+            <Image
               source={this.props.counter.uri === null ?
-                require('../images/ic_map.png') :
+                require("../images/ic_launcher.png") :
                 {uri: this.props.counter.uri}
               }
+              resizeMode={this.props.counter.uri === null ? 'contain' : 'cover'}
               style={{
-                resizeMode: 'cover',
                 flex: 1,
                 alignSelf: 'center',
                 width: DEVICE_WIDTH - 40,
                 alignItems: 'center',
                 borderRadius: 15,
                 overflow: 'hidden',
-                marginTop: 15
+                marginTop: 5
               }}
-            >
-              <Text
-                style={{
-                  fontFamily: 'byekan',
-                  fontSize: 18,
-                  color: '#888',
-                  backgroundColor: '#FFF',
-                  textAlign: 'center',
-                  borderWidth: 2,
-                  borderRadius: 25,
-                  marginTop: 5,
-                  borderColor: '#808080',
-                  paddingHorizontal: 10,
-                }}>
-                انتخاب از روی نقشه
-              </Text>
-            </ImageBackground>
+            />
           </TouchableWithoutFeedback>
           <TouchableWithoutFeedback
-            onPress={() => NavigationService.navigate('ChoosePeople', {
-              date: '1398-' + (this.state.selectedMonth + 1) + '-' + (this.state.selectedDay + 1),
-              start: dailyHour[this._startHour + 1] + ":" + dailyMinutes[this._startMinute + 1],
-              end: dailyHour[this._endHour + 1] + ":" + dailyMinutes[this._endMinute + 1],
-              place: this.state.address,
-              meeting_title: this.state.title
-            })}>
+            onPress={() => {
+              this.saveValue();
+              NavigationService.navigate('ChoosePeople', {
+                date: '1398-' + (this.state.selectedMonth + 1) + '-' + (this.state.selectedDay + 1),
+                start: dailyHour[this._startHour] + ":" + dailyMinutes[this._startMinute + 1],
+                end: dailyHour[this._endHour] + ":" + dailyMinutes[this._endMinute + 1],
+                place: this.state.address,
+                meeting_title: this.state.title
+              });
+              // this.setState({endHour:this.endHour})
+            }}>
             <View
               style={{
                 marginVertical: 10,
+                marginBottom: 20,
                 flexDirection: 'row',
                 backgroundColor: '#FFFFFF',
                 borderRadius: 30,
@@ -881,8 +719,8 @@ class AddNewSession extends Component {
             >
               <Image
                 style={{
-                  height: 10,
-                  width: 15,
+                  height: 16,
+                  width: 24,
                   marginLeft: 20,
                   alignSelf: 'center',
                   tintColor: '#675ec9'
@@ -892,7 +730,7 @@ class AddNewSession extends Component {
               <Text
                 style={{
                   fontFamily: 'byekan',
-                  fontSize: 18,
+                  fontSize: 25,
                   width: '80%',
                   textAlign: 'center',
                   color: '#675ec9',
@@ -902,6 +740,7 @@ class AddNewSession extends Component {
               </Text>
             </View>
           </TouchableWithoutFeedback>
+
         </ImageBackground>
       </KeyboardAvoidingView>
     );
@@ -932,4 +771,4 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps, {counterAdd, counterSub})(AddNewSession);
+export default connect(mapStateToProps, {setURI})(AddNewSession);

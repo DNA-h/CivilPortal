@@ -42,6 +42,18 @@ class PeopleItem extends Component {
             this.props.callback(this.props.item.item.first_name,
               this.props.item.item.last_name,
               this.props.item.item.id);
+          else{
+            this.setState(() => {
+                this.props.callback(
+                  this.props.item.item.first_name,
+                  this.props.item.item.last_name,
+                  this.props.item.item.mobile,
+                  this.props.item.item.rank,
+                  this.state.isSelected);
+                return {isSelected: !this.state.isSelected}
+              }
+            );
+          }
         }}
       >
         <View

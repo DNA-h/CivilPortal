@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {Dimensions, FlatList, Image, View, Text, SafeAreaView, TouchableWithoutFeedback} from 'react-native';
 import {connect} from "react-redux";
-import {counterAdd, counterSub} from "../actions";
+import {counterAdd, counterSub, setURI} from "../actions";
 import PeopleItem from "./Components/PeopleItem";
 import Modal from "react-native-modal";
 import {RequestsController} from "../Utils/RequestController";
@@ -30,7 +30,7 @@ class ChoosePeople extends Component {
   componentDidMount() {
     this.props.navigation.getParam("date") + " " + this.props.navigation.getParam("start") + ":00",
     this.props.navigation.getParam("date") + " " + this.props.navigation.getParam("end") + ":00",
-    this._loadPeople();
+      this._loadPeople();
   }
 
   async _loadPeople() {
@@ -85,7 +85,10 @@ class ChoosePeople extends Component {
       this.selfPresent,
       force,
     );
-    if (json.meeting_title !== undefined) NavigationService.navigate("MainPage"); else {
+    if (json.meeting_title !== undefined) {
+      this.props.setURI(null, 0, 0);
+      NavigationService.navigate("MainPage");
+    } else {
       this.congestion = json;
       this._toggleCongestion();
     }
@@ -110,17 +113,18 @@ class ChoosePeople extends Component {
             marginHorizontal: 20,
             backgroundColor: '#FFFFFF',
             marginTop: 20,
-            borderRadius: 50
+            borderRadius: 60
           }}>
 
           <View
             style={{
               flexDirection: 'row',
-              marginVertical: 15
+              marginTop:20,
+              paddingHorizontal:25
             }}
           >
             <TouchableWithoutFeedback
-            onPress={NavigationService.goBack}>
+              onPress={NavigationService.goBack}>
               <Image
                 style={{
                   height: 20,
@@ -136,12 +140,13 @@ class ChoosePeople extends Component {
                 flex: 1,
                 textAlign: 'center',
                 fontFamily: 'byekan',
-                fontSize: 22,
+                fontSize: 18,
                 color: '#6f67d9'
               }}
             >
               انتخاب نفرات
             </Text>
+
             <View
               style={{
                 borderColor: '#6f67d9',
@@ -161,6 +166,15 @@ class ChoosePeople extends Component {
               />
             </View>
           </View>
+          <View
+            style={{
+              height:1,
+              width:'85%',
+              marginTop:10,
+              alignSelf:'center',
+              backgroundColor:'gray'
+            }}
+          />
           <FlatList
             style={{
               flex: 1, marginBottom: 20
@@ -462,4 +476,4 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps, {counterAdd, counterSub})(ChoosePeople);
+export default connect(mapStateToProps, {setURI})(ChoosePeople);

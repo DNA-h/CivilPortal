@@ -1,5 +1,5 @@
 import React from 'react';
-import {TextInput, Text, View, Image, Dimensions, TouchableWithoutFeedback} from 'react-native';
+import {ActivityIndicator, Text, View, Image, Dimensions, TouchableWithoutFeedback} from 'react-native';
 import MapboxGL from '@mapbox/react-native-mapbox-gl';
 import Modal from "react-native-modal";
 import {RequestsController} from "../Utils/RequestController";
@@ -18,7 +18,8 @@ class SaveAddress extends React.Component {
     this.state = {
       visible: false,
       title: '',
-      address: ''
+      address: '',
+      clicked: false
     }
   }
 
@@ -39,16 +40,50 @@ class SaveAddress extends React.Component {
             fontSize: 20,
             textAlign: 'center'
           }}>
-          محل مورد نظر را روی نقشه تعیین نمایید و دکمه را فشار دهید.
+          محل مورد نظر را روی نقشه تعیین نمایید و دکمه تایید را فشار دهید.
         </Text>
         <MapboxGL.MapView
           centerCoordinate={[51.38644110964526, 35.72967255243659]}
           zoomLevel={12}
           ref={(ref) => this._map = ref}
           style={{flex: 1, width: '100%'}}/>
+        {!this.state.clicked &&
+        <Image
+          style={{
+            width: 40,
+            height: 40,
+            position: 'absolute',
+            top: (h - 40) / 2,
+            bottom: (h - 40) / 2,
+            left: (w - 40) / 2,
+            right: (w - 40) / 2,
+            resizeMode: 'contain',
+            tintColor: '#ff6b06'
+          }}
+          source={require("../images/ic_location.png")}
+        />
+        }
+        {this.state.clicked &&
+        <ActivityIndicator
+          size={70}
+          color="#1DB954"
+          style={{
+            width: 70,
+            height: 70,
+            position: 'absolute',
+            top: (h - 70) / 2,
+            bottom: (h - 70) / 2,
+            left: (w - 70) / 2,
+            right: (w - 70) / 2,
+            resizeMode: 'contain',
+            tintColor: '#ff6b06'
+          }}
+        />
+        }
         <TouchableWithoutFeedback
           onPress={
             async () => {
+              this.setState({clicked: true});
               let center = await this._map.getCenter();
               this.setState({visible: false});
               const uri = await MapboxGL.snapshotManager.takeSnap({
@@ -61,24 +96,21 @@ class SaveAddress extends React.Component {
                 styleURL: MapboxGL.StyleURL.Street,
                 withLogo: false, // Disable Mapbox logo (Android only)
               });
-              this.props.setURI(uri,center[0], center[1]);
+              this.props.setURI(uri, center[0], center[1]);
               NavigationService.goBack();
             }}
         >
-          <Image
+          <Text
             style={{
-              width: 40,
-              height: 40,
-              position: 'absolute',
-              top: (h - 40) / 2,
-              bottom: (h - 40) / 2,
-              left: (w - 40) / 2,
-              right: (w - 40) / 2,
-              resizeMode: 'contain',
-              tintColor: '#ff6b06'
+              color: '#000',
+              textAlign: 'center',
+              fontSize: 18,
+              fontFamily: 'byekan'
             }}
             source={require("../images/ic_location.png")}
-          />
+          >
+            تایید
+          </Text>
         </TouchableWithoutFeedback>
       </View>
     );

@@ -6,6 +6,7 @@ import SplashScreen from "react-native-splash-screen";
 import {RequestsController} from "../Utils/RequestController";
 import NavigationService from "../service/NavigationService";
 import DBManager from "../Utils/DBManager";
+import LinearGradient from "react-native-linear-gradient";
 
 
 class Login extends Component {
@@ -23,6 +24,7 @@ class Login extends Component {
 
   componentDidMount() {
     SplashScreen.hide();
+    DBManager.saveSettingValue('token', 'N/A');
   }
 
   _TextChanged(input) {
@@ -47,8 +49,8 @@ class Login extends Component {
     let input = this.state.isPhoneNumber ?
       <TextInput
         style={{
-          backgroundColor: '#7fb0ff',
-          color: '#000',
+          backgroundColor: '#817ce2',
+          color: '#fff',
           textAlign: 'center',
           fontFamily: 'byekan',
           flex: 1
@@ -60,14 +62,14 @@ class Login extends Component {
         autoCorrect={false}
         keyboardType='phone-pad'
         returnKeyType="next"
-        placeholder='شماره تلفن ...'
-        placeholderTextColor='#666'
+        placeholder='شماره تلفن '
+        placeholderTextColor='#fff'
       />
       :
       <TextInput
         style={{
-          backgroundColor: '#7fb0ff',
-          color: '#000',
+          backgroundColor: '#817ce2',
+          color: '#fff',
           textAlign: 'center',
           fontFamily: 'byekan',
           flex: 1
@@ -82,8 +84,8 @@ class Login extends Component {
         autoCorrect={false}
         keyboardType='decimal-pad'
         returnKeyType="next"
-        placeholder='کد شش رقمی ...'
-        placeholderTextColor='#CCC'
+        placeholder='کد شش رقمی '
+        placeholderTextColor='#fff'
       />;
     let button = this.state.isPhoneNumber ?
       <TouchableWithoutFeedback
@@ -95,6 +97,7 @@ class Login extends Component {
               backgroundColor: "#c8c6f5",
               marginRight: 15,
               paddingHorizontal: 20,
+              paddingVertical:5,
               color: '#8c0aff',
               fontFamily: 'byekan'
             }}>
@@ -103,97 +106,101 @@ class Login extends Component {
         </View>
       </TouchableWithoutFeedback> : null;
     return (
-      <View
-        style={{
-          backgroundColor: '#8c0aff',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}>
-
-        <Image
-          source={require('../images/logo.png')}
-          resizeMode={'contain'}
-          style={{
-            width: '20%',
-            height: '20%',
-            paddingTop: 70,
-            marginTop: 70
-          }}
-        />
-
+      <LinearGradient
+        colors={['rgb(107,99,211)', 'rgb(126,127,245)']}
+        start={{x: 0, y: 0}}
+        end={{x: 0, y: 1}}
+      >
         <View
           style={{
-            paddingLeft: 60,
-            paddingRight: 60,
-            width: '100%'
-          }}
-        >
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+
+          <Image
+            source={require('../images/ic_launcher.png')}
+            resizeMode={'contain'}
+            style={{
+              width: '30%',
+              height: '30%',
+              marginTop: 40
+            }}
+          />
+
           <View
             style={{
-              backgroundColor: '#7fb0ff',
-              paddingHorizontal: 20,
-              paddingBottom: 5,
-              paddingTop: 5,
-              borderWidth: 1,
-              width: '100%',
-              marginTop: 10,
-              borderStyle: 'solid',
-              fontSize: 15,
-              borderRadius: 25,
-              flexDirection: 'row',
-              alignItems: 'center'
-            }}>
-            {input}
-            <Image
+              paddingLeft: 60,
+              paddingRight: 60,
+              width: '100%'
+            }}
+          >
+            <View
               style={{
-                width: 20,
-                height: 20,
-                resizeMode: 'contain'
-              }}
-              source={require("../images/ic_user.png")}
-            />
+                backgroundColor: '#817ce2',
+                paddingHorizontal: 20,
+                paddingBottom: 5,
+                paddingTop: 5,
+                width: '100%',
+                marginTop: 10,
+                borderStyle: 'solid',
+                fontSize: 15,
+                borderRadius: 25,
+                flexDirection: 'row',
+                alignItems: 'center'
+              }}>
+              {input}
+              <Image
+                style={{
+                  width: 20,
+                  height: 20,
+                  resizeMode: 'contain'
+                }}
+                source={require("../images/ic_user.png")}
+              />
+            </View>
+
           </View>
 
-        </View>
-
-        <View
-          style={{
-            flexDirection: 'row',
-            textAlign: 'center',
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: '100%',
-            borderRadius: 80,
-            margin: 12,
-            paddingLeft: 60,
-            paddingRight: 60,
-          }}
-        >
-          {button}
-          <View style={{flex: 1}}/>
-          <Text
+          <View
             style={{
-              color: '#FFFFFF',
-              marginLeft: 15,
-              fontFamily: 'byekan'
-            }}>
-            رمز عبور را فراموش کرده اید؟
-          </Text>
+              flexDirection: 'row',
+              textAlign: 'center',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '100%',
+              borderRadius: 80,
+              margin: 12,
+              paddingLeft: 60,
+              paddingRight: 60,
+            }}
+          >
+            {button}
+            <View style={{flex: 1}}/>
+            <Text
+              style={{
+                color: '#FFFFFF',
+                marginRight: 10,
+                fontFamily: 'byekan'
+              }}>
+              رمز عبور را فراموش کرده اید؟
+            </Text>
 
+          </View>
+
+          <View style={{flex:1}}/>
+          <Image
+            style={{
+              width: '80%',
+              height: '50%',
+              margin: 30,
+              alignItems: 'center',
+              justifyContent: 'center',
+              alignContent: 'center',
+              resizeMode: 'contain'
+            }}
+            source={require('../images/user_login.png')}/>
         </View>
-
-        <Image
-          style={{
-            width: '80%',
-            height: '50%',
-            margin: 30,
-            alignItems: 'center',
-            justifyContent: 'center',
-            alignContent: 'center',
-            resizeMode: 'contain'
-          }}
-          source={require('../images/user_login.png')}/>
-      </View>
+      </LinearGradient>
     );
   }
 }

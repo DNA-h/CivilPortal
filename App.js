@@ -6,8 +6,8 @@ import Login from "./app/Modules/Login";
 import MainPage from "./app/Modules/MainPage";
 import AddNewSession from "./app/Modules/AddNewSession";
 import ChoosePeople from "./app/Modules/ChoosePeople";
-import SessionDetail from "./app/Modules/SessionDetail";
 import CalendarPage from "./app/Modules/Drawer/CalendarPage";
+import OnBoarding from "./app/Modules/Drawer/OnBoarding";
 import SaveAddress from "./app/Modules/SaveAddress";
 import ShowAddress from "./app/Modules/ShowAddress";
 import ShareSession from "./app/Modules/ShareSession";
@@ -19,8 +19,8 @@ const RootStack = createStackNavigator(
     MainPage: {screen: MainPage, navigationOptions: {header: null}},
     AddNewSession: {screen: AddNewSession, navigationOptions: {header: null}},
     ChoosePeople: {screen: ChoosePeople, navigationOptions: {header: null}},
-    SessionDetail: {screen: SessionDetail, navigationOptions: {header: null}},
     CalendarPage: {screen: CalendarPage, navigationOptions: {header: null}},
+    OnBoarding: {screen: OnBoarding, navigationOptions: {header: null}},
     Save: {screen: SaveAddress, navigationOptions: {header: null}},
     Show: {screen: ShowAddress, navigationOptions: {header: null}},
     Share: {screen: ShareSession, navigationOptions: {header: null}},

@@ -20,7 +20,8 @@ class CalendarItem extends Component {
     super(props);
     this.state = {
       viewCount: undefined,
-      replaced: false
+      replaced: false,
+      loading: true
     };
     this.result = undefined;
     this.me = undefined;
@@ -50,7 +51,7 @@ class CalendarItem extends Component {
         flag = true;
       }
     }
-    this.setState({viewCount: count, replaced: flag})
+    this.setState({viewCount: count, replaced: flag, loading: false})
   }
 
   _renderLeft() {
@@ -158,16 +159,16 @@ class CalendarItem extends Component {
             />
           </View>
           <View
-            style={{flex: 1}}
+            style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}
           >
-            <Text style={{fontFamily: 'byekan'}}>
+            <Image
+              source={require("../../images/ic_visibility.png")}
+              style={{height: 20, width: 20}}
+            />
+            <Text style={{fontFamily: 'byekan', color: '#000', marginLeft: 5, fontSize: 20}}>
               {
-                this.state.viewCount !== undefined && this.state.viewCount !== this.result[0].people.length &&
-                `✓ ${this.state.viewCount} از ${this.result[0].people.length} `
-              }
-              {
-                this.state.viewCount !== undefined && this.state.viewCount === this.result[0].people.length &&
-                `✓✓`
+                this.state.viewCount !== undefined &&
+                `${this.state.viewCount} `
               }
             </Text>
           </View>
@@ -192,7 +193,8 @@ class CalendarItem extends Component {
         <View style={styles.parent}>
           <View style={{flex: 1}}/>
           <View
-            style={styles.smallCard}>
+            style={[styles.smallCard,
+              {backgroundColor: !this.state.replaced ? Globals.PRIMARY_BLUE : Globals.PRIMARY_SHARED}]}>
             <TouchableWithoutFeedback
               onPress={this.props.share}>
               <Image
@@ -211,7 +213,7 @@ class CalendarItem extends Component {
           <TouchableWithoutFeedback
             onPress={() => this.props.callback(this.props.item.item.id)}>
             <View
-              style={styles.card}>
+              style={[styles.card, {backgroundColor: !this.state.replaced ? Globals.PRIMARY_BLUE : Globals.PRIMARY_SHARED}]}>
               <TouchableWithoutFeedback
                 onPress={() => this.props.callback(this.props.item.item.id)}>
                 <View style={{flex: 1}}>
@@ -245,26 +247,6 @@ class CalendarItem extends Component {
               <Image
                 style={styles.profile}
                 source={{uri: this.props.item.item.image}}/>
-              {this.state.replaced && <View
-                style={{
-                  height: 20,
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  borderRadius: 35,
-                  marginRight: 30,
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                <Text style={[
-                  styles.text, {color: '#000'}
-                ]}>
-                  اشتراک گذاشته شد
-                </Text>
-              </View>
-              }
             </View>
           </TouchableWithoutFeedback>
 
@@ -273,20 +255,28 @@ class CalendarItem extends Component {
           style={{flexDirection: 'row'}}
         >
           <View style={{flex: 2}}/>
-          <View
-            style={{flex: 1}}
+          {this.state.replaced && <View
+            style={{
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
           >
-            <Text style={{fontFamily: 'byekan'}}>
-              {
-                this.state.viewCount !== undefined && this.state.viewCount !== this.result[0].people.length &&
-                `✓ ${this.state.viewCount} از ${this.result[0].people.length} `
-              }
-              {
-                this.state.viewCount !== undefined && this.state.viewCount === this.result[0].people.length &&
-                `✓✓`
-              }
+            <Text style={[
+              styles.text, {color: '#000'}
+            ]}>
+              اشتراک گذاشته شد
             </Text>
           </View>
+          }
+          <View
+            style={{flex: 1}}
+          />
+          <Text style={{fontFamily: 'byekan', color: '#000'}}>
+            {
+              this.state.viewCount !== undefined &&
+              `👁 ${this.state.viewCount} `
+            }
+          </Text>
           <View
             style={{
               height: hp(5),
@@ -299,7 +289,7 @@ class CalendarItem extends Component {
               style={{
                 height: hp(5),
                 width: hp(5),
-                backgroundColor: Globals.PRIMARY_BLUE,
+                backgroundColor: !this.state.replaced ? Globals.PRIMARY_BLUE : Globals.PRIMARY_SHARED,
                 overflow: 'hidden',
                 transform: [{rotate: '45deg'}, {translateY: -hp(3.53)}]
               }}
@@ -311,11 +301,12 @@ class CalendarItem extends Component {
   }
 
   render() {
-    let renderFunc = !this.props.item.item.owner ? this._renderLeft() : this._renderRight();
     return (
       <View
         style={{flexDirection: 'row'}}>
-        {renderFunc}
+        {this.state.loading ? null :
+          !this.props.item.item.owner ? this._renderLeft() : this._renderRight()
+        }
       </View>
     );
   }

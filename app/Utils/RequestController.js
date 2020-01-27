@@ -2,7 +2,7 @@ import {ConnectionManager} from "./ConnectionManager";
 import DBManager from "./DBManager";
 
 export class RequestsController {
-  static async loadTodayEvents(shD,shM,wcD,wcM,icD,icM) {
+  static async loadTodayEvents(shD, shM, wcD, wcM, icD, icM) {
     let headers = new Headers();
     headers.append('Content-Type', 'application/json');
     let json = await ConnectionManager.doFetch(
@@ -16,6 +16,7 @@ export class RequestsController {
     headers.append('Content-Type', 'application/json');
     let json = await ConnectionManager.doFetch("http://185.211.57.73/auth/mobile/", 'POST',
       JSON.stringify({'mobile': mobile}), headers, true);
+    console.log('detail', json);
     return json.detail;
   }
 

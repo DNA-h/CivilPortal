@@ -1,6 +1,7 @@
 import React from 'react';
 import {View, Text, Animated, TouchableWithoutFeedback} from 'react-native';
 import DBManager from "../../Utils/DBManager";
+import FitBounds from "@mapbox/react-native-mapbox-gl/example/src/components/FitBounds";
 
 export default class Item extends React.Component {
 
@@ -9,14 +10,14 @@ export default class Item extends React.Component {
       <View
         style={{
           flexDirection: 'row',
-          height: 140
+          height: 200
         }}>
         <Animated.View
           style={[{
             marginHorizontal: 10,
             width: DBManager.RFWidth(12),
             backgroundColor: '#FFFFFF',
-            borderRadius: 25,
+            borderRadius: DBManager.RFWidth(6),
             justifyContent: 'center',
             alignItems: 'center',
             marginVertical: 20,
@@ -27,7 +28,7 @@ export default class Item extends React.Component {
           <Text
             style={{
               color: this.props.day === 'جمعه' ? '#ff2c05' : '#000000',
-              fontSize: DBManager.RFValue(12),
+              fontSize: DBManager.RFValue(18),
               fontFamily: 'byekan',
               textAlign: 'center'
             }}>
@@ -36,7 +37,7 @@ export default class Item extends React.Component {
           <Text
             style={{
               color: this.props.day === 'جمعه' ? '#ff2c05' : '#000000',
-              fontSize: DBManager.RFValue(12),
+              fontSize: DBManager.RFValue(14),
               fontFamily: 'byekan'
             }}>
             {this.props.date}
@@ -44,7 +45,7 @@ export default class Item extends React.Component {
           <Text
             style={{
               color: this.props.day === 'جمعه' ? '#ff2c05' : '#000000',
-              fontSize: DBManager.RFValue(10),
+              fontSize: DBManager.RFValue(12),
               textAlign: 'center',
               fontFamily: 'byekan'
             }}>
