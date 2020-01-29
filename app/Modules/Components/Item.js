@@ -28,7 +28,7 @@ export default class Item extends React.Component {
           <Text
             style={{
               color: this.props.day === 'جمعه' ? '#ff2c05' : '#000000',
-              fontSize: DBManager.RFValue(18),
+              fontSize: DBManager.RFValue(16),
               fontFamily: 'byekan',
               textAlign: 'center'
             }}>

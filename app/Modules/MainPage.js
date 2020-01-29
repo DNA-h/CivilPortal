@@ -1,24 +1,13 @@
 import React, {Component} from "react";
 import {
-  Button,
-  Dimensions,
-  FlatList,
-  Image,
-  ImageBackground, Linking,
-  ScrollView,
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View
+  Dimensions, FlatList, Image, ImageBackground, Linking, ScrollView, StyleSheet,
+  StatusBar, Text, TouchableOpacity, TouchableWithoutFeedback, View
 } from 'react-native';
 import {connect} from "react-redux";
-import {counterAdd, counterSub} from "../actions";
 import CalendarItem from "./Components/CalendarItem";
 import NavigationService from "../service/NavigationService";
 import SplashScreen from 'react-native-splash-screen';
 import {createDrawerNavigator, DrawerActions, DrawerItems} from "react-navigation";
-import AddNewSession from "./AddNewSession";
 import CalendarPage from "./Drawer/CalendarPage";
 import RequestCar from "./Drawer/RequestCar";
 import DBManager from "../Utils/DBManager";
@@ -30,6 +19,7 @@ import Globals from "../Utils/Globals";
 import firebase from 'react-native-firebase';
 import SimpleImage from "./Components/SimpleImage";
 import Login from "./Login";
+import jalaali from 'jalaali-js';
 
 let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
 let gMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -41,7 +31,7 @@ const DEVICE_HEIGHT = Dimensions.get('window').height;
 
 class MainPage extends Component {
 
-  static getIconFromLabel(label) {
+  static getIconFromLabel(label) { //for Drawer
     if (label === 'صفحه اصلی')
       return require("../images/customerService.png");
     else if (label === 'تماس با ما')
@@ -67,11 +57,11 @@ class MainPage extends Component {
       todayPersian3: '___',
       todayGeorgian: '___',
       todayHijri: '___',
-      sampleData: [],
+      todaySessions: [],
       occasion: '',
       dayoff: false,
       me: {},
-      visible: false,
+      modalVisible: false,
       warning: false,
       datePicker: false
     };
@@ -84,40 +74,38 @@ class MainPage extends Component {
     this.parsePersianDate = this.parsePersianDate.bind(this);
     this._loadSessions = this._loadSessions.bind(this);
     this.getCalendarEvents = this.getCalendarEvents.bind(this);
-    this._init = this._init.bind(this);
     this._itemClicked = this._itemClicked.bind(this);
     this._checkDelete = this._checkDelete.bind(this);
     this._init();
   }
 
   async _loadSessions() {
-    let jalaali = require('jalaali-js');
     let date = new Date();
     date.setDate(date.getDate() + this.difference);
     let jalali = jalaali.toJalaali(date);
     let value = jalali.jy + "-" + (jalali.jm < 10 ? '0' + jalali.jm : jalali.jm) + "-" + (jalali.jd < 10 ? '0' + jalali.jd : jalali.jd);
     let result = await RequestsController.MySessions(value);
-    result = result.filter((item) => {
+    result = result.filter((item) => { //server (for some reasens) returns two copies of same session if you are owner
         if (item.owner) return true;
         if (result.some(e => e.owner && e.id === item.id))
           return false;
         return true;
       }
     );
-    result.sort(function(a, b){
+    result.sort(function (a, b) {
       if (a.start_time.substring(11, 16) > b.start_time.substring(11, 16))
         return 1;
       return -1;
     });
-    this.setState({sampleData: result});
+    this.setState({todaySessions: result});
   }
 
   async _itemClicked(id) {
     this.result = await RequestsController.specificSession(id);
-    this.setState({visible: true});
+    this.setState({modalVisible: true});
   }
 
-  async _checkDelete(id) {
+  _checkDelete(id) {
     this.deleting = id;
     this.setState({warning: true});
   }
@@ -125,8 +113,8 @@ class MainPage extends Component {
   async componentDidMount() {
     RequestsController.loadTodayEvents();
     SplashScreen.hide();
-    await this.checkToken();
     StatusBar.setBackgroundColor('#6A61D1');
+    await this.checkToken();
     this.routeSubscription = this.props.navigation.addListener('willFocus', this.fetchData,);
     this.fetchData();
   }
@@ -143,10 +131,10 @@ class MainPage extends Component {
 
   async checkToken() {
     let token = await DBManager.getSettingValue('token');
-    let onboarding = await DBManager.getSettingValue('onboarding','N/A');
+    let onboarding = await DBManager.getSettingValue('onboarding', 'N/A');
     if (token === undefined || token === null || token.length !== 40) {
       NavigationService.reset('Login');
-    }else if(onboarding==='N/A'){
+    } else if (onboarding === 'N/A') {
       NavigationService.reset('OnBoarding');
     }
     firebase.messaging().getToken()
@@ -174,7 +162,6 @@ class MainPage extends Component {
     const year = parseInt(str.substr(0, 4), 10);
     const month = parseInt(str.substr(5, 2), 10);
     const day = parseInt(str.substr(8, 2), 10);
-    let jalaali = require('jalaali-js');
     const g = jalaali.toGregorian(year, month, day);
     const date = new Date();
     date.setDate(g.gd);
@@ -203,7 +190,6 @@ class MainPage extends Component {
   }
 
   parsePersianDate() {
-    let jalaali = require('jalaali-js');
     let date = new Date();
     date.setDate(date.getDate() + this.difference);
     let w = date.getDay();
@@ -218,26 +204,27 @@ class MainPage extends Component {
   parseGeorgianDate() {
     let date = new Date();
     date.setDate(date.getDate() + this.difference);
-    let value = date.getDate() + " " + gMonths[date.getMonth()] + " " + date.getFullYear() + "\n" + date.getDate() + " / " + (date.getMonth() + 1) + " / " + date.getFullYear();
+    let value = date.getDate() + " " + gMonths[date.getMonth()] + " " + date.getFullYear() + "\n" +
+      date.getDate() + " / " + (date.getMonth() + 1) + " / " + date.getFullYear();
     let chars = value.split('');
     return chars.join('');
   }
 
   parseHijriDate() {
     let hijri = require('hijri');
-    let date = hijri.convert(new Date(), this.difference);
-    let value = date.dayOfMonth + " " + date.monthText + " " + date.year + "\n" + date.year + " / " + date.month + " / " + date.dayOfMonth;
+    let date = hijri.convert(new Date(), this.difference - 1);
+    let value = date.dayOfMonth + " " + date.monthText + " " + date.year + "\n" +
+      date.year + " / " + date.month + " / " + date.dayOfMonth;
     let chars = value.split('');
     return chars.join('');
   }
 
   async getCalendarEvents() {
-    let jalaali = require('jalaali-js');
     let hijri = require('hijri');
     let date = new Date();
     date.setDate(date.getDate() + this.difference);
     let jalali = jalaali.toJalaali(date);
-    let hDate = hijri.convert(new Date(), this.difference);
+    let hDate = hijri.convert(new Date(), this.difference - 1);
     let json = await RequestsController.loadTodayEvents(jalali.jd, jalali.jm, date.getDate(), date.getMonth() + 1,
       hDate.dayOfMonth, hDate.month);
     let flag = false;
@@ -259,7 +246,7 @@ class MainPage extends Component {
       todayPersian3: value[2],
       todayGeorgian: this.parseGeorgianDate(),
       todayHijri: this.parseHijriDate(),
-      sampleData: []
+      todaySessions: []
     });
     this._loadSessions();
     this.getCalendarEvents();
@@ -267,11 +254,12 @@ class MainPage extends Component {
 
   render() {
     return (
-      <ImageBackground
+      <View
         style={{
           flex: 1,
           backgroundColor: Globals.PRIMARY_BLUE
-        }}>
+        }}
+      >
         <ImageBackground
           source={require("../images/main2.png")}
           resizeMode={'contain'}
@@ -279,11 +267,9 @@ class MainPage extends Component {
             width: DEVICE_WIDTH,
             height: DEVICE_WIDTH / 3.25,
             flexDirection: 'row'
-          }}>
-          <View
-            style={{
-              flex: 2
-            }}>
+          }}
+        >
+          <View style={{flex: 2}}>
             <View
               style={{
                 height: 20,
@@ -293,9 +279,7 @@ class MainPage extends Component {
             >
               <View style={{flex: 1}}>
                 <TouchableOpacity
-                  style={{
-                    padding: 5,
-                  }}
+                  style={{padding: 5,}}
                   onPress={() => this.setState({datePicker: true})}
                 >
                   <Image
@@ -304,8 +288,8 @@ class MainPage extends Component {
                       height: 16,
                       margin: 5,
                       alignSelf: 'center',
+                      tintColor: 'white'
                     }}
-                    tintColor={'#FFFFFF'}
                     source={require('../images/small_calendar.png')}
                   />
                 </TouchableOpacity>
@@ -322,12 +306,11 @@ class MainPage extends Component {
                 paddingEnd: 40,
                 paddingStart: 0,
                 marginBottom: 20
-              }}>
+              }}
+            >
               {this.state.todayGeorgian.substr(0, this.state.todayGeorgian.search("\n"))}
               <Text
-                style={{
-                  fontFamily: 'arial'
-                }}
+                style={{fontFamily: 'arial'}}
               >
                 {this.state.todayGeorgian.substr(this.state.todayGeorgian.search("\n"))}
               </Text>
@@ -335,17 +318,24 @@ class MainPage extends Component {
           </View>
           <View
             style={{
-              flex: 2, alignItems: 'flex-end'
-            }}>
-            <TouchableWithoutFeedback
+              flex: 2,
+              alignItems: 'flex-end'
+            }}
+          >
+            <TouchableOpacity
+              style={{paddingHorizontal: 10}}
               onPress={() => this.props.navigation.dispatch(DrawerActions.openDrawer())}>
               <Image
                 style={{
-                  width: 20, height: 20, margin: 10, marginRight: 20
+                  width: 20,
+                  height: 20,
+                  margin: 10,
+                  marginRight: 20,
+                  tintColor: 'white'
                 }}
-                tintColor={'#FFFFFF'}
-                source={require("../images/nav_icon.png")}/>
-            </TouchableWithoutFeedback>
+                source={require("../images/nav_icon.png")}
+              />
+            </TouchableOpacity>
             <View style={{flex: 1}}/>
             <Text
               style={{
@@ -357,12 +347,11 @@ class MainPage extends Component {
                 paddingEnd: 0,
                 paddingStart: 30,
                 marginBottom: 20
-              }}>
+              }}
+            >
               {this.state.todayHijri.substr(0, this.state.todayHijri.search("\n"))}
               <Text
-                style={{
-                  fontFamily: 'arial'
-                }}
+                style={{fontFamily: 'arial'}}
               >
                 {this.state.todayHijri.substr(this.state.todayHijri.search("\n"))}
               </Text>
@@ -384,10 +373,14 @@ class MainPage extends Component {
               paddingTop: 15,
               overflow: 'hidden',
               paddingBottom: 5
-            }}>
+            }}
+          >
             <View
               style={{
-                width: '100%', flexDirection: 'row', alignItems: 'center', paddingBottom: 5
+                width: '100%',
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingBottom: 5
               }}
             >
               <Text
@@ -397,7 +390,8 @@ class MainPage extends Component {
                   color: '#6f67d9',
                   fontSize: 12,
                   fontFamily: 'byekan',
-                }}>
+                }}
+              >
                 {this.state.occasion}
               </Text>
             </View>
@@ -412,15 +406,18 @@ class MainPage extends Component {
             />
 
             <FlatList
-              style={{
-                flex: 1
-              }}
+              style={{flex: 1}}
               keyExtractor={(item, index) => item.id}
-              data={this.state.sampleData}
+              data={this.state.todaySessions}
               contentContainerStyle={{flexGrow: 1}}
               showsVerticalScrollIndicator={false}
               ListEmptyComponent={
-                <View style={{flex: 1, justifyContent: 'center'}}>
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: 'center'
+                  }}
+                >
                   <View
                     style={{
                       width: 110,
@@ -441,7 +438,6 @@ class MainPage extends Component {
                       borderRadius: 50,
                       alignSelf: 'center',
                     }}
-                    tintColor={'#6f67d9'}
                     source={require('../images/exclamation_point.png')}
                   />
                   <Text
@@ -450,7 +446,8 @@ class MainPage extends Component {
                       color: '#6f67d9',
                       fontFamily: 'byekan',
                       fontSize: 18
-                    }}>
+                    }}
+                  >
                     شما برنامه ای ندارید ...!!
                   </Text>
                 </View>
@@ -465,9 +462,9 @@ class MainPage extends Component {
               }
             />
             <Modal
-              isVisible={this.state.visible}
-              onBackdropPress={() => this.setState({visible: false})}
-              onBackButtonPress={() => this.setState({visible: false})}
+              isVisible={this.state.modalVisible}
+              onBackdropPress={() => this.setState({modalVisible: false})}
+              onBackButtonPress={() => this.setState({modalVisible: false})}
             >
               <View
                 style={{
@@ -480,26 +477,28 @@ class MainPage extends Component {
                   paddingStart: 10,
                   paddingEnd: 10,
                   paddingBottom: 5
-                }}>
+                }}
+              >
                 <View
                   style={{
                     flexDirection: 'row',
-                    marginVertical: 15
+                    marginVertical: 15,
+                    alignItems: 'center'
                   }}
                 >
-                  <TouchableWithoutFeedback
-                    onPress={() => this.setState({visible: false})}
+                  <TouchableOpacity
+                    onPress={() => this.setState({modalVisible: false})}
                   >
                     <Image
                       style={{
                         height: 20,
                         width: 20,
-                        marginLeft: 30,
+                        marginLeft: 20,
                         tintColor: '#6f67d9'
                       }}
                       source={require("../images/ic_back.png")}
                     />
-                  </TouchableWithoutFeedback>
+                  </TouchableOpacity>
                   <Text
                     style={{
                       flex: 1,
@@ -514,45 +513,43 @@ class MainPage extends Component {
                   <View
                     style={{
                       marginRight: 30,
-                      marginTop: 5
                     }}
                   >
                     <Image
                       style={{
                         height: 16,
                         width: 17,
-                        tintColor: '#6f67d9'
+                        tintColor: '#5f5fbe'
                       }}
                       source={require("../images/ic_dialog.png")}
                     />
                   </View>
                 </View>
-                <View style={{flexDirection: 'row', marginVertical: 10, paddingRight: 15}}>
-                  <Text style={{fontFamily: 'byekan', flex: 1, textAlign: 'right'}}>
+                <View style={{height: 1, width: '90%', backgroundColor: '#CCC'}}/>
+                <View style={style.modalItem}>
+                  <Text style={style.modalText}>
                     {this.result[0].meeting_title}
                   </Text>
                   <Image
-                    style={{width: 16, height: 13, margin: 5, marginLeft: 20, resizeMode: 'contain'}}
-                    tintColor={'#CCC'}
+                    style={style.modalImage}
                     source={require('../images/ic_title.png')}/>
                 </View>
                 <View style={{height: 1, width: '90%', backgroundColor: '#CCC'}}/>
-                <View style={{flexDirection: 'row', marginVertical: 10, paddingRight: 15}}>
-                  <Text style={{fontFamily: 'byekan', flex: 1}}>
+                <View style={style.modalItem}>
+                  <Text style={style.modalText}>
                     {MainPage.prettifyTime(this.result[0].start_time)}
                   </Text>
                   <Image
-                    style={{width: 16, height: 16, margin: 5, marginLeft: 20, resizeMode: 'contain'}}
-                    tintColor={'#CCC'}
+                    style={style.modalImage}
                     source={require('../images/ic_calendar.png')}/>
                 </View>
                 <View style={{height: 1, width: '90%', backgroundColor: '#CCC'}}/>
-                <View style={{flexDirection: 'row', marginVertical: 10, paddingRight: 15}}>
+                <View style={style.modalItem}>
                   {
                     this.result[0].lat !== '0E-15' &&
                     <TouchableOpacity
                       onPress={() => {
-                        this.setState({visible: false});
+                        this.setState({modalVisible: false});
                         Linking.openURL(`geo:${this.result[0].lat},${this.result[0].lng}?q=${this.result[0].lat},${this.result[0].lng}(${this.result[0].meeting_title})`)
                       }}
                     >
@@ -562,47 +559,47 @@ class MainPage extends Component {
                       />
                     </TouchableOpacity>
                   }
-                  <Text style={{fontFamily: 'byekan', flex: 1, textAlign: 'right'}}>
+                  <Text style={style.modalText}>
                     {this.result[0].place_address}
                   </Text>
                   <Image
-                    style={{width: 16, height: 16, margin: 5, marginLeft: 20, resizeMode: 'contain'}}
-                    tintColor={'#CCC'}
+                    style={style.modalImage}
                     source={require('../images/ic_location.png')}
                   />
                 </View>
                 <View style={{height: 1, width: '90%', backgroundColor: '#CCC'}}/>
-                <View style={{flexDirection: 'row', marginVertical: 10, paddingRight: 15}}>
-                  <Text style={{fontFamily: 'byekan', flex: 1}}>
-                    {this.result[0].start_time === undefined ? '' : `از ساعت ${this.result[0].start_time.substr(12, 5)} تا ساعت${this.result[0].end_time.substr(12, 5)}`}
+                <View style={style.modalItem}>
+                  <Text style={style.modalText}>
+                    {this.result[0].start_time === undefined ? '' :
+                      `از ساعت ${this.result[0].start_time.substr(12, 5)} تا ساعت${this.result[0].end_time.substr(12, 5)}`}
                   </Text>
                   <Image
-                    style={{width: 16, height: 16, margin: 5, marginLeft: 20, resizeMode: 'contain', tintColor: '#000'}}
-                    tintColor={'#CCC'}
+                    style={style.modalImage}
                     source={require('../images/alarm_clock.png')}/>
                 </View>
                 <View style={{height: 1, width: '90%', backgroundColor: '#CCC'}}/>
-                <View style={{flexDirection: 'row', marginVertical: 10, paddingRight: 15}}>
-                  <Text style={{fontFamily: 'byekan', flex: 1}}>
+                <View style={style.modalItem}>
+                  <Text style={style.modalText}>
                     اعضایی که در جلسه حضور دارند
                   </Text>
                   <Image
-                    style={{width: 16, height: 16, margin: 5, marginLeft: 20, resizeMode: 'contain'}}
-                    tintColor={'#CCC'}
+                    style={style.modalImage}
                     source={require('../images/ic_user.png')}/>
                 </View>
                 <View style={{height: 2, width: '90%', backgroundColor: Globals.PRIMARY_BLUE}}/>
                 {this.sessionDetilItem()}
-                <View style={{flex:1}}/>
+                <View style={{flex: 1}}/>
                 <View style={{height: 1, width: '90%', backgroundColor: '#CCC'}}/>
-                <TouchableOpacity onPress={() => this.setState({visible: false})}>
+                <TouchableOpacity
+                  onPress={() => this.setState({modalVisible: false})}
+                >
                   <View>
                     <Text
                       style={{
                         fontFamily: 'byekan',
                         fontSize: 18,
                         textAlign: 'center',
-                        color: '#675ec9',
+                        color: Globals.PRIMARY_BLUE,
                         alignSelf: 'center',
                       }}>
                       متوجه شدم
@@ -614,6 +611,9 @@ class MainPage extends Component {
             <Modal
               isVisible={this.state.warning}
               onBackdropPress={() => {
+                this.setState({warning: false})
+              }}
+              onBackButtonPress={() => {
                 this.setState({warning: false})
               }}
             >
@@ -629,30 +629,53 @@ class MainPage extends Component {
                 }}>
                 <View
                   style={{
-                    flexDirection: 'row', marginTop: 10
+                    flexDirection: 'row',
+                    alignItems:'center',
+                    marginTop: 10
                   }}
                 >
-                  <Image
-                    style={{
-                      height: 20, width: 20, marginLeft: 10, tintColor: '#6f67d9'
+                  <TouchableOpacity
+                    style={{paddingHorizontal:10}}
+                    onPress={() => {
+                      this.setState({warning: false})
                     }}
-                    source={require("../images/ic_back.png")}
-                  />
+                  >
+                    <Image
+                      style={{
+                        height: 20,
+                        width: 20,
+                        marginLeft: 10,
+                        tintColor: '#6f67d9'
+                      }}
+                      source={require("../images/ic_back.png")}
+                    />
+                  </TouchableOpacity>
                   <Text
                     style={{
-                      flex: 1, textAlign: 'center', fontFamily: 'byekan', color: '#6f67d9'
+                      flex: 1,
+                      textAlign: 'center',
+                      fontFamily: 'byekan',
+                      fontSize:18,
+                      color: '#6f67d9'
                     }}
                   >
                     توجه
                   </Text>
                   <View
                     style={{
-                      borderColor: '#6f67d9', borderWidth: 2, borderRadius: 12, marginRight: 10,
+                      borderColor: '#6f67d9',
+                      borderWidth: 2,
+                      height: 24,
+                      width: 24,
+                      borderRadius: 12,
+                      marginRight: 10,
                     }}
                   >
                     <Image
                       style={{
-                        height: 20, width: 20, tintColor: '#6f67d9'
+                        height: 20,
+                        width: 20,
+                        tintColor: '#6f67d9'
                       }}
                       source={require("../images/ic_question.png")}
                     />
@@ -660,7 +683,11 @@ class MainPage extends Component {
                 </View>
                 <View
                   style={{
-                    height: 1, width: '90%', alignSelf: 'center', marginTop: 5, backgroundColor: '#CCC'
+                    height: 1,
+                    width: '90%',
+                    alignSelf: 'center',
+                    marginTop: 5,
+                    backgroundColor: '#CCC'
                   }}
                 />
                 <Text
@@ -676,13 +703,21 @@ class MainPage extends Component {
                 </Text>
                 <View
                   style={{
-                    height: 1, width: '90%', alignSelf: 'center', marginTop: 5, backgroundColor: '#CCC'
+                    height: 1,
+                    width: '90%',
+                    alignSelf: 'center',
+                    marginTop: 5,
+                    backgroundColor: '#CCC'
                   }}
                 />
                 <View
                   style={{
-                    flexDirection: 'row', height: 40, alignItems: 'center', width: DEVICE_WIDTH * 0.9
-                  }}>
+                    flexDirection: 'row',
+                    height: 40,
+                    alignItems: 'center',
+                    width: DEVICE_WIDTH * 0.9
+                  }}
+                >
                   <TouchableWithoutFeedback
                     onPress={
                       () => this.setState({warning: false})
@@ -703,7 +738,10 @@ class MainPage extends Component {
                   </TouchableWithoutFeedback>
                   <View
                     style={{
-                      height: 40, width: 1, marginTop: 2, backgroundColor: '#CCC'
+                      height: 40,
+                      width: 1,
+                      marginTop: 2,
+                      backgroundColor: '#CCC'
                     }}
                   />
                   <TouchableWithoutFeedback
@@ -770,7 +808,6 @@ class MainPage extends Component {
           <TouchableWithoutFeedback
             onPress={() => {
               NavigationService.navigate('AddNewSession');
-              console.log(new Date().getTime());
             }}
           >
             <View
@@ -798,6 +835,7 @@ class MainPage extends Component {
         </View>
         <TouchableWithoutFeedback
           onPress={() => {
+            if (this.difference===0) return;
             this.difference = 1;
             this._dayPressed(true);
           }}
@@ -837,7 +875,7 @@ class MainPage extends Component {
               <Text
                 style={{
                   fontFamily: 'byekan',
-                  fontSize: 40,
+                  fontSize: 35,
                   color: this.state.dayoff || this.state.todayPersian1 === 'جمعه' ? '#ff5a41' : '#FFFFFF',
                   width: '100%',
                   textAlign: 'center',
@@ -863,7 +901,7 @@ class MainPage extends Component {
             </View>
           </View>
         </TouchableWithoutFeedback>
-      </ImageBackground>);
+      </View>);
   }
 
   sessionDetilItem() {
@@ -871,34 +909,35 @@ class MainPage extends Component {
       <ScrollView>
         <View style={{flex: 1}}>
           {this.result[0].people.map((val, index) =>
-            <View
-              style={{
-                alignItems: 'center'
-              }}
-            >
+            <View>
               <View
                 style={{
                   flexDirection: 'row',
                   width: '100%',
                   alignItems: 'center',
                   justifyContent: 'flex-end',
-                  borderRadius: 10,
                   paddingTop: 5,
                   paddingBottom: 5,
-                }}>
-                {this.result[0].people[index].seen && !this.result[0].people[index].rep_last_name &&
-                  <Image
-                    source={require("../images/ic_visibility.png")}
-                    style={{height:20, width:20}}
-                  />
-                }
+                }}
+              >
+                <Image
+                  source={require("../images/ic_visibility.png")}
+                  style={{
+                    height: 20,
+                    width: 20,
+                    marginLeft: 20,
+                    tintColor: this.result[0].people[index].seen &&
+                    !this.result[0].people[index].rep_last_name ? '#000' : '#CCC'
+                  }}
+                />
                 <Text
                   style={{
                     flex: 1,
                     fontFamily: 'byekan',
                     textAlign: 'right',
                     color: this.result[0].people[index].rep_last_name ? 'rgba(145,107,255,0.44)' : '#6f67d9',
-                  }}>
+                  }}
+                >
                   {this.result[0].people[index].first_name + " " + this.result[0].people[index].last_name}
                 </Text>
                 <View
@@ -907,16 +946,21 @@ class MainPage extends Component {
                     height: 50,
                     borderRadius: 25,
                     overflow: 'hidden',
-                    borderWidth: 2,
+                    borderWidth: 3,
                     borderColor: '#00b',
-                    margin: 5,
+                    marginRight: 25,
+                    marginVertical: 5,
+                    marginLeft: 5
                   }}
                 >
                   <Image
                     style={{
-                      width: 50, height: 50, resizeMode: 'contain',
+                      width: 44,
+                      height: 44,
+                      resizeMode: 'cover',
                     }}
-                    source={{uri: this.result[0].people[index].image}}/>
+                    source={{uri: this.result[0].people[index].image}}
+                  />
                 </View>
               </View>
               {this.result[0].people[index].rep_last_name &&
@@ -926,19 +970,28 @@ class MainPage extends Component {
                   width: '100%',
                   alignItems: 'center',
                   justifyContent: 'flex-end',
-                  borderRadius: 10,
                   paddingBottom: 5,
-                  marginTop:-50
+                  marginTop: -50
                 }}>
                 <Image
                   source={require("../images/ic_visibility.png")}
-                  style={{height:20, width:20}}
+                  style={{
+                    height: 20,
+                    width: 20,
+                    marginLeft: 20,
+                    tintColor: this.result[0].people[index].rep_seen &&
+                    !this.result[0].people[index].rep_last_name ? '#000' : '#CCC'
+                  }}
                   resizeMode={"cover"}
                 />
                 <Text
                   style={{
-                    flex: 1, fontFamily: 'byekan', textAlign: 'right', color: '#6f67d9'
-                  }}>
+                    flex: 1,
+                    fontFamily: 'byekan',
+                    textAlign: 'right',
+                    color: '#6f67d9'
+                  }}
+                >
                   {this.result[0].people[index].rep_first_name + " " + this.result[0].people[index].rep_last_name}
                 </Text>
                 <View
@@ -947,20 +1000,24 @@ class MainPage extends Component {
                     height: 50,
                     borderRadius: 25,
                     overflow: 'hidden',
-                    borderWidth: 2,
+                    borderWidth: 3,
                     borderColor: '#00b',
-                    margin: 5,
+                    marginRight: 25,
+                    marginVertical: 5,
+                    marginLeft: 5
                   }}
                 >
                   <Image
                     style={{
-                      width: 50, height: 50, resizeMode: 'cover',
+                      width: 44,
+                      height: 44,
+                      resizeMode: 'cover',
                     }}
                     source={{uri: this.result[0].people[index].rep_image}}/>
                 </View>
               </View>
               }
-              < View style={{height: 1, width: '90%', backgroundColor: '#CCC'}}/>
+              <View style={{height: 1, width: '90%', backgroundColor: '#CCC'}}/>
             </View>
           )}
         </View>
@@ -1002,7 +1059,7 @@ const MyDrawerNavigator = createDrawerNavigator({
   },
   {
     drawerBackgroundColor: '#FFFFFF00',
-    drawerWidth: DEVICE_WIDTH * 0.6,
+    drawerWidth: DEVICE_WIDTH * 0.7,
     contentComponent: (props) =>
       (
         <ImageBackground
@@ -1019,7 +1076,8 @@ const MyDrawerNavigator = createDrawerNavigator({
               width: '100%',
               alignItems: 'center',
               justifyContent: 'center'
-            }}>
+            }}
+          >
             <SimpleImage/>
           </View>
           <DrawerItems
@@ -1029,8 +1087,8 @@ const MyDrawerNavigator = createDrawerNavigator({
                 <View
                   style={{
                     flexDirection: 'row',
-                    width:'85%',
-                    paddingVertical:10
+                    width: '85%',
+                    paddingVertical: 10
                   }}
                 >
                   <Text
@@ -1044,8 +1102,8 @@ const MyDrawerNavigator = createDrawerNavigator({
                   </Text>
                   <Image
                     style={{
-                      height: 20,
-                      width: 20,
+                      height: 16,
+                      width: 16,
                       marginRight: 20,
                       marginLeft: 10,
                       alignSelf: 'center',
@@ -1092,10 +1150,31 @@ const MyDrawerNavigator = createDrawerNavigator({
     drawerPosition: 'right'
   });
 
+const style = StyleSheet.create({
+  modalItem: {
+    flexDirection: 'row',
+    marginVertical: 10,
+    paddingRight: 15
+  },
+  modalText: {
+    fontFamily: 'byekan',
+    flex: 1,
+    textAlign: 'right'
+  },
+  modalImage: {
+    width: 16,
+    height: 13,
+    margin: 5,
+    marginLeft: 20,
+    resizeMode: 'contain',
+    tintColor: '#CCC'
+  }
+});
+
 function mapStateToProps(state) {
   return {
     counter: state
   }
 }
 
-export default connect(mapStateToProps, {counterAdd, counterSub})(MyDrawerNavigator);
+export default connect(mapStateToProps, {})(MyDrawerNavigator);

@@ -1,11 +1,15 @@
 import React, {Component} from "react";
-import {Dimensions, FlatList, Image, View, Text, SafeAreaView, TouchableWithoutFeedback} from 'react-native';
+import {
+  Dimensions, FlatList, Image, View, Text,
+  SafeAreaView, TouchableWithoutFeedback, TouchableOpacity, ImageBackground
+} from 'react-native';
 import {connect} from "react-redux";
-import {counterAdd, counterSub, setURI} from "../actions";
+import {setURI} from "../actions";
 import PeopleItem from "./Components/PeopleItem";
 import Modal from "react-native-modal";
 import {RequestsController} from "../Utils/RequestController";
 import NavigationService from "../service/NavigationService";
+import Toast from "./Components/EasyToast";
 
 const {width} = Dimensions.get('window');
 
@@ -17,7 +21,7 @@ class ChoosePeople extends Component {
     this.state = {
       showDialog: false,
       showCongestion: false,
-      sampleData: [],
+      peoples: [],
       selectedData: [],
     };
     this.me = {item: {rank: 'خودم', first_name: '', last_name: ''}};
@@ -28,15 +32,12 @@ class ChoosePeople extends Component {
   }
 
   componentDidMount() {
-    this.props.navigation.getParam("date") + " " + this.props.navigation.getParam("start") + ":00",
-    this.props.navigation.getParam("date") + " " + this.props.navigation.getParam("end") + ":00",
-      this._loadPeople();
+    this._loadPeople();
   }
 
   async _loadPeople() {
     let names = await RequestsController.loadPeople();
     let mNames = names.لیست;
-    this.setState({sampleData: mNames});
     let mme = await RequestsController.loadMyself();
     this.me = {
       item: {
@@ -47,11 +48,15 @@ class ChoosePeople extends Component {
         rank: 'خودم'
       }
     };
-    this.setState({selectedData: this.state.selectedData});
+    this.setState({peoples: mNames});
   }
 
   _toggleModal = () => {
-    this.setState({showDialog: !this.state.showDialog});
+    if (this.state.selectedData.length !== 0 || this.selfPresent) {
+      this.setState({showDialog: !this.state.showDialog});
+    } else {
+      this.refs.toast.show('لطفا حداقل یک نفر را برای حضور در جلسه انتخاب نمایید');
+    }
   };
 
   _toggleCongestion = () => this.setState({showCongestion: !this.state.showCongestion});
@@ -89,7 +94,6 @@ class ChoosePeople extends Component {
       this.props.setURI(null, 0, 0);
       NavigationService.navigate("MainPage");
     } else {
-      this.congestion = json;
       this._toggleCongestion();
     }
   }
@@ -103,9 +107,7 @@ class ChoosePeople extends Component {
         }}
       >
         <View
-          style={{
-            flex: 1
-          }}
+          style={{flex: 1}}
         />
         <View
           style={{
@@ -114,27 +116,29 @@ class ChoosePeople extends Component {
             backgroundColor: '#FFFFFF',
             marginTop: 20,
             borderRadius: 60
-          }}>
+          }}
+        >
 
           <View
             style={{
               flexDirection: 'row',
-              marginTop:20,
-              paddingHorizontal:25
+              marginTop: 20,
+              paddingHorizontal: 25
             }}
           >
-            <TouchableWithoutFeedback
+            <TouchableOpacity
+              style={{paddingHorizontal: 10}}
               onPress={NavigationService.goBack}>
               <Image
                 style={{
                   height: 20,
                   width: 20,
-                  marginLeft: 30,
+                  marginLeft: 15,
                   tintColor: '#6f67d9'
                 }}
                 source={require("../images/ic_back.png")}
               />
-            </TouchableWithoutFeedback>
+            </TouchableOpacity>
             <Text
               style={{
                 flex: 1,
@@ -168,11 +172,11 @@ class ChoosePeople extends Component {
           </View>
           <View
             style={{
-              height:1,
-              width:'85%',
-              marginTop:10,
-              alignSelf:'center',
-              backgroundColor:'gray'
+              height: 1,
+              width: '85%',
+              marginTop: 10,
+              alignSelf: 'center',
+              backgroundColor: 'gray'
             }}
           />
           <FlatList
@@ -180,14 +184,15 @@ class ChoosePeople extends Component {
               flex: 1, marginBottom: 20
             }}
             keyExtractor={(item, index) => index.toString()}
-            data={this.state.sampleData}
+            data={this.state.peoples}
             ListHeaderComponent={
               <PeopleItem
                 showCheck={true}
                 callback={(first, last, mobile, rank, flag) => {
                   this.selfPresent = !flag;
                 }}
-                item={this.me}/>
+                item={this.me}
+              />
             }
             renderItem={(item) =>
               <PeopleItem
@@ -204,10 +209,8 @@ class ChoosePeople extends Component {
               backgroundColor: '#c0c0c0'
             }}/>
           <TouchableWithoutFeedback
-            style={{
-              marginVertical: 40, marginBottom: 10,
-            }}
-            onPress={this._toggleModal}>
+            onPress={this._toggleModal}
+          >
             <View>
               <Text
                 style={{
@@ -221,20 +224,20 @@ class ChoosePeople extends Component {
                   marginBottom: 10,
                   paddingVertical: 5,
                   paddingHorizontal: 25,
-                }}>
+                }}
+              >
                 تایید ✓
               </Text>
             </View>
           </TouchableWithoutFeedback>
         </View>
         <View
-          style={{
-            flex: 1
-          }}
+          style={{flex: 1}}
         />
         <Modal
           isVisible={this.state.showDialog}
           onBackdropPress={this._toggleModal}
+          onBackButtonPress={this._toggleModal}
         >
           <View
             style={{
@@ -252,15 +255,20 @@ class ChoosePeople extends Component {
                 marginVertical: 15
               }}
             >
-              <Image
-                style={{
-                  height: 20,
-                  width: 20,
-                  marginLeft: 30,
-                  tintColor: '#6f67d9'
-                }}
-                source={require("../images/ic_back.png")}
-              />
+              <TouchableOpacity
+                style={{paddingHorizontal:10}}
+                onPress={this._toggleModal}
+              >
+                <Image
+                  style={{
+                    height: 20,
+                    width: 20,
+                    marginLeft: 15,
+                    tintColor: '#6f67d9'
+                  }}
+                  source={require("../images/ic_back.png")}
+                />
+              </TouchableOpacity>
               <Text
                 style={{
                   flex: 1,
@@ -294,7 +302,10 @@ class ChoosePeople extends Component {
             </View>
             <View
               style={{
-                height: 1, width: '90%', alignSelf: 'center', marginTop: 5, backgroundColor: '#CCC'
+                height: 1,
+                width: '90%',
+                alignSelf: 'center',
+                backgroundColor: '#CCC'
               }}
             />
             <Text
@@ -305,19 +316,28 @@ class ChoosePeople extends Component {
                 marginVertical: 20,
                 color: '#888',
                 textAlign: 'center'
-              }}>
+              }}
+            >
               شما {this.state.selectedData.length + (this.selfPresent ? 1 : 0)} نفر را به جلسه دعوت کرده اید، آیا از
               دعوت آنها اطمینان دارید؟
             </Text>
             <View
               style={{
-                height: 1, width: '90%', alignSelf: 'center', marginTop: 5, backgroundColor: '#CCC'
+                height: 1,
+                width: '90%',
+                alignSelf: 'center',
+                marginTop: 5,
+                backgroundColor: '#CCC'
               }}
             />
             <View
               style={{
-                flexDirection: 'row', height: 40, alignItems: 'center', width: width * 0.9
-              }}>
+                flexDirection: 'row',
+                height: 40,
+                alignItems: 'center',
+                width: width * 0.9
+              }}
+            >
               <TouchableWithoutFeedback
                 onPress={this._toggleModal}>
                 <View>
@@ -328,14 +348,18 @@ class ChoosePeople extends Component {
                       color: "#e36c35",
                       width: (width * 0.8) / 2,
                       textAlign: 'center'
-                    }}>
+                    }}
+                  >
                     خیر
                   </Text>
                 </View>
               </TouchableWithoutFeedback>
               <View
                 style={{
-                  height: 40, width: 1, marginTop: 2, backgroundColor: '#CCC'
+                  height: 40,
+                  width: 1,
+                  marginTop: 2,
+                  backgroundColor: '#CCC'
                 }}
               />
               <TouchableWithoutFeedback
@@ -351,7 +375,8 @@ class ChoosePeople extends Component {
                       color: "#7445e3",
                       width: (width * 0.8) / 2,
                       textAlign: 'center'
-                    }}>
+                    }}
+                  >
                     بله
                   </Text>
                 </View>
@@ -361,7 +386,9 @@ class ChoosePeople extends Component {
         </Modal>
         <Modal
           isVisible={this.state.showCongestion}
-          onBackdropPress={this._toggleCongestion}>
+          onBackdropPress={this._toggleCongestion}
+          onBackButtonPress={this._toggleCongestion}
+        >
           <View
             style={{
               backgroundColor: "#FFFFFF",
@@ -374,30 +401,42 @@ class ChoosePeople extends Component {
             }}>
             <View
               style={{
-                flexDirection: 'row', marginTop: 10
+                flexDirection: 'row',
+                marginTop: 10
               }}
             >
               <Image
                 style={{
-                  height: 20, width: 20, marginLeft: 10, tintColor: '#6f67d9'
+                  height: 20,
+                  width: 20,
+                  marginLeft: 10,
+                  tintColor: '#6f67d9'
                 }}
                 source={require("../images/ic_back.png")}
               />
               <Text
                 style={{
-                  flex: 1, textAlign: 'center', fontFamily: 'byekan', color: '#6f67d9'
+                  flex: 1,
+                  textAlign: 'center',
+                  fontFamily: 'byekan',
+                  color: '#6f67d9'
                 }}
               >
                 وجود تداخل
               </Text>
               <View
                 style={{
-                  borderColor: '#6f67d9', borderWidth: 2, borderRadius: 12, marginRight: 10,
+                  borderColor: '#6f67d9',
+                  borderWidth: 2,
+                  borderRadius: 12,
+                  marginRight: 10,
                 }}
               >
                 <Image
                   style={{
-                    height: 20, width: 20, tintColor: '#6f67d9'
+                    height: 20,
+                    width: 20,
+                    tintColor: '#6f67d9'
                   }}
                   source={require("../images/ic_question.png")}
                 />
@@ -405,25 +444,42 @@ class ChoosePeople extends Component {
             </View>
             <View
               style={{
-                height: 1, width: '90%', alignSelf: 'center', marginTop: 5, backgroundColor: '#CCC'
+                height: 1,
+                width: '90%',
+                alignSelf: 'center',
+                marginTop: 5,
+                backgroundColor: '#CCC'
               }}
             />
             <Text
               style={{
-                fontFamily: 'byekan', marginHorizontal: 20, fontSize: 18, marginTop: 10, textAlign: 'center'
-              }}>
+                fontFamily: 'byekan',
+                marginHorizontal: 20,
+                fontSize: 18,
+                marginTop: 10,
+                textAlign: 'center'
+              }}
+            >
               کابر گرامی تعدادی از کارمندان یا پرسنل شما در این بازه زمانی زمانی در جلسه دیگری حضور دارند و امکان دارد
               در این جلسه حضور پیدا نکنند. مایل به ادامه دادن هستید؟
             </Text>
             <View
               style={{
-                height: 1, width: '90%', alignSelf: 'center', marginTop: 5, backgroundColor: '#CCC'
+                height: 1,
+                width: '90%',
+                alignSelf: 'center',
+                marginTop: 5,
+                backgroundColor: '#CCC'
               }}
             />
             <View
               style={{
-                flexDirection: 'row', height: 40, alignItems: 'center', width: width * 0.9
-              }}>
+                flexDirection: 'row',
+                height: 40,
+                alignItems: 'center',
+                width: width * 0.9
+              }}
+            >
               <TouchableWithoutFeedback
                 onPress={this._toggleCongestion}>
                 <View>
@@ -434,21 +490,26 @@ class ChoosePeople extends Component {
                       color: "#e36c35",
                       width: (width * 0.8) / 2,
                       textAlign: 'center'
-                    }}>
+                    }}
+                  >
                     خیر
                   </Text>
                 </View>
               </TouchableWithoutFeedback>
               <View
                 style={{
-                  height: 40, width: 1, marginTop: 2, backgroundColor: '#CCC'
+                  height: 40,
+                  width: 1,
+                  marginTop: 2,
+                  backgroundColor: '#CCC'
                 }}
               />
               <TouchableWithoutFeedback
                 onPress={() => {
                   this._saveSession(1);
                   this._toggleCongestion();
-                }}>
+                }}
+              >
                 <View>
                   <Text
                     style={{
@@ -457,7 +518,8 @@ class ChoosePeople extends Component {
                       color: "#7445e3",
                       width: (width * 0.8) / 2,
                       textAlign: 'center'
-                    }}>
+                    }}
+                  >
                     بله
                   </Text>
                 </View>
@@ -465,8 +527,26 @@ class ChoosePeople extends Component {
             </View>
           </View>
         </Modal>
-
-      </SafeAreaView>);
+        <Toast
+          ref="toast"
+          style={{
+            backgroundColor: '#444',
+            marginHorizontal: 50
+          }}
+          position='center'
+          positionValue={200}
+          fadeInDuration={200}
+          fadeOutDuration={2000}
+          opacity={0.8}
+          textStyle={{
+            color: 'white',
+            fontFamily: 'byekan',
+            fontSize: 15,
+            textAlign: 'center'
+          }}
+        />
+      </SafeAreaView>
+    );
   }
 }
 

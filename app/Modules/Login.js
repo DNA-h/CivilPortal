@@ -1,13 +1,15 @@
-import React, {Component} from 'react';
+import React, {Component} from 'react'
 import {connect} from 'react-redux';
-import {counterAdd, counterSub} from '../actions'
-import {ScrollView, View, Dimensions, Text, TouchableWithoutFeedback, Image, TextInput, Button} from 'react-native';
+import {
+  View, Text, TouchableWithoutFeedback,
+  Image, TextInput, ImageBackground, ToastAndroid
+} from 'react-native';
 import SplashScreen from "react-native-splash-screen";
 import {RequestsController} from "../Utils/RequestController";
 import NavigationService from "../service/NavigationService";
 import DBManager from "../Utils/DBManager";
-import LinearGradient from "react-native-linear-gradient";
-
+import Globals from "../Utils/Globals";
+import Toast from './Components/EasyToast';
 
 class Login extends Component {
 
@@ -25,6 +27,7 @@ class Login extends Component {
   componentDidMount() {
     SplashScreen.hide();
     DBManager.saveSettingValue('token', 'N/A');
+    DBManager.saveSettingValue('onboarding','N/A');
   }
 
   _TextChanged(input) {
@@ -35,81 +38,27 @@ class Login extends Component {
     let result = await RequestsController.loadToken(this.text);
     if (result === 'We texted you a login code.')
       this.setState({isPhoneNumber: false});
+    else
+      this.refs.toast.show('خطایی در ارسال کد رخ داده است. لطفا شماره همراه خود را چک نمایید و مجددا تلاش نمایید');
   }
 
   async _checkCode() {
     let result = await RequestsController.SendCode(this.text);
     if (result !== undefined && result.length === 40) {
       DBManager.saveSettingValue('token', result);
-      NavigationService.navigate('MainPage', null);
+      NavigationService.navigate('OnBoarding', null);
+    }else {
+      this.refs.toast.show('کد وارد شده صحیح نیست یا منقضی شده است. لطفا مجددا تلاش نمایید.');
     }
   }
 
   render() {
-    let input = this.state.isPhoneNumber ?
-      <TextInput
-        style={{
-          backgroundColor: '#817ce2',
-          color: '#fff',
-          textAlign: 'center',
-          fontFamily: 'byekan',
-          flex: 1
-        }}
-        autoCapitalize="none"
-        onChangeText={(text) => {
-          this._TextChanged(text);
-        }}
-        autoCorrect={false}
-        keyboardType='phone-pad'
-        returnKeyType="next"
-        placeholder='شماره تلفن '
-        placeholderTextColor='#fff'
-      />
-      :
-      <TextInput
-        style={{
-          backgroundColor: '#817ce2',
-          color: '#fff',
-          textAlign: 'center',
-          fontFamily: 'byekan',
-          flex: 1
-        }}
-        autoCapitalize="none"
-        onChangeText={(text) => {
-          this._TextChanged(text);
-          if (text.length === 6) {
-            this._checkCode();
-          }
-        }}
-        autoCorrect={false}
-        keyboardType='decimal-pad'
-        returnKeyType="next"
-        placeholder='کد شش رقمی '
-        placeholderTextColor='#fff'
-      />;
-    let button = this.state.isPhoneNumber ?
-      <TouchableWithoutFeedback
-        onPress={this._sendCode}>
-        <View>
-          <Text
-            style={{
-              borderRadius: 35,
-              backgroundColor: "#c8c6f5",
-              marginRight: 15,
-              paddingHorizontal: 20,
-              paddingVertical:5,
-              color: '#8c0aff',
-              fontFamily: 'byekan'
-            }}>
-            ورود
-          </Text>
-        </View>
-      </TouchableWithoutFeedback> : null;
     return (
-      <LinearGradient
-        colors={['rgb(107,99,211)', 'rgb(126,127,245)']}
-        start={{x: 0, y: 0}}
-        end={{x: 0, y: 1}}
+      <ImageBackground
+        source={require('../images/main.png')}
+        style={{
+          flex: 1,
+        }}
       >
         <View
           style={{
@@ -117,12 +66,14 @@ class Login extends Component {
             alignItems: 'center'
           }}>
 
+          <View style={{flex: 2}}/>
           <Image
-            source={require('../images/ic_launcher.png')}
+            source={require('../images/logo_main.png')}
             resizeMode={'contain'}
             style={{
               width: '30%',
               height: '30%',
+              marginRight: 25,
               marginTop: 40
             }}
           />
@@ -131,6 +82,7 @@ class Login extends Component {
             style={{
               paddingLeft: 60,
               paddingRight: 60,
+              marginTop: 20,
               width: '100%'
             }}
           >
@@ -148,14 +100,59 @@ class Login extends Component {
                 flexDirection: 'row',
                 alignItems: 'center'
               }}>
-              {input}
+              {
+                this.state.isPhoneNumber ?
+                  <TextInput
+                    style={{
+                      backgroundColor: '#817ce2',
+                      color: '#fff',
+                      textAlign: 'center',
+                      fontFamily: 'byekan',
+                      flex: 1,
+                      fontSize:12
+                    }}
+                    autoCapitalize="none"
+                    onChangeText={(text) => {
+                      this._TextChanged(text);
+                    }}
+                    autoCorrect={false}
+                    keyboardType='phone-pad'
+                    returnKeyType="next"
+                    placeholder='شماره تلفن همراه خود را وارد نمایید'
+                    placeholderTextColor={'#d9d9d9'}
+                  />
+                  :
+                  <TextInput
+                    style={{
+                      backgroundColor: '#817ce2',
+                      color: '#fff',
+                      textAlign: 'center',
+                      fontFamily: 'byekan',
+                      flex: 1
+                    }}
+                    autoCapitalize="none"
+                    onChangeText={(text) => {
+                      this._TextChanged(text);
+                      if (text.length === 6) {
+                        this._checkCode();
+                      }
+                    }}
+                    autoCorrect={false}
+                    maxLength={6}
+                    keyboardType='decimal-pad'
+                    returnKeyType="next"
+                    placeholder='کد تایید شش رقمی '
+                    placeholderTextColor={'#d9d9d9'}
+                  />
+              }
               <Image
                 style={{
                   width: 20,
                   height: 20,
-                  resizeMode: 'contain'
+                  resizeMode: 'contain',
+                  tintColor: 'white'
                 }}
-                source={require("../images/ic_user.png")}
+                source={require("../images/ic_no_profile_empty.png")}
               />
             </View>
 
@@ -174,33 +171,52 @@ class Login extends Component {
               paddingRight: 60,
             }}
           >
-            {button}
+            {
+              this.state.isPhoneNumber ?
+                <TouchableWithoutFeedback
+                  onPress={this._sendCode}>
+                  <View>
+                    <Text
+                      style={{
+                        borderRadius: 35,
+                        backgroundColor: "#c8c6f5",
+                        marginRight: 15,
+                        paddingHorizontal: 30,
+                        paddingVertical: 5,
+                        color: Globals.PRIMARY_BLUE,
+                        fontFamily: 'byekan'
+                      }}>
+                      ورود
+                    </Text>
+                  </View>
+                </TouchableWithoutFeedback> : null
+            }
             <View style={{flex: 1}}/>
-            <Text
-              style={{
-                color: '#FFFFFF',
-                marginRight: 10,
-                fontFamily: 'byekan'
-              }}>
-              رمز عبور را فراموش کرده اید؟
-            </Text>
 
           </View>
 
-          <View style={{flex:1}}/>
-          <Image
-            style={{
-              width: '80%',
-              height: '50%',
-              margin: 30,
-              alignItems: 'center',
-              justifyContent: 'center',
-              alignContent: 'center',
-              resizeMode: 'contain'
-            }}
-            source={require('../images/user_login.png')}/>
+          <View style={{flex: 1}}/>
+
         </View>
-      </LinearGradient>
+        <Toast
+          ref="toast"
+          style={{
+            backgroundColor:'#444',
+            marginHorizontal:50
+          }}
+          position='center'
+          positionValue={200}
+          fadeInDuration={200}
+          fadeOutDuration={2000}
+          opacity={0.8}
+          textStyle={{
+            color:'white',
+            fontFamily:'byekan',
+            fontSize:15,
+            textAlign:'center'
+          }}
+        />
+      </ImageBackground>
     );
   }
 }
@@ -211,4 +227,4 @@ function mapStateToProps(state) {
   }
 }
 
-export default connect(mapStateToProps, {counterAdd, counterSub})(Login);
+export default connect(mapStateToProps, {})(Login);

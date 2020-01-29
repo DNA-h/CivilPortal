@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import {Image, Text, View} from 'react-native';
 import {RequestsController} from "../../Utils/RequestController";
+import Globals from "../../Utils/Globals";
 
 export default class SimpleImage extends Component {
   constructor(props) {
@@ -29,15 +30,15 @@ export default class SimpleImage extends Component {
             width: 120,
             height: 120,
             borderRadius: 60,
-            borderWidth: 2,
-            borderColor: '#FFF',
+            borderWidth: 4,
+            borderColor: Globals.PRIMARY_DARK_BLUE,
             overflow: 'hidden'
           }}
         >
           <Image
             style={{
-              width: 120,
-              height: 120,
+              width: 112,
+              height: 112,
               resizeMode: 'cover'
             }}
             source={{uri: this.state.avatar}}

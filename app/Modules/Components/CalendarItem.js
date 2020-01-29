@@ -165,7 +165,7 @@ class CalendarItem extends Component {
               source={require("../../images/ic_visibility.png")}
               style={{height: 20, width: 20}}
             />
-            <Text style={{fontFamily: 'byekan', color: '#000', marginLeft: 5, fontSize: 20}}>
+            <Text style={{fontFamily: 'byekan', color: '#000', marginLeft: 5, fontSize: 20, marginTop:-3}}>
               {
                 this.state.viewCount !== undefined &&
                 `${this.state.viewCount} `
@@ -269,14 +269,20 @@ class CalendarItem extends Component {
           </View>
           }
           <View
-            style={{flex: 1}}
-          />
-          <Text style={{fontFamily: 'byekan', color: '#000'}}>
-            {
-              this.state.viewCount !== undefined &&
-              `👁 ${this.state.viewCount} `
-            }
-          </Text>
+            style={{flex: 1, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'flex-end'}}
+          >
+            <Image
+              source={require("../../images/ic_visibility.png")}
+              style={{height: 18, width: 18}}
+            />
+            <Text style={{fontFamily: 'byekan', color: '#000', marginLeft: 5, fontSize: 15, marginTop:-3}}>
+              {
+                this.state.viewCount !== undefined &&
+                `${this.state.viewCount} `
+              }
+            </Text>
+          </View>
+
           <View
             style={{
               height: hp(5),

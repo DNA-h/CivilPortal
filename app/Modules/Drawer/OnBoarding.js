@@ -36,7 +36,7 @@ class OnBoarding extends Component {
           <TouchableOpacity
             onPress={()=>{
               DBManager.saveSettingValue('onboarding','done');
-              NavigationService.navigate("MainPage")
+              NavigationService.reset("MainPage")
             }}
           >
             <View
