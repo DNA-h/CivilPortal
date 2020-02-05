@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import {
-  Text, View, Image, TouchableWithoutFeedback,
+  Text, View, Image, TouchableWithoutFeedback, TouchableOpacity,
   ImageBackground, Dimensions, StyleSheet
 } from 'react-native';
 import {connect} from 'react-redux';
@@ -41,11 +41,11 @@ class CalendarItem extends Component {
         if (this.result[0].people[index].rep_seen)
           count++;
       }
-      if ((this.result[0].people[index].first_name === this.me[0].fields.first_name &&
-        this.result[0].people[index].last_name === this.me[0].fields.last_name &&
+      if ((this.result[0].people[index].first_name === this.me.first_name &&
+        this.result[0].people[index].last_name === this.me.last_name &&
         this.result[0].people[index].rep_first_name !== null) ||
-        (this.result[0].people[index].rep_first_name === this.me[0].fields.first_name &&
-          this.result[0].people[index].rep_last_name === this.me[0].fields.last_name &&
+        (this.result[0].people[index].rep_first_name === this.me.first_name &&
+          this.result[0].people[index].rep_last_name === this.me.last_name &&
           this.result[0].people[index].rep_first_name !== null)
       ) {
         flag = true;
@@ -82,7 +82,7 @@ class CalendarItem extends Component {
                 <View style={{flex: 1}}>
                   <View style={{flexDirection: 'row'}}>
                     <Text style={styles.textLeft}>
-                      {this.props.item.item.meeting_title}
+                      {DBManager.toArabicNumbers(this.props.item.item.meeting_title)}
                     </Text>
                     <Image
                       style={styles.imageLeft}
@@ -90,7 +90,7 @@ class CalendarItem extends Component {
                   </View>
                   <View style={{flexDirection: 'row'}}>
                     <Text style={styles.textLeft}>
-                      ساعت {this.props.item.item.start_time.substring(11, 16)} تا {this.props.item.item.end_time.substring(11, 16)}
+                      ساعت {DBManager.toArabicNumbers(this.props.item.item.start_time.substring(11, 16))} تا {DBManager.toArabicNumbers(this.props.item.item.end_time.substring(11, 16))}
                     </Text>
                     <Image
                       style={styles.imageLeft}
@@ -98,7 +98,7 @@ class CalendarItem extends Component {
                   </View>
                   <View style={{flexDirection: 'row'}}>
                     <Text style={styles.textLeft}>
-                      مکان: {this.props.item.item.place_address}
+                      مکان: {DBManager.toArabicNumbers(this.props.item.item.place_address)}
                     </Text>
                     <Image
                       style={styles.imageLeft}
@@ -159,20 +159,42 @@ class CalendarItem extends Component {
             />
           </View>
           <View
-            style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start'}}
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              alignItems: 'flex-start',
+              justifyContent: 'flex-start'
+            }}
           >
             <Image
               source={require("../../images/ic_visibility.png")}
-              style={{height: 20, width: 20}}
+              style={{height: 18, width: 18, marginTop: 3}}
             />
-            <Text style={{fontFamily: 'byekan', color: '#000', marginLeft: 5, fontSize: 20, marginTop:-3}}>
+            <Text
+              style={{
+                fontFamily: 'IRANSansMobile',
+                color: '#000',
+                marginLeft: 5,
+                fontSize: 20,
+                marginTop: -3
+              }}
+            >
               {
-                this.state.viewCount !== undefined &&
-                `${this.state.viewCount} `
+                DBManager.toArabicNumbers(this.state.viewCount !== undefined &&
+                `${this.state.viewCount} `)
               }
             </Text>
           </View>
-          <View style={{flex: 2}}/>
+          <View style={{flex: 2}}>
+            <Text style={[
+              styles.text, {color: '#000', textAlign: 'center'}
+            ]}
+            >
+              {DBManager.toArabicNumbers(this.props.item.item.created_time.substr(0, 10))}
+              {"\n"}
+              {DBManager.toArabicNumbers(this.props.item.item.created_time.substr(11, 8))}
+            </Text>
+          </View>
         </View>
       </View>
     );
@@ -195,20 +217,22 @@ class CalendarItem extends Component {
           <View
             style={[styles.smallCard,
               {backgroundColor: !this.state.replaced ? Globals.PRIMARY_BLUE : Globals.PRIMARY_SHARED}]}>
-            <TouchableWithoutFeedback
+            <TouchableOpacity
+              style={{paddingHorizontal: 5}}
               onPress={this.props.share}>
               <Image
                 style={styles.image}
                 source={require('../../images/ic_share.png')}
               />
-            </TouchableWithoutFeedback>
-            <TouchableWithoutFeedback
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{paddingHorizontal: 5}}
               onPress={() => this.props.delete(this.props.item.item.id)}>
               <Image
                 style={styles.image}
                 source={require('../../images/basket.png')}
               />
-            </TouchableWithoutFeedback>
+            </TouchableOpacity>
           </View>
           <TouchableWithoutFeedback
             onPress={() => this.props.callback(this.props.item.item.id)}>
@@ -219,7 +243,7 @@ class CalendarItem extends Component {
                 <View style={{flex: 1}}>
                   <View style={{flexDirection: 'row'}}>
                     <Text style={styles.text}>
-                      {this.props.item.item.meeting_title}
+                      {DBManager.toArabicNumbers(this.props.item.item.meeting_title)}
                     </Text>
                     <Image
                       style={styles.image}
@@ -228,7 +252,7 @@ class CalendarItem extends Component {
                   </View>
                   <View style={{flexDirection: 'row'}}>
                     <Text style={styles.text}>
-                      ساعت {this.props.item.item.start_time.substring(11, 16)} تا {this.props.item.item.end_time.substring(11, 16)}
+                      ساعت {DBManager.toArabicNumbers(this.props.item.item.start_time.substring(11, 16))} تا {DBManager.toArabicNumbers(this.props.item.item.end_time.substring(11, 16))}
                     </Text>
                     <Image
                       style={styles.image}
@@ -236,7 +260,7 @@ class CalendarItem extends Component {
                   </View>
                   <View style={{flexDirection: 'row'}}>
                     <Text style={styles.text}>
-                      مکان: {this.props.item.item.place_address}
+                      مکان: {DBManager.toArabicNumbers(this.props.item.item.place_address)}
                     </Text>
                     <Image
                       style={styles.image}
@@ -254,7 +278,16 @@ class CalendarItem extends Component {
         <View
           style={{flexDirection: 'row'}}
         >
-          <View style={{flex: 2}}/>
+          <View style={{flex: 2}}>
+            <Text style={[
+              styles.text, {color: '#000', textAlign: 'center'}
+            ]}
+            >
+              {DBManager.toArabicNumbers(this.props.item.item.created_time.substr(0, 10))}
+              {"\n"}
+              {DBManager.toArabicNumbers(this.props.item.item.created_time.substr(11, 8))}
+            </Text>
+          </View>
           {this.state.replaced && <View
             style={{
               alignItems: 'center',
@@ -269,16 +302,29 @@ class CalendarItem extends Component {
           </View>
           }
           <View
-            style={{flex: 1, flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'flex-end'}}
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              alignItems: 'flex-start',
+              justifyContent: 'flex-end'
+            }}
           >
             <Image
               source={require("../../images/ic_visibility.png")}
               style={{height: 18, width: 18}}
             />
-            <Text style={{fontFamily: 'byekan', color: '#000', marginLeft: 5, fontSize: 15, marginTop:-3}}>
+            <Text
+              style={{
+                fontFamily: 'IRANSansMobile',
+                color: '#000',
+                marginLeft: 5,
+                fontSize: 15,
+                marginTop: -3
+              }}
+            >
               {
-                this.state.viewCount !== undefined &&
-                `${this.state.viewCount} `
+                DBManager.toArabicNumbers(this.state.viewCount !== undefined &&
+                `${this.state.viewCount} `)
               }
             </Text>
           </View>
@@ -323,13 +369,13 @@ const styles = StyleSheet.create({
     flex: 1,
     color: Globals.PRIMARY_WHITE,
     fontSize: DBManager.RFWidth(4),
-    fontFamily: 'byekan',
+    fontFamily: 'IRANSansMobile',
     textAlign: 'right'
   },
   textLeft: {
     flex: 1,
     fontSize: DBManager.RFWidth(4),
-    fontFamily: 'byekan',
+    fontFamily: 'IRANSansMobile',
     textAlign: 'right'
   },
   image: {

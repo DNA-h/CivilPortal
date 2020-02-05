@@ -14,11 +14,11 @@ export default class SimpleImage extends Component {
   }
 
   async componentDidMount(): void {
-    let mme = await RequestsController.loadMyself();
+    let temp = await RequestsController.loadMyself();
     this.setState({
-      avatar: 'http://185.211.57.73/static/uploads/' + mme[0].fields.image,
-      name: mme[0].fields.first_name + ' ' + mme[0].fields.last_name,
-      rank:  mme[0].rank
+      avatar: temp.image,
+      name: temp.first_name + ' ' + temp.last_name,
+      rank:  temp.rank
     })
   }
 
@@ -47,11 +47,26 @@ export default class SimpleImage extends Component {
         <Text
           style={{
             width: '80%',
-            fontFamily: 'byekan',
+            fontSize:17,
+            fontFamily: 'IRANSansMobile',
             color: '#FFF'
           }}
         >
           {this.state.name}
+        </Text>
+        <Text
+          style={{
+            width: '80%',
+            fontFamily: 'IRANSansMobile',
+            fontSize: 15,
+            paddingHorizontal:15,
+            textAlign: 'center',
+            color: '#7e7e7e',
+            backgroundColor: '#dddddd',
+            borderRadius: 15,
+          }}
+        >
+          {this.state.rank}
         </Text>
       </View>
     )

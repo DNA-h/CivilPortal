@@ -26,8 +26,6 @@ class Login extends Component {
 
   componentDidMount() {
     SplashScreen.hide();
-    DBManager.saveSettingValue('token', 'N/A');
-    DBManager.saveSettingValue('onboarding','N/A');
   }
 
   _TextChanged(input) {
@@ -46,7 +44,7 @@ class Login extends Component {
     let result = await RequestsController.SendCode(this.text);
     if (result !== undefined && result.length === 40) {
       DBManager.saveSettingValue('token', result);
-      NavigationService.navigate('OnBoarding', null);
+      NavigationService.reset('MainPage', null);
     }else {
       this.refs.toast.show('کد وارد شده صحیح نیست یا منقضی شده است. لطفا مجددا تلاش نمایید.');
     }
@@ -107,7 +105,7 @@ class Login extends Component {
                       backgroundColor: '#817ce2',
                       color: '#fff',
                       textAlign: 'center',
-                      fontFamily: 'byekan',
+                      fontFamily: 'IRANSansMobile',
                       flex: 1,
                       fontSize:12
                     }}
@@ -127,7 +125,7 @@ class Login extends Component {
                       backgroundColor: '#817ce2',
                       color: '#fff',
                       textAlign: 'center',
-                      fontFamily: 'byekan',
+                      fontFamily: 'IRANSansMobile',
                       flex: 1
                     }}
                     autoCapitalize="none"
@@ -184,7 +182,7 @@ class Login extends Component {
                         paddingHorizontal: 30,
                         paddingVertical: 5,
                         color: Globals.PRIMARY_BLUE,
-                        fontFamily: 'byekan'
+                        fontFamily: 'IRANSansMobile'
                       }}>
                       ورود
                     </Text>
@@ -201,19 +199,19 @@ class Login extends Component {
         <Toast
           ref="toast"
           style={{
-            backgroundColor:'#444',
-            marginHorizontal:50
+            backgroundColor: '#444',
+            marginHorizontal: 50
           }}
           position='center'
           positionValue={200}
           fadeInDuration={200}
-          fadeOutDuration={2000}
+          fadeOutDuration={5000}
           opacity={0.8}
           textStyle={{
-            color:'white',
-            fontFamily:'byekan',
-            fontSize:15,
-            textAlign:'center'
+            color: 'white',
+            fontFamily: 'IRANSansMobile',
+            fontSize: 15,
+            textAlign: 'center'
           }}
         />
       </ImageBackground>

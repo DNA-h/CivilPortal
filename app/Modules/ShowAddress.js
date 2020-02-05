@@ -33,7 +33,7 @@ class SaveAddress extends React.Component {
       <View style={{flex: 1}}>
         <Text
           style={{
-            fontFamily: 'byekan',
+            fontFamily: 'IRANSansMobile',
             color: '#000000',
             width: '100%',
             fontSize: 20,

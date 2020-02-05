@@ -10,8 +10,9 @@ export default class Item extends React.Component {
       <View
         style={{
           flexDirection: 'row',
-          height: 200
-        }}>
+          height: 180
+        }}
+      >
         <Animated.View
           style={[{
             marginHorizontal: 10,
@@ -29,7 +30,7 @@ export default class Item extends React.Component {
             style={{
               color: this.props.day === 'جمعه' ? '#ff2c05' : '#000000',
               fontSize: DBManager.RFValue(16),
-              fontFamily: 'byekan',
+              fontFamily: 'IRANSansMobile',
               textAlign: 'center'
             }}>
             {this.props.day}
@@ -37,17 +38,17 @@ export default class Item extends React.Component {
           <Text
             style={{
               color: this.props.day === 'جمعه' ? '#ff2c05' : '#000000',
-              fontSize: DBManager.RFValue(14),
-              fontFamily: 'byekan'
+              fontSize: DBManager.RFValue(16),
+              fontFamily: 'IRANSansMobile_Bold'
             }}>
-            {this.props.date}
+            {DBManager.toArabicNumbers(this.props.date)}
           </Text>
           <Text
             style={{
               color: this.props.day === 'جمعه' ? '#ff2c05' : '#000000',
               fontSize: DBManager.RFValue(12),
               textAlign: 'center',
-              fontFamily: 'byekan'
+              fontFamily: 'IRANSansMobile'
             }}>
             {this.props.month}
           </Text>

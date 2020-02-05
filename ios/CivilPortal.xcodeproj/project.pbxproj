@@ -70,6 +70,8 @@
 		8A5DE7B064544131BB8E1E70 /* Octicons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2A7C315127A7478DBD6D2763 /* Octicons.ttf */; };
 		9F0A2696A2BB44D682ECEDFD /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0F30C9C536B243ADB22FC7BD /* SimpleLineIcons.ttf */; };
 		70175A1EF9464A42804637BD /* Zocial.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E9F81553084D4482835CC867 /* Zocial.ttf */; };
+		60D1C2C8AE4041BCA61B0FEC /* IRANSansMobile_Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1FC13B0CC0B14BA5BB684979 /* IRANSansMobile_Bold.ttf */; };
+		43C09032B643467CB1E33359 /* IRANSansMobile.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5D1CE1A2FD504628A8D99AEA /* IRANSansMobile.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -417,6 +419,8 @@
 		2A7C315127A7478DBD6D2763 /* Octicons.ttf */ = {isa = PBXFileReference; name = "Octicons.ttf"; path = "../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		0F30C9C536B243ADB22FC7BD /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; name = "SimpleLineIcons.ttf"; path = "../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 		E9F81553084D4482835CC867 /* Zocial.ttf */ = {isa = PBXFileReference; name = "Zocial.ttf"; path = "../node_modules/react-native-vector-icons/Fonts/Zocial.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		1FC13B0CC0B14BA5BB684979 /* IRANSansMobile_Bold.ttf */ = {isa = PBXFileReference; name = "IRANSansMobile_Bold.ttf"; path = "../app/assets/fonts/IRANSansMobile_Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		5D1CE1A2FD504628A8D99AEA /* IRANSansMobile.ttf */ = {isa = PBXFileReference; name = "IRANSansMobile.ttf"; path = "../app/assets/fonts/IRANSansMobile.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -723,6 +727,8 @@
 				2A7C315127A7478DBD6D2763 /* Octicons.ttf */,
 				0F30C9C536B243ADB22FC7BD /* SimpleLineIcons.ttf */,
 				E9F81553084D4482835CC867 /* Zocial.ttf */,
+				1FC13B0CC0B14BA5BB684979 /* IRANSansMobile_Bold.ttf */,
+				5D1CE1A2FD504628A8D99AEA /* IRANSansMobile.ttf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1194,6 +1200,8 @@
 				8A5DE7B064544131BB8E1E70 /* Octicons.ttf in Resources */,
 				9F0A2696A2BB44D682ECEDFD /* SimpleLineIcons.ttf in Resources */,
 				70175A1EF9464A42804637BD /* Zocial.ttf in Resources */,
+				60D1C2C8AE4041BCA61B0FEC /* IRANSansMobile_Bold.ttf in Resources */,
+				43C09032B643467CB1E33359 /* IRANSansMobile.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

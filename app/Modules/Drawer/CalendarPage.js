@@ -82,7 +82,7 @@ class CalendarPage extends Component {
             />
             <Text
               style={{
-                fontFamily: 'byekan',
+                fontFamily: 'IRANSansMobile',
                 fontSize: 30,
                 color: '#0a46ff'
               }}
@@ -91,7 +91,7 @@ class CalendarPage extends Component {
             </Text>
             <Text
               style={{
-                fontFamily: 'byekan',
+                fontFamily: 'IRANSansMobile',
                 fontSize: DBManager.RFWidth(4.5),
                 textAlign: 'center',
                 color: '#000',

@@ -102,8 +102,8 @@ export class RequestsController {
     let headers = new Headers();
     headers.append('Content-Type', 'application/json');
     headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
-    let json = await ConnectionManager.doFetch("http://185.211.57.73/api/peoples/", 'POST',
-      JSON.stringify({places: []}), headers, true);
+    let json = await ConnectionManager.doFetch("http://185.211.57.73/api/get_self_rank/", 'GET',
+      null, headers, true);
     // console.log('json is ', json);
     return json;
   }

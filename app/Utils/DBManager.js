@@ -2,6 +2,9 @@ import {AsyncStorage, Platform, StatusBar, Dimensions} from 'react-native';
 
 const {height, width} = Dimensions.get("window");
 
+const arabicNumbers = ['۰', '۱', '٢', '٣', '۴', '۵', '۶', '۷', '٨', '٩'];
+const englishNumbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
 export default class DBManager {
   static async getSettingValue(key, defalt) {
     try {
@@ -42,5 +45,15 @@ export default class DBManager {
     const standardScreenHeight = 680;
     const heightPercent = (fontSize * height) / standardScreenHeight;
     return Math.round(heightPercent);
+  }
+
+  static toArabicNumbers(value) {
+    if (value.split === undefined)
+      value = `${value}`;
+    const chars = value.split('');
+    for (let index in chars)
+      if (chars[index] >= '0' && chars[index] <= '9')
+        chars[index] = arabicNumbers[chars[index] - '0'];
+    return chars.join('');
   }
 }

@@ -94,7 +94,7 @@ class CalendarPage extends Component {
               style={{
                 flex: 1,
                 textAlign: 'center',
-                fontFamily: 'byekan',
+                fontFamily: 'IRANSansMobile',
                 color: '#6f67d9'
               }}
             >
@@ -138,14 +138,14 @@ class CalendarPage extends Component {
           <Text
             style={{
               flex: 1,
-              fontFamily: 'byekan',
-              fontSize: 18,
+              fontFamily: 'IRANSansMobile',
+              fontSize: 15,
               textAlign: 'center',
               color: '#000',
-              paddingHorizontal: 10
+              paddingHorizontal: 20
             }}
           >
-            در دست راه اندازی
+            این صفحه به درخواست مشتری ایجاد میگردد در این خصوص مـی توانید از صفحه پشتیبانی درخواست خود را مطرح نمایید.
           </Text>
         </View>
       </ImageBackground>

@@ -38,13 +38,13 @@ class ChoosePeople extends Component {
   async _loadPeople() {
     let names = await RequestsController.loadPeople();
     let mNames = names.لیست;
-    let mme = await RequestsController.loadMyself();
+    let temp = await RequestsController.loadMyself();
     this.me = {
       item: {
-        first_name: mme[0].fields.first_name,
-        last_name: mme[0].fields.last_name,
-        mobile: mme[0].fields.mobile,
-        pic: 'http://185.211.57.73/static/uploads/' + mme[0].fields.image,
+        first_name: temp.first_name,
+        last_name: temp.last_name,
+        mobile: temp.mobile,
+        pic: 'http://185.211.57.73/static/uploads/' + temp.image,
         rank: 'خودم'
       }
     };
@@ -143,14 +143,13 @@ class ChoosePeople extends Component {
               style={{
                 flex: 1,
                 textAlign: 'center',
-                fontFamily: 'byekan',
+                fontFamily: 'IRANSansMobile',
                 fontSize: 18,
                 color: '#6f67d9'
               }}
             >
               انتخاب نفرات
             </Text>
-
             <View
               style={{
                 borderColor: '#6f67d9',
@@ -214,7 +213,7 @@ class ChoosePeople extends Component {
             <View>
               <Text
                 style={{
-                  fontFamily: 'byekan',
+                  fontFamily: 'IRANSansMobile',
                   fontSize: 18,
                   width: '80%',
                   textAlign: 'center',
@@ -273,7 +272,7 @@ class ChoosePeople extends Component {
                 style={{
                   flex: 1,
                   textAlign: 'center',
-                  fontFamily: 'byekan',
+                  fontFamily: 'IRANSansMobile',
                   fontSize: 20,
                   color: '#6f67d9'
                 }}
@@ -310,7 +309,7 @@ class ChoosePeople extends Component {
             />
             <Text
               style={{
-                fontFamily: 'byekan',
+                fontFamily: 'IRANSansMobile',
                 fontSize: 20,
                 marginHorizontal: 20,
                 marginVertical: 20,
@@ -343,7 +342,7 @@ class ChoosePeople extends Component {
                 <View>
                   <Text
                     style={{
-                      fontFamily: 'byekan',
+                      fontFamily: 'IRANSansMobile',
                       fontSize: 25,
                       color: "#e36c35",
                       width: (width * 0.8) / 2,
@@ -370,7 +369,7 @@ class ChoosePeople extends Component {
                 <View>
                   <Text
                     style={{
-                      fontFamily: 'byekan',
+                      fontFamily: 'IRANSansMobile',
                       fontSize: 25,
                       color: "#7445e3",
                       width: (width * 0.8) / 2,
@@ -418,7 +417,7 @@ class ChoosePeople extends Component {
                 style={{
                   flex: 1,
                   textAlign: 'center',
-                  fontFamily: 'byekan',
+                  fontFamily: 'IRANSansMobile',
                   color: '#6f67d9'
                 }}
               >
@@ -453,7 +452,7 @@ class ChoosePeople extends Component {
             />
             <Text
               style={{
-                fontFamily: 'byekan',
+                fontFamily: 'IRANSansMobile',
                 marginHorizontal: 20,
                 fontSize: 18,
                 marginTop: 10,
@@ -485,7 +484,7 @@ class ChoosePeople extends Component {
                 <View>
                   <Text
                     style={{
-                      fontFamily: 'byekan',
+                      fontFamily: 'IRANSansMobile',
                       fontSize: 17,
                       color: "#e36c35",
                       width: (width * 0.8) / 2,
@@ -513,7 +512,7 @@ class ChoosePeople extends Component {
                 <View>
                   <Text
                     style={{
-                      fontFamily: 'byekan',
+                      fontFamily: 'IRANSansMobile',
                       fontSize: 17,
                       color: "#7445e3",
                       width: (width * 0.8) / 2,
@@ -536,11 +535,11 @@ class ChoosePeople extends Component {
           position='center'
           positionValue={200}
           fadeInDuration={200}
-          fadeOutDuration={2000}
+          fadeOutDuration={5000}
           opacity={0.8}
           textStyle={{
             color: 'white',
-            fontFamily: 'byekan',
+            fontFamily: 'IRANSansMobile',
             fontSize: 15,
             textAlign: 'center'
           }}

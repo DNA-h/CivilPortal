@@ -13,7 +13,8 @@ const DEVICE_HEIGHT = Dimensions.get('window').height;
 class OnBoarding extends Component {
 
   componentDidMount() {
-    //SplashScreen.hide();
+    DBManager.saveSettingValue('token', 'N/A');
+    DBManager.saveSettingValue('onboarding','N/A');
   }
 
   render() {
@@ -36,7 +37,7 @@ class OnBoarding extends Component {
           <TouchableOpacity
             onPress={()=>{
               DBManager.saveSettingValue('onboarding','done');
-              NavigationService.reset("MainPage")
+              NavigationService.reset("Login")
             }}
           >
             <View
@@ -50,7 +51,7 @@ class OnBoarding extends Component {
             >
               <Text
                 style={{
-                  fontFamily: 'byekan',
+                  fontFamily: 'IRANSansMobile',
                   fontSize: 18,
                   textAlign: 'center',
                   color: 'white',

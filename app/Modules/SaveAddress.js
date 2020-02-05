@@ -34,7 +34,7 @@ class SaveAddress extends React.Component {
       <View style={{flex: 1}}>
         <Text
           style={{
-            fontFamily: 'byekan',
+            fontFamily: 'IRANSansMobile',
             color: '#000000',
             width: '100%',
             fontSize: 20,
@@ -105,7 +105,7 @@ class SaveAddress extends React.Component {
               color: '#000',
               textAlign: 'center',
               fontSize: 18,
-              fontFamily: 'byekan'
+              fontFamily: 'IRANSansMobile'
             }}
             source={require("../images/ic_location.png")}
           >

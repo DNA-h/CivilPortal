@@ -1,16 +1,8 @@
 import React, {Component} from "react";
 import {
-  FlatList,
-  View,
-  Text,
-  Button,
-  TouchableWithoutFeedback,
-  Image,
-  CheckBox,
-  SafeAreaView,
-  Dimensions
+  FlatList, View, Text,
+  TouchableWithoutFeedback, Image, Dimensions, TouchableOpacity
 } from 'react-native';
-import Wallpaper from "./Components/Wallpaper";
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "../actions";
 import PeopleItem from "./Components/PeopleItem";
@@ -89,19 +81,58 @@ class ShareSession extends Component {
             backgroundColor: '#FFFFFF',
             marginVertical: 80,
             marginHorizontal:20,
-            borderRadius: 25
+            borderRadius: 60
           }}>
-          <Text
+          <View
             style={{
-              color: '#6f67d9',
-              textAlign: 'center',
-              width: '100%',
-              fontFamily: 'byekan',
-              fontSize: 18,
-              marginTop: 10
-            }}>
-            واگذاری جلسه
-          </Text>
+              flexDirection: 'row',
+              marginTop: 20,
+              paddingHorizontal: 10
+            }}
+          >
+            <TouchableOpacity
+              style={{paddingHorizontal: 10}}
+              onPress={NavigationService.goBack}>
+              <Image
+                style={{
+                  height: 20,
+                  width: 20,
+                  marginLeft: 15,
+                  tintColor: '#6f67d9'
+                }}
+                source={require("../images/ic_back.png")}
+              />
+            </TouchableOpacity>
+            <Text
+              style={{
+                flex: 1,
+                textAlign: 'center',
+                fontFamily: 'IRANSansMobile',
+                fontSize: 18,
+                color: '#6f67d9'
+              }}
+            >
+              واگذاری جلسه
+            </Text>
+            <View
+              style={{
+                borderColor: '#6f67d9',
+                height: 20,
+                width: 20,
+                borderRadius: 16,
+                marginRight: 30,
+              }}
+            >
+              <Image
+                style={{
+                  height: 20,
+                  width: 20,
+                  tintColor: '#6f67d9'
+                }}
+                source={require("../images/ic_no_profile.png")}
+              />
+            </View>
+          </View>
           <FlatList
             style={{
               flex: 1,
@@ -152,7 +183,7 @@ class ShareSession extends Component {
                 style={{
                   flex: 1,
                   textAlign: 'center',
-                  fontFamily: 'byekan',
+                  fontFamily: 'IRANSansMobile',
                   fontSize: 20,
                   color: '#6f67d9'
                 }}
@@ -186,7 +217,7 @@ class ShareSession extends Component {
             />
             <Text
               style={{
-                fontFamily: 'byekan',
+                fontFamily: 'IRANSansMobile',
                 fontSize: 20,
                 marginHorizontal: 20,
                 marginVertical: 20,
@@ -209,7 +240,7 @@ class ShareSession extends Component {
                 <View>
                   <Text
                     style={{
-                      fontFamily: 'byekan',
+                      fontFamily: 'IRANSansMobile',
                       fontSize: 25,
                       color: "#e36c35",
                       width: (width * 0.8) / 2,
@@ -232,7 +263,7 @@ class ShareSession extends Component {
                 <View>
                   <Text
                     style={{
-                      fontFamily: 'byekan',
+                      fontFamily: 'IRANSansMobile',
                       fontSize: 25,
                       color: "#7445e3",
                       width: (width * 0.8) / 2,
@@ -272,7 +303,7 @@ class ShareSession extends Component {
               />
               <Text
                 style={{
-                  flex: 1, textAlign: 'center', fontFamily: 'byekan', color: '#6f67d9'
+                  flex: 1, textAlign: 'center', fontFamily: 'IRANSansMobile', color: '#6f67d9'
                 }}
               >
                 وجود تداخل
@@ -297,7 +328,7 @@ class ShareSession extends Component {
             />
             <Text
               style={{
-                fontFamily: 'byekan', marginHorizontal: 20, fontSize: 18, marginTop: 10, textAlign: 'center'
+                fontFamily: 'IRANSansMobile', marginHorizontal: 20, fontSize: 18, marginTop: 10, textAlign: 'center'
               }}>
               کابر گرامی کارمند یا پرسنل شما در این بازه زمانی زمانی در جلسه دیگری حضور دارد و امکان دارد
               در این جلسه حضور پیدا نکند. مایل به ادامه دادن هستید؟
@@ -316,7 +347,7 @@ class ShareSession extends Component {
                 <View>
                   <Text
                     style={{
-                      fontFamily: 'byekan',
+                      fontFamily: 'IRANSansMobile',
                       fontSize: 17,
                       color: "#e36c35",
                       width: (width * 0.8) / 2,
@@ -339,7 +370,7 @@ class ShareSession extends Component {
                 <View>
                   <Text
                     style={{
-                      fontFamily: 'byekan',
+                      fontFamily: 'IRANSansMobile',
                       fontSize: 17,
                       color: "#7445e3",
                       width: (width * 0.8) / 2,

@@ -22,6 +22,7 @@
     "react-native-linear-gradient": "^2.5.3",
     "react-native-modal": "^7.0.2",
     "react-native-persian-calendar-picker": "^3.0.1",
+    "react-native-popup-menu": "^0.15.6",
     "react-native-responsive-screen": "^1.2.2",
     "react-native-scrollable-tab-view": "^0.10.0",
     "react-native-snap-carousel": "^3.8.0",
