@@ -37,7 +37,7 @@ class Login extends Component {
     if (result === 'We texted you a login code.')
       this.setState({isPhoneNumber: false});
     else
-      this.refs.toast.show('خطایی در ارسال کد رخ داده است. لطفا شماره همراه خود را چک نمایید و مجددا تلاش نمایید');
+      this.refs.toast.show('خطایی در ارسال کد رخ داده است. لطفا شماره همراه خود را چک نمایید و مجددا تلاش نمایید',5000);
   }
 
   async _checkCode() {
@@ -46,7 +46,7 @@ class Login extends Component {
       DBManager.saveSettingValue('token', result);
       NavigationService.reset('MainPage', null);
     }else {
-      this.refs.toast.show('کد وارد شده صحیح نیست یا منقضی شده است. لطفا مجددا تلاش نمایید.');
+      this.refs.toast.show('کد وارد شده صحیح نیست یا منقضی شده است. لطفا مجددا تلاش نمایید.',5000);
     }
   }
 
@@ -107,7 +107,7 @@ class Login extends Component {
                       textAlign: 'center',
                       fontFamily: 'IRANSansMobile',
                       flex: 1,
-                      fontSize:12
+                      fontSize:14
                     }}
                     autoCapitalize="none"
                     onChangeText={(text) => {
@@ -126,7 +126,8 @@ class Login extends Component {
                       color: '#fff',
                       textAlign: 'center',
                       fontFamily: 'IRANSansMobile',
-                      flex: 1
+                      flex: 1,
+                      fontSize:14
                     }}
                     autoCapitalize="none"
                     onChangeText={(text) => {

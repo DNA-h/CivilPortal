@@ -20,6 +20,7 @@ import firebase from 'react-native-firebase';
 import SimpleImage from "./Components/SimpleImage";
 import Login from "./Login";
 import jalaali from 'jalaali-js';
+import Toast from "./Components/EasyToast";
 
 let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
 let gMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -78,10 +79,27 @@ class MainPage extends Component {
     this.parseHijriDate = this.parseHijriDate.bind(this);
     this.parsePersianDate = this.parsePersianDate.bind(this);
     this._loadSessions = this._loadSessions.bind(this);
+    this._handleLoadedSession = this._handleLoadedSession.bind(this);
     this.getCalendarEvents = this.getCalendarEvents.bind(this);
     this._itemClicked = this._itemClicked.bind(this);
     this._checkDelete = this._checkDelete.bind(this);
     this.handleBackPress = this.handleBackPress.bind(this);
+  }
+
+  _handleLoadedSession(result) {
+    let res = result.filter((item) => { //server (for some reasons) returns two copies of same session if you are owner
+        if (item.owner) return true;
+        if (result.some(e => e.owner && e.id === item.id))
+          return false;
+        return true;
+      }
+    );
+    res.sort(function (a, b) {
+      if (a.start_time.substring(11, 16) > b.start_time.substring(11, 16))
+        return 1;
+      return -1;
+    });
+    this.setState({todaySessions: res});
   }
 
   async _loadSessions() {
@@ -89,25 +107,29 @@ class MainPage extends Component {
     date.setDate(date.getDate() + this.difference);
     let jalali = jalaali.toJalaali(date);
     let value = jalali.jy + "-" + (jalali.jm < 10 ? '0' + jalali.jm : jalali.jm) + "-" + (jalali.jd < 10 ? '0' + jalali.jd : jalali.jd);
-    let result = await RequestsController.MySessions(value);
-    result = result.filter((item) => { //server (for some reasens) returns two copies of same session if you are owner
-        if (item.owner) return true;
-        if (result.some(e => e.owner && e.id === item.id))
-          return false;
-        return true;
+    let cache = await DBManager.getSettingValue(value, "N/A");
+    if (cache !== "N/A") {
+      try {
+        cache = JSON.parse(cache);
+        console.log('after', cache);
+        this._handleLoadedSession(cache);
+      } catch (e) {
+        console.log('err', e);
       }
-    );
-    result.sort(function (a, b) {
-      if (a.start_time.substring(11, 16) > b.start_time.substring(11, 16))
-        return 1;
-      return -1;
-    });
-    this.setState({todaySessions: result});
+    }
+    let result = await RequestsController.MySessions(value);
+    DBManager.saveSettingValue(value, JSON.stringify(result));
+    this._handleLoadedSession(result);
   }
 
   async _itemClicked(id) {
-    this.result = await RequestsController.specificSession(id);
-    this.setState({modalVisible: true});
+    let tempResult = await RequestsController.specificSession(id);
+    if (tempResult === undefined){
+      this.refs.toast.show(`خطایی رخ داده است. لطفا دسترسی اینترنت گوشی خود را چک نمایید.`, 5000);
+    }else {
+      this.result =  tempResult;
+      this.setState({modalVisible: true});
+    }
   }
 
   _checkDelete(id) {
@@ -205,6 +227,7 @@ class MainPage extends Component {
 
   _init() {
     this.checkToken();
+    this._loadSessions();
     let a = this.parsePersianDate();
     let b = this.parseGeorgianDate();
     let c = this.parseHijriDate();
@@ -1150,6 +1173,23 @@ class MainPage extends Component {
               </View>
             </Modal>
           </View>
+          <Toast
+            ref="toast"
+            style={{
+              backgroundColor: '#444',
+              marginHorizontal: 50
+            }}
+            position='center'
+            positionValue={200}
+            fadeInDuration={200}
+            opacity={0.8}
+            textStyle={{
+              color: 'white',
+              fontFamily: 'IRANSansMobile',
+              fontSize: 15,
+              textAlign: 'center'
+            }}
+          />
         </GestureRecognizer>
         <View
           style={{

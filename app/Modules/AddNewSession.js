@@ -90,6 +90,7 @@ class AddNewSession extends Component {
     this.saveValue = this.saveValue.bind(this);
     this._compareTitle = this._compareTitle.bind(this);
     this._compareAddress = this._compareAddress.bind(this);
+    this._handleAddressClick = this._handleAddressClick.bind(this);
   }
 
   async componentDidMount() {
@@ -136,6 +137,11 @@ class AddNewSession extends Component {
 
   _compareAddress(value) {
     return value.includes(this.state.address) && value !== this.state.address;
+  }
+
+  _handleAddressClick(value){
+    console.log('address', value);
+    this.setState({focusAddress: false, address: value})
   }
 
   _scrollInterpolator(index, carouselProps) {
@@ -213,7 +219,8 @@ class AddNewSession extends Component {
             {
               backgroundColor: 'argba(0,0,0,0)',
               width: '50%',
-              height: 30
+              height: this.state.focusAddress ? this.state.addresses.filter(this._compareAddress).length * 30 :
+                this.state.titles.filter(this._compareTitle).length*30
             }]}
         >
           {children}
@@ -541,7 +548,10 @@ class AddNewSession extends Component {
               marginTop: 15
             }}>
             <Menu
-              onBackdropPress={() => this.setState({focusAddress: false})}
+              onBackdropPress={() =>{
+                console.log('back drop');
+                // this.setState({focusAddress: false})
+              }}
               opened={this.state.focusAddress}
               renderer={CustomMenu}
             >
@@ -550,6 +560,8 @@ class AddNewSession extends Component {
                 {
                   this.state.addresses.filter(this._compareAddress).map((val, index) =>
                     <MenuOption
+                      key={val}
+                      text={val}
                       customStyles={{
                         optionText: {
                           color: Globals.PRIMARY_DARK_BLUE,
@@ -562,11 +574,11 @@ class AddNewSession extends Component {
                           backgroundColor: index % 2 === 0 ? '#d8d8d8' : '#c2c2c2'
                         }
                       }}
-                      text={val}
                       onSelect={() => {
-                        this.setState({focusAddress: false, address: val})
+                        this._handleAddressClick(val)
                       }}
-                    />
+                    >
+                    </MenuOption>
                   )
                 }
               </MenuOptions>
@@ -645,6 +657,7 @@ class AddNewSession extends Component {
                 style={{
                   flex: 1,
                   borderRadius: 15,
+                  margin: this.props.counter.uri === null ? 30 : 0,
                   overflow: 'hidden',
                   width: DEVICE_WIDTH - 40,
                 }}
@@ -656,15 +669,16 @@ class AddNewSession extends Component {
           <TouchableWithoutFeedback
             onPress={() => {
               if (this._startHour > this._endHour || (this._startHour === this._endHour && this._startMinute > this._startMinute)) {
-                this.refs.toast.show('زمان شروع جلسه باید قبل از زمان پایان جلسه باشد');
+                this.refs.toast.show('زمان شروع جلسه باید قبل از زمان پایان جلسه باشد', 5000);
                 return;
               }
               if (this.state.address === '') {
-                this.refs.toast.show('لطفا آدرس محل جلسه را وارد نمایید');
+                this.refs.toast.close(100);
+                this.refs.toast.show('لطفا آدرس محل جلسه را وارد نمایید', 5000);
                 return;
               }
               if (this.state.title === '') {
-                this.refs.toast.show('لطفا عنوان جلسه را وارد نمایید');
+                this.refs.toast.show('لطفا عنوان جلسه را وارد نمایید', 5000);
                 return;
               }
               let date = new Date();
@@ -673,7 +687,7 @@ class AddNewSession extends Component {
               const month = jalali.jm - 1;
               const day = jalali.jd - 1;
               if (month === this.state.selectedMonth && day === this.state.selectedDay && mHour > this._startHour) {
-                this.refs.toast.show(`امروز برای قبل از ساعت ${mHour} نمی توانید جلسه ثبت نمایید`);
+                this.refs.toast.show(`امروز برای قبل از ساعت ${mHour} نمی توانید جلسه ثبت نمایید`, 5000);
                 return;
               }
               this.saveValue();
@@ -731,7 +745,6 @@ class AddNewSession extends Component {
             position='center'
             positionValue={200}
             fadeInDuration={200}
-            fadeOutDuration={5000}
             opacity={0.8}
             textStyle={{
               color: 'white',

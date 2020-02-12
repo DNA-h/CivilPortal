@@ -3,7 +3,7 @@ import GLOBALS from "./Globals";
 export class ConnectionManager {
     static async doFetch(url, method, body, headers, callback = false) {
         console.log("url is ", url);
-        // console.log("body is ", body);
+        console.log("body is ", body);
         // console.log("headers tag ", headers);
 
         // console.log('url ', url);

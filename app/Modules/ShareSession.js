@@ -20,7 +20,7 @@ class ShareSession extends Component {
     this.state = {
       showDialog: false,
       showCongestion: false,
-      sampleData: []
+      peoples: []
     };
     this.replaced = undefined;
     this.replacedName = undefined;
@@ -36,8 +36,7 @@ class ShareSession extends Component {
 
   async _loadPeople() {
     let names = await RequestsController.loadPeople();
-    let mNames = names.لیست;
-    this.setState({sampleData: mNames});
+    this.setState({peoples: names});
   }
 
   _toggleModal = () =>
@@ -139,7 +138,7 @@ class ShareSession extends Component {
               marginBottom: 20
             }}
             keyExtractor={(item, index) => index.toString()}
-            data={this.state.sampleData}
+            data={this.state.peoples}
             renderItem={(item) =>
               <PeopleItem
                 showCheck={false}

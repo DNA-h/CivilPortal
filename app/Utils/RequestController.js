@@ -79,21 +79,11 @@ export class RequestsController {
     return json;
   }
 
-  static async MyPlaces() {
-    let headers = new Headers();
-    headers.append('Content-Type', 'application/json');
-    headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
-    let json = await ConnectionManager.doFetch("http://185.211.57.73/api/place-by-owner/", 'POST',
-      null, headers, true);
-    // console.log('json is ', json);
-    return json;
-  }
-
   static async loadPeople() {
     let headers = new Headers();
     headers.append('Content-Type', 'application/json');
     headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
-    let json = await ConnectionManager.doFetch("http://185.211.57.73/api/get-childern-by-token/", 'POST',
+    let json = await ConnectionManager.doFetch("http://185.211.57.73/api/get-children/", 'GET',
       null, headers, true);
     return json;
   }
@@ -105,22 +95,6 @@ export class RequestsController {
     let json = await ConnectionManager.doFetch("http://185.211.57.73/api/get_self_rank/", 'GET',
       null, headers, true);
     // console.log('json is ', json);
-    return json;
-  }
-
-  static async saveAddress(title, addres, lat, lng) {
-    let headers = new Headers();
-    headers.append('Content-Type', 'application/json');
-    headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
-    await ConnectionManager.doFetch("http://185.211.57.73/api/peoples/", 'POST',
-      JSON.stringify({
-        places: [{
-          place_title: title, place_address: addres,
-          Latitude: lat, Longitude: lng
-        }]
-      }), headers, true);
-    // console.log('json is ', json);
-    let json = await RequestsController.MyPlaces();
     return json;
   }
 

@@ -37,8 +37,11 @@ class ChoosePeople extends Component {
 
   async _loadPeople() {
     let names = await RequestsController.loadPeople();
-    let mNames = names.لیست;
     let temp = await RequestsController.loadMyself();
+    names = names.filter((item) => { //remove myself from names
+        return item.mobile !== temp.mobile;
+      }
+    );
     this.me = {
       item: {
         first_name: temp.first_name,
@@ -48,14 +51,14 @@ class ChoosePeople extends Component {
         rank: 'خودم'
       }
     };
-    this.setState({peoples: mNames});
+    this.setState({peoples: names});
   }
 
   _toggleModal = () => {
     if (this.state.selectedData.length !== 0 || this.selfPresent) {
       this.setState({showDialog: !this.state.showDialog});
     } else {
-      this.refs.toast.show('لطفا حداقل یک نفر را برای حضور در جلسه انتخاب نمایید');
+      this.refs.toast.show('لطفا حداقل یک نفر را برای حضور در جلسه انتخاب نمایید',5000);
     }
   };
 
@@ -94,6 +97,7 @@ class ChoosePeople extends Component {
       this.props.setURI(null, 0, 0);
       NavigationService.navigate("MainPage");
     } else {
+      console.log('response is', json);
       this._toggleCongestion();
     }
   }

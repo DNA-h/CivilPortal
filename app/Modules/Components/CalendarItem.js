@@ -9,10 +9,6 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import DBManager from "../../Utils/DBManager";
 import Globals from "../../Utils/Globals";
 import {RequestsController} from "../../Utils/RequestController";
-import MainPage from "../MainPage";
-
-const DEVICE_WIDTH = Dimensions.get('window').width;
-const DEVICE_HEIGHT = Dimensions.get('window').height;
 
 class CalendarItem extends Component {
 
@@ -30,26 +26,30 @@ class CalendarItem extends Component {
   async componentDidMount(): void {
     let count = 0;
     let flag = false;
-    this.me = await RequestsController.loadMyself();
-    await RequestsController.seenSession(this.props.item.item.id);
-    this.result = await RequestsController.specificSession(this.props.item.item.id);
-    for (let index = 0; index < this.result[0].people.length; index++) {
-      if (this.result[0].people[index].rep_first_name === null) {
-        if (this.result[0].people[index].seen)
-          count++;
-      } else {
-        if (this.result[0].people[index].rep_seen)
-          count++;
+    try {
+      this.me = await RequestsController.loadMyself();
+      await RequestsController.seenSession(this.props.item.item.id);
+      this.result = await RequestsController.specificSession(this.props.item.item.id);
+      for (let index = 0; index < this.result[0].people.length; index++) {
+        if (this.result[0].people[index].rep_first_name === null) {
+          if (this.result[0].people[index].seen)
+            count++;
+        } else {
+          if (this.result[0].people[index].rep_seen)
+            count++;
+        }
+        if ((this.result[0].people[index].first_name === this.me.first_name &&
+          this.result[0].people[index].last_name === this.me.last_name &&
+          this.result[0].people[index].rep_first_name !== null) ||
+          (this.result[0].people[index].rep_first_name === this.me.first_name &&
+            this.result[0].people[index].rep_last_name === this.me.last_name &&
+            this.result[0].people[index].rep_first_name !== null)
+        ) {
+          flag = true;
+        }
       }
-      if ((this.result[0].people[index].first_name === this.me.first_name &&
-        this.result[0].people[index].last_name === this.me.last_name &&
-        this.result[0].people[index].rep_first_name !== null) ||
-        (this.result[0].people[index].rep_first_name === this.me.first_name &&
-          this.result[0].people[index].rep_last_name === this.me.last_name &&
-          this.result[0].people[index].rep_first_name !== null)
-      ) {
-        flag = true;
-      }
+    } catch (e) {
+      console.log('err', e);
     }
     this.setState({viewCount: count, replaced: flag, loading: false})
   }
@@ -181,18 +181,23 @@ class CalendarItem extends Component {
             >
               {
                 DBManager.toArabicNumbers(this.state.viewCount !== undefined &&
-                `${this.state.viewCount} `)
+                  `${this.state.viewCount} `)
               }
             </Text>
           </View>
-          <View style={{flex: 2}}>
+          <View style={{flex: 2, flexDirection:'row', justifyContent:'center'}}>
             <Text style={[
-              styles.text, {color: '#000', textAlign: 'center'}
+              styles.textCreatedTime, {color: '#000', textAlign: 'center'}
             ]}
             >
-              {DBManager.toArabicNumbers(this.props.item.item.created_time.substr(0, 10))}
-              {"\n"}
-              {DBManager.toArabicNumbers(this.props.item.item.created_time.substr(11, 8))}
+              {DBManager.toArabicNumbers(this.props.item.item.created_time.substr(0,10))}
+              {"\t"}
+            </Text>
+            <Text style={[
+              styles.textCreatedTime, {color: '#000', textAlign: 'center'}
+            ]}
+            >
+              {DBManager.toArabicNumbers(this.props.item.item.created_time.substr(11,5))}
             </Text>
           </View>
         </View>
@@ -278,14 +283,19 @@ class CalendarItem extends Component {
         <View
           style={{flexDirection: 'row'}}
         >
-          <View style={{flex: 2}}>
+          <View style={{flex: 2, flexDirection:'row', justifyContent:'center'}}>
             <Text style={[
-              styles.text, {color: '#000', textAlign: 'center'}
+              styles.textCreatedTime, {color: '#000', textAlign: 'center'}
             ]}
             >
-              {DBManager.toArabicNumbers(this.props.item.item.created_time.substr(0, 10))}
-              {"\n"}
-              {DBManager.toArabicNumbers(this.props.item.item.created_time.substr(11, 8))}
+              {DBManager.toArabicNumbers(this.props.item.item.created_time.substr(0,10))}
+              {"\t"}
+            </Text>
+            <Text style={[
+              styles.textCreatedTime, {color: '#000', textAlign: 'center'}
+            ]}
+            >
+              {DBManager.toArabicNumbers(this.props.item.item.created_time.substr(11,5))}
             </Text>
           </View>
           {this.state.replaced && <View
@@ -324,7 +334,7 @@ class CalendarItem extends Component {
             >
               {
                 DBManager.toArabicNumbers(this.state.viewCount !== undefined &&
-                `${this.state.viewCount} `)
+                  `${this.state.viewCount} `)
               }
             </Text>
           </View>
@@ -365,8 +375,14 @@ class CalendarItem extends Component {
 }
 
 const styles = StyleSheet.create({
+  textCreatedTime: {
+    color: Globals.PRIMARY_WHITE,
+    fontSize: DBManager.RFWidth(4),
+    fontFamily: 'IRANSansMobile',
+    textAlign: 'right'
+  },
   text: {
-    flex: 1,
+    flex:1,
     color: Globals.PRIMARY_WHITE,
     fontSize: DBManager.RFWidth(4),
     fontFamily: 'IRANSansMobile',
