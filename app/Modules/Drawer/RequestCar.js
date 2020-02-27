@@ -94,7 +94,7 @@ class CalendarPage extends Component {
               style={{
                 flex: 1,
                 textAlign: 'center',
-                fontFamily: 'IRANSansMobile',
+                fontFamily: 'byekan',
                 color: '#6f67d9'
               }}
             >
@@ -138,7 +138,7 @@ class CalendarPage extends Component {
           <Text
             style={{
               flex: 1,
-              fontFamily: 'IRANSansMobile',
+              fontFamily: 'byekan',
               fontSize: 15,
               textAlign: 'center',
               color: '#000',

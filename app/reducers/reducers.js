@@ -5,7 +5,6 @@ const initialState = {
   currentMobile: '',
   currentCode: '',
   count: 0,
-  uri: null,
   x: 0,
   y: 0,
   avatar: 'http://185.211.57.73/static/uploads/4.png'
@@ -28,7 +27,6 @@ export default function reducer(state = initialState, action) {
       });
     case 'setURI':
       return Object.assign({}, state, {
-        uri: action.uri,
         x: action.x,
         y: action.y
       });

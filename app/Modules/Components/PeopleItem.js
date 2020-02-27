@@ -74,12 +74,12 @@ class PeopleItem extends Component {
                 />
             }
             <View style={{flex: 1}}/>
-            <View style={{flexDirection: 'column'}}>
+            <View>
               <Text
                 style={{
-                  fontFamily: 'IRANSansMobile',
+                  fontFamily: 'byekan',
                   fontSize: 15,
-                  textAlign: 'right',
+                  textAlign: 'center',
                   color: '#6f67d9'
                 }}
               >
@@ -88,22 +88,19 @@ class PeopleItem extends Component {
                   this.props.item.item.last_name
                 }
               </Text>
-              <View style={{flexDirection:'row', justifyContent:'flex-end'}}>
-                <Text
-                  style={{
-                    fontFamily: 'IRANSansMobile',
-                    fontSize: 15,
-                    paddingHorizontal:15,
-                    textAlign: 'center',
-                    color: '#7e7e7e',
-                    backgroundColor: '#dddddd',
-                    borderRadius: 15,
-                    paddingVertical: 4
-                  }}
-                >
-                  {this.props.item.item.rank === 'خودم' ? 'خودم' : this.props.item.item.rank_name}
-                </Text>
-              </View>
+              <Text
+                style={{
+                  fontFamily: 'byekan',
+                  fontSize: 15,
+                  textAlign: 'center',
+                  color: '#7e7e7e',
+                  backgroundColor: '#dddddd',
+                  borderRadius: 15,
+                  paddingVertical: 4
+                }}
+              >
+                {this.props.item.item.rank === 'خودم' ? 'خودم' : this.props.item.item.rank_name}
+              </Text>
             </View>
             <View
               style={{

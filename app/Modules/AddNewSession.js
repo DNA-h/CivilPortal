@@ -7,14 +7,17 @@ import {connect} from "react-redux";
 import {setURI} from "../actions";
 import NavigationService from "../service/NavigationService";
 import Item from "./Components/Item";
-import {RequestsController} from "../Utils/RequestController";
+import {
+  Menu, MenuOptions, MenuOption, MenuTrigger, MenuProvider
+} from 'react-native-popup-menu';
 import Carousel, {getInputRangeFromIndexes} from 'react-native-snap-carousel';
-import Modal from "react-native-modal";
 import DBManager from "../Utils/DBManager";
 import Globals from "../Utils/Globals";
 import jalaali from 'jalaali-js';
 import Toast from "./Components/EasyToast";
-import {Menu, MenuOption, MenuOptions, MenuTrigger, renderers, MenuProvider} from "react-native-popup-menu";
+import Mapbox from "mapir-mapbox";
+
+Mapbox.apiKey(Globals.ACCESS_TOKEN);
 
 let dailyHour = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11',
   '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
@@ -79,22 +82,21 @@ class AddNewSession extends Component {
       selectedDay: day,
       selectedMonth: month,
       title: '',
-      titleY: 0,
       titles: [],
       focusTitle: false,
+      titleY: -100,
       address: '',
-      addressY: 0,
       addresses: [],
-      focusAddress: false
+      focusAddress: false,
+      addressY: -100
     };
     this.saveValue = this.saveValue.bind(this);
     this._compareTitle = this._compareTitle.bind(this);
     this._compareAddress = this._compareAddress.bind(this);
-    this._handleAddressClick = this._handleAddressClick.bind(this);
   }
 
   async componentDidMount() {
-    this.props.setURI(null, 0, 0);
+    this.props.setURI(0, 0);
     const titles = [];
     const addresses = [];
     const countTitle = parseInt(await DBManager.getSettingValue('titleCount', '0'), 10);
@@ -112,6 +114,28 @@ class AddNewSession extends Component {
       addresses: addresses
     });
   }
+
+  deleteTitle = async (index) => {
+    await DBManager.saveSettingValue(`titleCount`, this.state.titles.length - 1);
+    this.state.titles.splice(index, 1);
+    for (let i = index; i < this.state.titles.length; i += 1) {
+      await DBManager.saveSettingValue(`title${i}`, this.state.titles[i+1]);
+    }
+    this.setState({
+      titles: this.state.titles,
+    });
+  };
+
+  deleteAddress = async (index) => {
+    await DBManager.saveSettingValue(`addressCount`, this.state.addresses.length - 1);
+    this.state.addresses.splice(index, 1);
+    for (let i = index; i < this.state.addresses.length; i += 1) {
+      await DBManager.saveSettingValue(`address${i}`, this.state.addresses[i+1]);
+    }
+    this.setState({
+      addresses: this.state.addresses,
+    });
+  };
 
   async saveValue() {
     if (!this.state.titles.some(e => e === this.state.title)) {
@@ -137,11 +161,6 @@ class AddNewSession extends Component {
 
   _compareAddress(value) {
     return value.includes(this.state.address) && value !== this.state.address;
-  }
-
-  _handleAddressClick(value){
-    console.log('address', value);
-    this.setState({focusAddress: false, address: value})
   }
 
   _scrollInterpolator(index, carouselProps) {
@@ -188,12 +207,12 @@ class AddNewSession extends Component {
               <Text
                 style={{
                   fontSize: 20,
-                  fontFamily: 'IRANSansMobile',
+                  fontFamily: 'byekan',
                   borderRadius: 12,
                   color: '#FFFFFF',
                   textAlign: 'center'
                 }}>
-                {DBManager.toArabicNumbers(data[index])}
+                {data[index]}
               </Text>
             </View>
           )
@@ -203,32 +222,20 @@ class AddNewSession extends Component {
   }
 
   render() {
-    const CustomMenu = (props) => {
-      const {style, children, layouts, ...other} = props;
-      const position = {
-        top: this.state.focusAddress ?
-          this.state.addresses.filter(this._compareAddress).length === 0 ? this.state.addressY - 30 : this.state.addressY - 30 * this.state.addresses.filter(this._compareAddress).length :
-          this.state.titles.filter(this._compareTitle).length === 0 ? this.state.titleY - 30 : this.state.titleY - 30 * this.state.titles.filter(this._compareTitle).length,
-        left: (DEVICE_WIDTH - 120) / 4
-      };
-      return (
-        <View
-          {...other}
-          style={[
-            style, position,
-            {
-              backgroundColor: 'argba(0,0,0,0)',
-              width: '50%',
-              height: this.state.focusAddress ? this.state.addresses.filter(this._compareAddress).length * 30 :
-                this.state.titles.filter(this._compareTitle).length*30
-            }]}
-        >
-          {children}
-        </View>
-      );
-    };
+    const _renderer = (props) =>
+      <View
+        style={{
+          position: 'absolute',
+          top: this.state.focusTitle ?
+            this.state.titleY - this.state.titles.filter(this._compareTitle).length * 35 :
+            this.state.addressY - this.state.addresses.filter(this._compareAddress).length * 35,
+          left: (DEVICE_WIDTH - 200) / 2
+        }}>
+        {props.children}
+      </View>
+    ;
     return (
-      <MenuProvider backHandler={true}>
+      <MenuProvider>
         <ImageBackground
           source={require('../images/menu.png')}
           style={{flex: 1,}}
@@ -282,7 +289,7 @@ class AddNewSession extends Component {
               <Text
                 style={{
                   fontSize: 15,
-                  fontFamily: 'IRANSansMobile',
+                  fontFamily: 'byekan',
                   backgroundColor: 'white',
                   borderRadius: 12,
                   paddingHorizontal: 15,
@@ -366,7 +373,7 @@ class AddNewSession extends Component {
             <Text
               style={{
                 fontSize: 15,
-                fontFamily: 'IRANSansMobile',
+                fontFamily: 'byekan',
                 backgroundColor: 'white',
                 borderRadius: 12,
                 paddingHorizontal: 15,
@@ -407,7 +414,7 @@ class AddNewSession extends Component {
             </View>
             <Text
               style={{
-                fontFamily: 'IRANSansMobile',
+                fontFamily: 'byekan',
                 color: '#FFFFFF',
                 fontSize: 15,
                 textAlign: 'center',
@@ -440,7 +447,7 @@ class AddNewSession extends Component {
             </View>
             <Text
               style={{
-                fontFamily: 'IRANSansMobile',
+                fontFamily: 'byekan',
                 color: '#FFFFFF',
                 fontSize: 15,
                 textAlign: 'center',
@@ -452,9 +459,6 @@ class AddNewSession extends Component {
           </View>
 
           <View
-            onLayout={(evt) => {
-              this.setState({titleY: evt.nativeEvent.layout.y})
-            }}
             style={{
               height: 40,
               borderRadius: 20,
@@ -463,144 +467,10 @@ class AddNewSession extends Component {
               alignItems: 'center',
               marginHorizontal: 15
             }}
-          >
-            <Menu
-              onBackdropPress={() => this.setState({focusTitle: false})}
-              opened={this.state.focusTitle}
-              renderer={CustomMenu}
-            >
-              <MenuTrigger/>
-              <MenuOptions>
-                {
-                  this.state.titles.filter(this._compareTitle).map((val, index) =>
-                    <MenuOption
-                      customStyles={{
-                        optionText: {
-                          color: Globals.PRIMARY_DARK_BLUE,
-                          fontSize: 15,
-                          textAlign: 'center',
-                          fontFamily: 'IRANSansMobile'
-                        },
-                        optionWrapper: {
-                          height: 30,
-                          backgroundColor: index % 2 === 0 ? '#d8d8d8' : '#c2c2c2'
-                        }
-                      }}
-                      text={val}
-                      onSelect={() => {
-                        this.setState({focusTitle: false, title: val})
-                      }}
-                    />
-                  )
-                }
-              </MenuOptions>
-            </Menu>
-            <View
-              style={{
-                backgroundColor: Globals.PRIMARY_DARK_BLUE,
-                height: 40,
-                borderTopRightRadius: 20,
-                borderTopLeftRadius: 20,
-                borderBottomRightRadius: 20,
-                paddingHorizontal: 20,
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <Text
-                style={{color: '#FFFFFF', fontFamily: 'IRANSansMobile'}}
-              >
-                موضوع
-              </Text>
-            </View>
-            <TextInput
-              placeholder={"موضوع ..."}
-              value={this.state.title}
-              onFocus={() => this.setState({focusTitle: true})}
-              onBlur={() => this.setState({focusTitle: false})}
-              style={{
-                flex: 1,
-                color: '#000',
-                textAlign: 'right',
-                fontFamily: 'IRANSansMobile',
-                marginStart: 15,
-                marginEnd: 15,
-              }}
-              placeholderTextColor='#808080'
-              onChangeText={(text) => {
-                this.setState({title: text});
-              }}
-            />
-          </View>
-
-          <View
             onLayout={(evt) => {
-              this.setState({addressY: evt.nativeEvent.layout.y})
+              this.setState({titleY: evt.nativeEvent.layout.y})
             }}
-            style={{
-              height: 40,
-              borderRadius: 20,
-              backgroundColor: '#FFFFFF',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginHorizontal: 15,
-              marginTop: 15
-            }}>
-            <Menu
-              onBackdropPress={() =>{
-                console.log('back drop');
-                // this.setState({focusAddress: false})
-              }}
-              opened={this.state.focusAddress}
-              renderer={CustomMenu}
-            >
-              <MenuTrigger/>
-              <MenuOptions>
-                {
-                  this.state.addresses.filter(this._compareAddress).map((val, index) =>
-                    <MenuOption
-                      key={val}
-                      text={val}
-                      customStyles={{
-                        optionText: {
-                          color: Globals.PRIMARY_DARK_BLUE,
-                          fontSize: 15,
-                          textAlign: 'center',
-                          fontFamily: 'IRANSansMobile'
-                        },
-                        optionWrapper: {
-                          height: 30,
-                          backgroundColor: index % 2 === 0 ? '#d8d8d8' : '#c2c2c2'
-                        }
-                      }}
-                      onSelect={() => {
-                        this._handleAddressClick(val)
-                      }}
-                    >
-                    </MenuOption>
-                  )
-                }
-              </MenuOptions>
-            </Menu>
-            <TextInput
-              placeholder={"آدرس ..."}
-              value={this.state.address}
-              onFocus={() => this.setState({focusAddress: true})}
-              onBlur={() => this.setState({focusAddress: false})}
-              style={{
-                flex: 1,
-                color: '#000',
-                textAlign: 'right',
-                fontFamily: 'IRANSansMobile',
-                marginStart: 15,
-                marginEnd: 15,
-              }}
-              placeholderTextColor='#808080'
-              onChangeText={(text) => {
-                this.setState({address: text});
-              }}
-            />
+          >
             <View
               style={{
                 backgroundColor: Globals.PRIMARY_DARK_BLUE,
@@ -614,16 +484,201 @@ class AddNewSession extends Component {
               }}
             >
               <Text
-                style={{color: '#FFFFFF', fontFamily: 'IRANSansMobile'}}
+                style={{color: '#FFFFFF', fontFamily: 'byekan'}}
+              >
+                موضوع
+              </Text>
+            </View>
+            <Menu
+              opened={this.state.focusTitle}
+              renderer={_renderer}
+              onBackdropPress={() => this.setState({focusTitle: false})}
+            >
+              <MenuTrigger/>
+              <MenuOptions>
+                {this.state.titles.filter(this._compareTitle).map((val, index) =>
+                  <MenuOption
+                    style={{
+                      width: 200,
+                      height: 35,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      backgroundColor: index % 2 === 0 ? '#AAA' : '#888',
+                    }}
+                    onSelect={() =>
+                      this.setState({title: val, focusTitle: false})
+                    }
+                  >
+                    <TouchableOpacity
+                      style={{paddingRight: 5}}
+                      onPress={() => this.deleteTitle(index)}
+                    >
+                      <View
+                        style={{
+                          height: 20,
+                          width: 20,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          borderRadius: 5,
+                          backgroundColor: 'rgba(255,255,255,0.5)'
+                        }}
+                      >
+                        <Image
+                          style={{
+                            height: 15,
+                            width: 15,
+                          }}
+                          source={require("../images/basket.png")}
+                        />
+                      </View>
+                    </TouchableOpacity>
+                    <Text
+                      numberOfLines={1}
+                      style={{
+                        flex: 1,
+                        fontFamily: 'byekan',
+                        textAlign: 'center',
+                        color: '#FFF'
+                      }}
+                    >
+                      {val}
+                    </Text>
+                  </MenuOption>
+                )}
+              </MenuOptions>
+            </Menu>
+            <TextInput
+              placeholder={"موضوع ..."}
+              autoFocus={false}
+              value={this.state.title}
+              onFocus={() => this.setState({focusTitle: true})}
+              onBlur={() => this.setState({focusTitle: false})}
+              style={{
+                color: '#000',
+                textAlign: 'center',
+                fontFamily: 'byekan',
+                marginStart: 15,
+                marginEnd: 5,
+              }}
+              placeholderTextColor='#CCC'
+              onChangeText={(text) => {
+                this.setState({title: text});
+              }}
+            />
+          </View>
+
+          <View
+            style={{
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: '#FFFFFF',
+              flexDirection: 'row-reverse',
+              alignItems: 'center',
+              marginHorizontal: 15,
+              marginTop: 15
+            }}
+            onLayout={(evt) => {
+              this.setState({addressY: evt.nativeEvent.layout.y})
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: Globals.PRIMARY_DARK_BLUE,
+                height: 40,
+                borderTopRightRadius: 20,
+                borderTopLeftRadius: 20,
+                borderBottomRightRadius: 20,
+                paddingHorizontal: 20,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text
+                style={{color: '#FFFFFF', fontFamily: 'byekan'}}
               >
                 {"آدرس "}
               </Text>
             </View>
+            <Menu
+              opened={this.state.focusAddress}
+              renderer={_renderer}
+              onBackdropPress={() => this.setState({focusAddress: false})}
+            >
+              <MenuTrigger/>
+              <MenuOptions>
+                {this.state.addresses.filter(this._compareAddress).map((val, index) =>
+                  <MenuOption
+                    style={{
+                      width: 200,
+                      height: 35,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      backgroundColor: index % 2 === 0 ? '#AAA' : '#888',
+                    }}
+                    onSelect={() =>
+                      this.setState({address: val, focusAddress: false})
+                    }
+                  ><TouchableOpacity
+                    style={{paddingRight: 5}}
+                    onPress={() => this.deleteAddress(index)}
+                  >
+                    <View
+                      style={{
+                        height: 20,
+                        width: 20,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: 5,
+                        backgroundColor: 'rgba(255,255,255,0.5)'
+                      }}
+                    >
+                      <Image
+                        style={{
+                          height: 15,
+                          width: 15,
+                        }}
+                        source={require("../images/basket.png")}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                    <Text
+                      numberOfLines={1}
+                      style={{
+                        flex:1,
+                        fontFamily: 'byekan',
+                        textAlign: 'center',
+                        color: '#FFF'
+                      }}
+                    >
+                      {val}
+                    </Text>
+                  </MenuOption>
+                )}
+              </MenuOptions>
+            </Menu>
+            <TextInput
+              placeholder={"آدرس ..."}
+              autoFocus={false}
+              value={this.state.address}
+              onFocus={() => this.setState({focusAddress: true})}
+              onBlur={() => this.setState({focusAddress: false})}
+              style={{
+                color: '#000',
+                textAlign: 'center',
+                fontFamily: 'byekan',
+                marginStart: 15,
+                marginEnd: 5,
+              }}
+              placeholderTextColor='#CCC'
+              onChangeText={(text) => {
+                this.setState({address: text});
+              }}
+            />
           </View>
 
           <Text
             style={{
-              fontFamily: 'IRANSansMobile',
+              fontFamily: 'byekan',
               fontSize: 16,
               color: '#888',
               width: '50%',
@@ -639,55 +694,64 @@ class AddNewSession extends Component {
           >
             انتخاب از روی نقشه
           </Text>
+
           <TouchableWithoutFeedback
             onPress={() => NavigationService.navigate('Save')}>
-            <View
-              style={{
-                flex: 1,
-                alignItems: 'center'
-              }}
-            >
-              <View style={{height: 10}}/>
-              <Image
-                source={this.props.counter.uri === null ?
-                  require("../images/logo_main.png") :
-                  {uri: this.props.counter.uri}
-                }
-                resizeMode={this.props.counter.uri === null ? 'contain' : 'cover'}
+            {Math.floor(this.props.counter.x) === 0 ?
+              <View
                 style={{
                   flex: 1,
-                  borderRadius: 15,
-                  margin: this.props.counter.uri === null ? 30 : 0,
-                  overflow: 'hidden',
-                  width: DEVICE_WIDTH - 40,
+                  alignSelf: 'center',
                 }}
-              />
-              <View style={{height: 10}}/>
-            </View>
+              >
+                <Image
+                  resizeMode={'contain'}
+                  source={require("../images/logo_main.png")}
+                  style={{
+                    flex: 1,
+                    width: DEVICE_WIDTH - 40,
+                    borderRadius: 15,
+                    marginHorizontal: 10,
+                    marginVertical: 30
+                  }}
+                />
+              </View>
+              :
+              <Mapbox.MapView
+                style={{
+                  flex: 1,
+                  width: DEVICE_WIDTH - 40,
+                  marginRight: 20,
+                  marginLeft: 20,
+                  borderRadius: 20,
+                  overflow: 'hidden',
+                  marginTop: 10,
+                }}
+                zoomEnabled={false}
+                scrollEnabled={false}
+                pitchEnabled={false}
+                rotateEnabled={false}
+              >
+                <Mapbox.Camera
+                  zoomLevel={12}
+                  centerCoordinate={[this.props.counter.x, this.props.counter.y]}
+                />
+              </Mapbox.MapView>
+            }
           </TouchableWithoutFeedback>
 
           <TouchableWithoutFeedback
             onPress={() => {
               if (this._startHour > this._endHour || (this._startHour === this._endHour && this._startMinute > this._startMinute)) {
-                this.refs.toast.show('زمان شروع جلسه باید قبل از زمان پایان جلسه باشد', 5000);
+                this.refs.toast.show('زمان شروع جلسه باید قبل از زمان پایان جلسه باشد');
                 return;
               }
               if (this.state.address === '') {
-                this.refs.toast.close(100);
-                this.refs.toast.show('لطفا آدرس محل جلسه را وارد نمایید', 5000);
+                this.refs.toast.show('لطفا آدرس محل جلسه را وارد نمایید');
                 return;
               }
               if (this.state.title === '') {
-                this.refs.toast.show('لطفا عنوان جلسه را وارد نمایید', 5000);
-                return;
-              }
-              let date = new Date();
-              const mHour = date.getHours();
-              const jalali = jalaali.toJalaali(date);
-              const month = jalali.jm - 1;
-              const day = jalali.jd - 1;
-              if (month === this.state.selectedMonth && day === this.state.selectedDay && mHour > this._startHour) {
-                this.refs.toast.show(`امروز برای قبل از ساعت ${mHour} نمی توانید جلسه ثبت نمایید`, 5000);
+                this.refs.toast.show('لطفا عنوان جلسه را وارد نمایید');
                 return;
               }
               this.saveValue();
@@ -724,7 +788,7 @@ class AddNewSession extends Component {
               />
               <Text
                 style={{
-                  fontFamily: 'IRANSansMobile',
+                  fontFamily: 'byekan',
                   fontSize: 22,
                   width: '80%',
                   textAlign: 'center',
@@ -745,10 +809,11 @@ class AddNewSession extends Component {
             position='center'
             positionValue={200}
             fadeInDuration={200}
+            fadeOutDuration={5000}
             opacity={0.8}
             textStyle={{
               color: 'white',
-              fontFamily: 'IRANSansMobile',
+              fontFamily: 'byekan',
               fontSize: 15,
               textAlign: 'center'
             }}

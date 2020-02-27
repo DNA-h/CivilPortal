@@ -9,6 +9,10 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import DBManager from "../../Utils/DBManager";
 import Globals from "../../Utils/Globals";
 import {RequestsController} from "../../Utils/RequestController";
+import MainPage from "../MainPage";
+
+const DEVICE_WIDTH = Dimensions.get('window').width;
+const DEVICE_HEIGHT = Dimensions.get('window').height;
 
 class CalendarItem extends Component {
 
@@ -26,30 +30,26 @@ class CalendarItem extends Component {
   async componentDidMount(): void {
     let count = 0;
     let flag = false;
-    try {
-      this.me = await RequestsController.loadMyself();
-      await RequestsController.seenSession(this.props.item.item.id);
-      this.result = await RequestsController.specificSession(this.props.item.item.id);
-      for (let index = 0; index < this.result[0].people.length; index++) {
-        if (this.result[0].people[index].rep_first_name === null) {
-          if (this.result[0].people[index].seen)
-            count++;
-        } else {
-          if (this.result[0].people[index].rep_seen)
-            count++;
-        }
-        if ((this.result[0].people[index].first_name === this.me.first_name &&
-          this.result[0].people[index].last_name === this.me.last_name &&
-          this.result[0].people[index].rep_first_name !== null) ||
-          (this.result[0].people[index].rep_first_name === this.me.first_name &&
-            this.result[0].people[index].rep_last_name === this.me.last_name &&
-            this.result[0].people[index].rep_first_name !== null)
-        ) {
-          flag = true;
-        }
+    this.me = await RequestsController.loadMyself();
+    await RequestsController.seenSession(this.props.item.item.id);
+    this.result = await RequestsController.specificSession(this.props.item.item.id);
+    for (let index = 0; index < this.result[0].people.length; index++) {
+      if (this.result[0].people[index].rep_first_name === null) {
+        if (this.result[0].people[index].seen)
+          count++;
+      } else {
+        if (this.result[0].people[index].rep_seen)
+          count++;
       }
-    } catch (e) {
-      console.log('err', e);
+      if ((this.result[0].people[index].first_name === this.me.first_name &&
+        this.result[0].people[index].last_name === this.me.last_name &&
+        this.result[0].people[index].rep_first_name !== null) ||
+        (this.result[0].people[index].rep_first_name === this.me.first_name &&
+          this.result[0].people[index].rep_last_name === this.me.last_name &&
+          this.result[0].people[index].rep_first_name !== null)
+      ) {
+        flag = true;
+      }
     }
     this.setState({viewCount: count, replaced: flag, loading: false})
   }
@@ -58,7 +58,7 @@ class CalendarItem extends Component {
     return (
       <View
         style={{
-          height: hp(20),
+          height: hp(18),
           width: '100%',
           alignSelf: 'center',
           paddingHorizontal: 5,
@@ -82,7 +82,7 @@ class CalendarItem extends Component {
                 <View style={{flex: 1}}>
                   <View style={{flexDirection: 'row'}}>
                     <Text style={styles.textLeft}>
-                      {DBManager.toArabicNumbers(this.props.item.item.meeting_title)}
+                      {this.props.item.item.meeting_title}
                     </Text>
                     <Image
                       style={styles.imageLeft}
@@ -90,7 +90,10 @@ class CalendarItem extends Component {
                   </View>
                   <View style={{flexDirection: 'row'}}>
                     <Text style={styles.textLeft}>
-                      ساعت {DBManager.toArabicNumbers(this.props.item.item.start_time.substring(11, 16))} تا {DBManager.toArabicNumbers(this.props.item.item.end_time.substring(11, 16))}
+                      {'ساعت '}
+                      {DBManager.toArabicNumbers(this.props.item.item.start_time.substring(11, 16))}
+                      {' تا '}
+                      {DBManager.toArabicNumbers(this.props.item.item.end_time.substring(11, 16))}
                     </Text>
                     <Image
                       style={styles.imageLeft}
@@ -98,7 +101,7 @@ class CalendarItem extends Component {
                   </View>
                   <View style={{flexDirection: 'row'}}>
                     <Text style={styles.textLeft}>
-                      مکان: {DBManager.toArabicNumbers(this.props.item.item.place_address)}
+                      مکان: {this.props.item.item.place_address}
                     </Text>
                     <Image
                       style={styles.imageLeft}
@@ -138,23 +141,26 @@ class CalendarItem extends Component {
           <View style={{flex: 1}}/>
         </View>
         <View
-          style={{flexDirection: 'row'}}
+          style={{flexDirection: 'row', paddingLeft:15}}
         >
           <View
             style={{
-              height: hp(5),
-              width: hp(5),
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              height: hp(6),
+              width: hp(6),
               alignSelf: 'flex-start',
               overflow: 'hidden',
             }}
           >
             <View
               style={{
-                height: hp(5),
-                width: hp(5),
+                height: hp(6),
+                width: hp(6),
                 backgroundColor: !this.state.replaced ? '#bbbbbb' : Globals.PRIMARY_SHARED,
                 overflow: 'hidden',
-                transform: [{rotate: '-45deg'}, {translateY: -hp(3.53)}]
+                transform: [{rotate: '-45deg'}, {translateY: -hp(4)}]
               }}
             />
           </View>
@@ -162,44 +168,77 @@ class CalendarItem extends Component {
             style={{
               flex: 1,
               flexDirection: 'row',
-              alignItems: 'flex-start',
-              justifyContent: 'flex-start'
+              alignItems: 'center',
+              justifyContent: 'flex-start',
+              marginTop: -10
             }}
           >
             <Image
               source={require("../../images/ic_visibility.png")}
-              style={{height: 18, width: 18, marginTop: 3}}
+              style={{height: 15, width: 15}}
             />
             <Text
               style={{
-                fontFamily: 'IRANSansMobile',
+                fontFamily: 'byekan',
                 color: '#000',
                 marginLeft: 5,
-                fontSize: 20,
-                marginTop: -3
+                fontSize: 15,
               }}
             >
               {
-                DBManager.toArabicNumbers(this.state.viewCount !== undefined &&
-                  `${this.state.viewCount} `)
+                this.state.viewCount !== undefined &&
+                `${DBManager.toArabicNumbers(this.state.viewCount)} `
               }
             </Text>
           </View>
-          <View style={{flex: 2, flexDirection:'row', justifyContent:'center'}}>
+          <View
+            style={{
+              flex: 2,
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            {this.state.replaced &&
             <Text style={[
-              styles.textCreatedTime, {color: '#000', textAlign: 'center'}
-            ]}
-            >
-              {DBManager.toArabicNumbers(this.props.item.item.created_time.substr(0,10))}
-              {"\t"}
+              styles.text, {color: '#000', fontSize:12}
+            ]}>
+              اشتراک گذاشته شد
             </Text>
-            <Text style={[
-              styles.textCreatedTime, {color: '#000', textAlign: 'center'}
-            ]}
+            }
+          </View>
+          <View
+            style={{
+              flex: 2,
+              flexDirection: 'row',
+              justifyContent: 'flex-end'
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: 'byekan',
+                color: '#000',
+                marginLeft: 5,
+                fontSize: 12,
+              }}
             >
-              {DBManager.toArabicNumbers(this.props.item.item.created_time.substr(11,5))}
+              {
+                `${DBManager.toArabicNumbers(this.props.item.item.created_time.substr(5, 5).replace(/-/, '/'))} `
+              }
+            </Text>
+            <Text
+              style={{
+                fontFamily: 'byekan',
+                color: '#000',
+                marginLeft: 5,
+                fontSize: 12,
+              }}
+            >
+              {
+                `${DBManager.toArabicNumbers(this.props.item.item.created_time.substr(11, 8).replace(/-/, '/'))} `
+              }
             </Text>
           </View>
+          <View style={{flex: 1}}/>
         </View>
       </View>
     );
@@ -209,7 +248,7 @@ class CalendarItem extends Component {
     return (
       <View
         style={{
-          height: hp(20),
+          height: hp(18),
           width: '100%',
           alignSelf: 'center',
           paddingHorizontal: 5,
@@ -247,8 +286,8 @@ class CalendarItem extends Component {
                 onPress={() => this.props.callback(this.props.item.item.id)}>
                 <View style={{flex: 1}}>
                   <View style={{flexDirection: 'row'}}>
-                    <Text style={styles.text}>
-                      {DBManager.toArabicNumbers(this.props.item.item.meeting_title)}
+                    <Text style={[styles.text, {flex: 1}]}>
+                      {this.props.item.item.meeting_title}
                     </Text>
                     <Image
                       style={styles.image}
@@ -256,16 +295,19 @@ class CalendarItem extends Component {
                     />
                   </View>
                   <View style={{flexDirection: 'row'}}>
-                    <Text style={styles.text}>
-                      ساعت {DBManager.toArabicNumbers(this.props.item.item.start_time.substring(11, 16))} تا {DBManager.toArabicNumbers(this.props.item.item.end_time.substring(11, 16))}
+                    <Text style={[styles.text, {flex: 1}]}>
+                      {'ساعت '}
+                      {DBManager.toArabicNumbers(this.props.item.item.start_time.substring(11, 16))}
+                      {' تا '}
+                      {DBManager.toArabicNumbers(this.props.item.item.end_time.substring(11, 16))}
                     </Text>
                     <Image
                       style={styles.image}
                       source={require('../../images/ic_clock.png')}/>
                   </View>
                   <View style={{flexDirection: 'row'}}>
-                    <Text style={styles.text}>
-                      مکان: {DBManager.toArabicNumbers(this.props.item.item.place_address)}
+                    <Text style={[styles.text, {flex: 1}]}>
+                      مکان: {this.props.item.item.place_address}
                     </Text>
                     <Image
                       style={styles.image}
@@ -281,79 +323,102 @@ class CalendarItem extends Component {
 
         </View>
         <View
-          style={{flexDirection: 'row'}}
+          style={{flexDirection: 'row', paddingEnd: 15}}
         >
-          <View style={{flex: 2, flexDirection:'row', justifyContent:'center'}}>
-            <Text style={[
-              styles.textCreatedTime, {color: '#000', textAlign: 'center'}
-            ]}
-            >
-              {DBManager.toArabicNumbers(this.props.item.item.created_time.substr(0,10))}
-              {"\t"}
-            </Text>
-            <Text style={[
-              styles.textCreatedTime, {color: '#000', textAlign: 'center'}
-            ]}
-            >
-              {DBManager.toArabicNumbers(this.props.item.item.created_time.substr(11,5))}
-            </Text>
-          </View>
-          {this.state.replaced && <View
+          <View style={{flex: 1}}/>
+          <View
             style={{
+              flex: 2,
+              justifyContent: 'flex-start',
               alignItems: 'center',
-              justifyContent: 'center'
+              flexDirection: 'row',
             }}
           >
+            <Text
+              style={{
+                fontFamily: 'byekan',
+                color: '#000',
+                marginLeft: 5,
+                fontSize: 12,
+              }}
+            >
+              {
+                `${DBManager.toArabicNumbers(this.props.item.item.created_time.substr(5, 5).replace(/-/, '/'))} `
+              }
+            </Text>
+            <Text
+              style={{
+                fontFamily: 'byekan',
+                color: '#000',
+                marginLeft: 5,
+                fontSize: 12,
+              }}
+            >
+              {
+                `${DBManager.toArabicNumbers(this.props.item.item.created_time.substr(11, 8).replace(/-/, '/'))} `
+              }
+            </Text>
+          </View>
+          <View
+            style={{
+              flex: 2,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {this.state.replaced &&
             <Text style={[
-              styles.text, {color: '#000'}
+              styles.text, {color: '#000', fontSize:12}
             ]}>
               اشتراک گذاشته شد
             </Text>
+            }
           </View>
-          }
           <View
             style={{
               flex: 1,
               flexDirection: 'row',
-              alignItems: 'flex-start',
-              justifyContent: 'flex-end'
+              alignItems: 'center',
+              justifyContent: 'flex-end',
             }}
           >
             <Image
               source={require("../../images/ic_visibility.png")}
-              style={{height: 18, width: 18}}
+              style={{height: 15, width: 15}}
             />
             <Text
               style={{
-                fontFamily: 'IRANSansMobile',
+                fontFamily: 'byekan',
                 color: '#000',
                 marginLeft: 5,
                 fontSize: 15,
-                marginTop: -3
               }}
             >
               {
-                DBManager.toArabicNumbers(this.state.viewCount !== undefined &&
-                  `${this.state.viewCount} `)
+                this.state.viewCount !== undefined &&
+                `${DBManager.toArabicNumbers(this.state.viewCount)} `
               }
             </Text>
           </View>
 
           <View
             style={{
-              height: hp(5),
-              width: hp(5),
+              position: 'absolute',
+              bottom: 0,
+              right: 0,
+              height: hp(6),
+              width: hp(6),
               alignSelf: 'flex-end',
               overflow: 'hidden',
             }}
           >
             <View
               style={{
-                height: hp(5),
-                width: hp(5),
+                height: hp(6),
+                width: hp(6),
                 backgroundColor: !this.state.replaced ? Globals.PRIMARY_BLUE : Globals.PRIMARY_SHARED,
                 overflow: 'hidden',
-                transform: [{rotate: '45deg'}, {translateY: -hp(3.53)}]
+                transform: [{rotate: '45deg'}, {translateY: -hp(4)}]
               }}
             />
           </View>
@@ -375,23 +440,16 @@ class CalendarItem extends Component {
 }
 
 const styles = StyleSheet.create({
-  textCreatedTime: {
-    color: Globals.PRIMARY_WHITE,
-    fontSize: DBManager.RFWidth(4),
-    fontFamily: 'IRANSansMobile',
-    textAlign: 'right'
-  },
   text: {
-    flex:1,
     color: Globals.PRIMARY_WHITE,
     fontSize: DBManager.RFWidth(4),
-    fontFamily: 'IRANSansMobile',
+    fontFamily: 'byekan',
     textAlign: 'right'
   },
   textLeft: {
     flex: 1,
     fontSize: DBManager.RFWidth(4),
-    fontFamily: 'IRANSansMobile',
+    fontFamily: 'byekan',
     textAlign: 'right'
   },
   image: {

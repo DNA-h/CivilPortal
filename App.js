@@ -9,7 +9,6 @@ import ChoosePeople from "./app/Modules/ChoosePeople";
 import CalendarPage from "./app/Modules/Drawer/CalendarPage";
 import OnBoarding from "./app/Modules/Drawer/OnBoarding";
 import SaveAddress from "./app/Modules/SaveAddress";
-import ShowAddress from "./app/Modules/ShowAddress";
 import ShareSession from "./app/Modules/ShareSession";
 import {Immersive} from 'react-native-immersive'
 
@@ -22,7 +21,6 @@ const RootStack = createStackNavigator(
     CalendarPage: {screen: CalendarPage, navigationOptions: {header: null}},
     OnBoarding: {screen: OnBoarding, navigationOptions: {header: null}},
     Save: {screen: SaveAddress, navigationOptions: {header: null}},
-    Show: {screen: ShowAddress, navigationOptions: {header: null}},
     Share: {screen: ShareSession, navigationOptions: {header: null}},
   },
   {

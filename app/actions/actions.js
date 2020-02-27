@@ -16,10 +16,9 @@ export const navSendCode = () => {
     }
 };
 
-export const setURI = (uri, x, y) => {
+export const setURI = (x, y) => {
   return {
     type : 'setURI',
-    uri: uri,
     x:x,
     y:y
   }

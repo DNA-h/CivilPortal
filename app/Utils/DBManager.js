@@ -1,9 +1,7 @@
 import {AsyncStorage, Platform, StatusBar, Dimensions} from 'react-native';
 
 const {height, width} = Dimensions.get("window");
-
 const arabicNumbers = ['۰', '۱', '٢', '٣', '۴', '۵', '۶', '۷', '٨', '٩'];
-const englishNumbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
 export default class DBManager {
   static async getSettingValue(key, defalt) {

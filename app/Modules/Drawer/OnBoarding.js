@@ -13,8 +13,7 @@ const DEVICE_HEIGHT = Dimensions.get('window').height;
 class OnBoarding extends Component {
 
   componentDidMount() {
-    DBManager.saveSettingValue('token', 'N/A');
-    DBManager.saveSettingValue('onboarding','N/A');
+    //SplashScreen.hide();
   }
 
   render() {
@@ -51,7 +50,7 @@ class OnBoarding extends Component {
             >
               <Text
                 style={{
-                  fontFamily: 'IRANSansMobile',
+                  fontFamily: 'byekan',
                   fontSize: 18,
                   textAlign: 'center',
                   color: 'white',

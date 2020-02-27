@@ -101,8 +101,8 @@ android {
         applicationId "com.civilportal"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "0.9"
+        versionCode 3
+        versionName "0.10"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
@@ -148,12 +148,12 @@ android {
 }
 
 dependencies {
+    implementation project(':mapir-mapbox')
     implementation project(':react-native-vector-icons')
     implementation project(':react-native-firebase')
     implementation project(':react-native-immersive')
     implementation project(':react-native-linear-gradient')
     implementation project(':react-native-splash-screen')
-    implementation project(':@mapbox_react-native-mapbox-gl')
     implementation project(':react-native-gesture-handler')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.1.0'
@@ -162,6 +162,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:17.2.0'
     implementation "com.google.firebase:firebase-messaging:20.0.0"
     implementation 'me.leolin:ShortcutBadger:1.1.22@aar'
+    implementation 'ir.map:map-sdk:4.0.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0-alpha02'
     implementation "com.facebook.react:react-native:+"  // From node_modules
 }

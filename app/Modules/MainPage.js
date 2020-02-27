@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import {
-  Dimensions, FlatList, Image, ImageBackground, Linking, ScrollView, StyleSheet, BackHandler,
-  StatusBar, Text, TouchableOpacity, TouchableWithoutFeedback, View, EventEmitter, DeviceEventEmitter
+  Dimensions, FlatList, Image, ImageBackground, Linking, ScrollView, StyleSheet,
+  StatusBar, Text, TouchableOpacity, TouchableWithoutFeedback, View, PermissionsAndroid
 } from 'react-native';
 import {connect} from "react-redux";
 import CalendarItem from "./Components/CalendarItem";
@@ -20,7 +20,6 @@ import firebase from 'react-native-firebase';
 import SimpleImage from "./Components/SimpleImage";
 import Login from "./Login";
 import jalaali from 'jalaali-js';
-import Toast from "./Components/EasyToast";
 
 let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
 let gMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -64,8 +63,6 @@ class MainPage extends Component {
       me: {},
       modalVisible: false,
       warning: false,
-      logoutWarning: false,
-      exitWarning: false,
       datePicker: false,
       loading: true
     };
@@ -74,32 +71,13 @@ class MainPage extends Component {
     this._init = this._init.bind(this);
     this._init();
     this._dayPressed = this._dayPressed.bind(this);
-    this.showLogout = this.showLogout.bind(this);
     this.parseGeorgianDate = this.parseGeorgianDate.bind(this);
     this.parseHijriDate = this.parseHijriDate.bind(this);
     this.parsePersianDate = this.parsePersianDate.bind(this);
     this._loadSessions = this._loadSessions.bind(this);
-    this._handleLoadedSession = this._handleLoadedSession.bind(this);
     this.getCalendarEvents = this.getCalendarEvents.bind(this);
     this._itemClicked = this._itemClicked.bind(this);
     this._checkDelete = this._checkDelete.bind(this);
-    this.handleBackPress = this.handleBackPress.bind(this);
-  }
-
-  _handleLoadedSession(result) {
-    let res = result.filter((item) => { //server (for some reasons) returns two copies of same session if you are owner
-        if (item.owner) return true;
-        if (result.some(e => e.owner && e.id === item.id))
-          return false;
-        return true;
-      }
-    );
-    res.sort(function (a, b) {
-      if (a.start_time.substring(11, 16) > b.start_time.substring(11, 16))
-        return 1;
-      return -1;
-    });
-    this.setState({todaySessions: res});
   }
 
   async _loadSessions() {
@@ -107,29 +85,25 @@ class MainPage extends Component {
     date.setDate(date.getDate() + this.difference);
     let jalali = jalaali.toJalaali(date);
     let value = jalali.jy + "-" + (jalali.jm < 10 ? '0' + jalali.jm : jalali.jm) + "-" + (jalali.jd < 10 ? '0' + jalali.jd : jalali.jd);
-    let cache = await DBManager.getSettingValue(value, "N/A");
-    if (cache !== "N/A") {
-      try {
-        cache = JSON.parse(cache);
-        console.log('after', cache);
-        this._handleLoadedSession(cache);
-      } catch (e) {
-        console.log('err', e);
-      }
-    }
     let result = await RequestsController.MySessions(value);
-    DBManager.saveSettingValue(value, JSON.stringify(result));
-    this._handleLoadedSession(result);
+    result = result.filter((item) => { //server (for some reasens) returns two copies of same session if you are owner
+        if (item.owner) return true;
+        if (result.some(e => e.owner && e.id === item.id))
+          return false;
+        return true;
+      }
+    );
+    result.sort(function (a, b) {
+      if (a.start_time.substring(11, 16) > b.start_time.substring(11, 16))
+        return 1;
+      return -1;
+    });
+    this.setState({todaySessions: result});
   }
 
   async _itemClicked(id) {
-    let tempResult = await RequestsController.specificSession(id);
-    if (tempResult === undefined){
-      this.refs.toast.show(`خطایی رخ داده است. لطفا دسترسی اینترنت گوشی خود را چک نمایید.`, 5000);
-    }else {
-      this.result =  tempResult;
-      this.setState({modalVisible: true});
-    }
+    this.result = await RequestsController.specificSession(id);
+    this.setState({modalVisible: true});
   }
 
   _checkDelete(id) {
@@ -138,46 +112,57 @@ class MainPage extends Component {
   }
 
   async componentDidMount() {
-    RequestsController.loadTodayEvents();
     SplashScreen.hide();
     StatusBar.setBackgroundColor('#6A61D1');
-    DeviceEventEmitter.addListener('logout', this.showLogout);
-    this.routeSubscription = this.props.navigation.addListener('willFocus', this.fetchData,);
-    this.blurSubscription = this.props.navigation.addListener('willBlur', this.unsunscribe,);
-    BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-    this.fetchData();
-  }
+    const notificationOpen: NotificationOpen = await firebase.notifications().getInitialNotification();
+    if (notificationOpen) {
+      const notification: Notification = notificationOpen.notification;
+      const sDate = notification.data.date;
+      const year = parseInt(sDate.substr(0, 4), 10);
+      const month = parseInt(sDate.substr(5, 2), 10);
+      const day = parseInt(sDate.substr(8, 2), 10);
+      const g = jalaali.toGregorian(year, month, day);
+      const date = new Date();
+      date.setDate(g.gd);
+      date.setMonth(g.gm - 1);
+      date.setFullYear(g.gy);
 
-  showLogout() {
-    this.setState({logoutWarning: true});
+      let today = new Date();
+      const diffTime = date - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      this.difference = diffDays + 1;
+      this.setState({datePicker: false});
+      this._dayPressed(true);
+    }
+    this.routeSubscription = this.props.navigation.addListener('willFocus', this.fetchData,);
+    this.fetchData();
+    PermissionsAndroid.requestMultiple(
+      [PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION],
+      {
+        title: 'موقعیت مکانی',
+        message: 'برای ثبت راحت تر جلسه ها روی نقشه، اجازه دسترسی به موقعیت مکانی کاربر نیاز است.'
+      }
+    ).then(granted => {
+      console.log(granted);
+    }).catch(err => {
+      console.warn(err);
+    });
   }
 
   componentWillUnmount(): void {
     if (this.routeSubscription) {
       this.routeSubscription.remove();
     }
-    if (this.blurSubscription) {
-      this.blurSubscription.remove();
-    }
-    BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
   }
 
-  handleBackPress() {
-    this.setState({exitWarning: true});
-    return true;
-  };
-
-  unsunscribe = () => {
-    BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
-  };
-
   fetchData = async () => {
-    BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
     this._loadSessions();
   };
 
   async checkToken() {
     let token = await DBManager.getSettingValue('token');
+    let onboarding = await DBManager.getSettingValue('onboarding', 'N/A');
     if (token === undefined || token === null || token.length !== 40) {
       NavigationService.reset('OnBoarding');
     } else {
@@ -191,19 +176,16 @@ class MainPage extends Component {
           console.log('error');
         }
       });
-    // Build a channel
-    const channel = new firebase.notifications.Android.Channel('civil-channel', 'مدیریت زمان',
-      firebase.notifications.Android.Importance.Max)
-      .setDescription('هشدارهای مربوط به جلسات');
-    // Create the channel
+    const channel = new firebase.notifications.Android
+      .Channel('civilCH', 'جلسات جدید', firebase.notifications.Android.Importance.Max)
+      .setDescription('جلسات');
     firebase.notifications().android.createChannel(channel);
 
     firebase.messaging().onMessage((message: RemoteMessage) => {
-      console.log('msg', message);
       const notification = new firebase.notifications.Notification()
-        .android.setChannelId('civil-channel')
+        .android.setChannelId('civilCH')
+        .android.setSmallIcon('ic_launcher')
         .android.setBigText(message._data.body)
-        .android.setSmallIcon("launch_screen")
         .setNotificationId(new Date().getMilliseconds().toString())
         .setTitle('جلسه جدید!')
         .setBody(message._data.body);
@@ -227,7 +209,6 @@ class MainPage extends Component {
 
   _init() {
     this.checkToken();
-    this._loadSessions();
     let a = this.parsePersianDate();
     let b = this.parseGeorgianDate();
     let c = this.parseHijriDate();
@@ -398,7 +379,7 @@ class MainPage extends Component {
             <View style={{flex: 1}}/>
             <Text
               style={{
-                fontFamily: 'IRANSansMobile',
+                fontFamily: 'byekan',
                 fontSize: 13,
                 color: '#FFFFFF',
                 width: '100%',
@@ -408,11 +389,13 @@ class MainPage extends Component {
                 marginBottom: 20
               }}
             >
-              {this.state.todayHijri.substr(0, this.state.todayHijri.search("\n"))}
+              {DBManager.toArabicNumbers(this.state.todayHijri.substr
+              (0, this.state.todayHijri.search("\n")))}
               <Text
-                style={{fontFamily: 'arial'}}
+                style={{fontFamily: 'byekan'}}
               >
-                {this.state.todayHijri.substr(this.state.todayHijri.search("\n"))}
+                {DBManager.toArabicNumbers(this.state.todayHijri.substr(
+                  this.state.todayHijri.search("\n")))}
               </Text>
             </Text>
           </View>
@@ -448,7 +431,7 @@ class MainPage extends Component {
                   textAlign: 'center',
                   color: '#6f67d9',
                   fontSize: 12,
-                  fontFamily: 'IRANSansMobile',
+                  fontFamily: 'byekan',
                 }}
               >
                 {this.state.occasion}
@@ -503,7 +486,7 @@ class MainPage extends Component {
                     style={{
                       textAlign: 'center',
                       color: '#6f67d9',
-                      fontFamily: 'IRANSansMobile',
+                      fontFamily: 'byekan',
                       fontSize: 18
                     }}
                   >
@@ -562,7 +545,7 @@ class MainPage extends Component {
                     style={{
                       flex: 1,
                       textAlign: 'center',
-                      fontFamily: 'IRANSansMobile',
+                      fontFamily: 'byekan',
                       fontSize: 20,
                       color: '#6f67d9'
                     }}
@@ -655,7 +638,7 @@ class MainPage extends Component {
                   <View>
                     <Text
                       style={{
-                        fontFamily: 'IRANSansMobile',
+                        fontFamily: 'byekan',
                         fontSize: 18,
                         textAlign: 'center',
                         color: Globals.PRIMARY_BLUE,
@@ -713,7 +696,7 @@ class MainPage extends Component {
                     style={{
                       flex: 1,
                       textAlign: 'center',
-                      fontFamily: 'IRANSansMobile',
+                      fontFamily: 'byekan',
                       fontSize: 18,
                       color: '#6f67d9'
                     }}
@@ -751,7 +734,7 @@ class MainPage extends Component {
                 />
                 <Text
                   style={{
-                    fontFamily: 'IRANSansMobile',
+                    fontFamily: 'byekan',
                     fontSize: 18,
                     marginTop: 10,
                     marginHorizontal: 20,
@@ -787,7 +770,7 @@ class MainPage extends Component {
                     <View>
                       <Text
                         style={{
-                          fontFamily: 'IRANSansMobile',
+                          fontFamily: 'byekan',
                           fontSize: 17,
                           color: "#e36c35",
                           width: (DEVICE_WIDTH * 0.8) / 2,
@@ -814,325 +797,7 @@ class MainPage extends Component {
                     <View>
                       <Text
                         style={{
-                          fontFamily: 'IRANSansMobile',
-                          fontSize: 17,
-                          color: "#7445e3",
-                          width: (DEVICE_WIDTH * 0.8) / 2,
-                          textAlign: 'center'
-                        }}>
-                        بله
-                      </Text>
-                    </View>
-                  </TouchableWithoutFeedback>
-                </View>
-              </View>
-            </Modal>
-            <Modal
-              isVisible={this.state.logoutWarning}
-              onBackdropPress={() => {
-                this.setState({logoutWarning: false})
-              }}
-              onBackButtonPress={() => {
-                this.setState({logoutWarning: false})
-              }}
-            >
-              <View
-                style={{
-                  backgroundColor: "#FFFFFF",
-                  borderRadius: 25,
-                  marginStart: 10,
-                  marginEnd: 10,
-                  paddingStart: 10,
-                  paddingEnd: 10,
-                  paddingBottom: 5
-                }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    marginTop: 10
-                  }}
-                >
-                  <TouchableOpacity
-                    style={{paddingHorizontal: 10}}
-                    onPress={() => {
-                      this.setState({logoutWarning: false})
-                    }}
-                  >
-                    <Image
-                      style={{
-                        height: 20,
-                        width: 20,
-                        marginLeft: 10,
-                        tintColor: '#6f67d9'
-                      }}
-                      source={require("../images/ic_back.png")}
-                    />
-                  </TouchableOpacity>
-                  <Text
-                    style={{
-                      flex: 1,
-                      textAlign: 'center',
-                      fontFamily: 'IRANSansMobile',
-                      fontSize: 18,
-                      color: '#6f67d9'
-                    }}
-                  >
-                    توجه
-                  </Text>
-                  <View
-                    style={{
-                      borderColor: '#6f67d9',
-                      borderWidth: 2,
-                      height: 24,
-                      width: 24,
-                      borderRadius: 12,
-                      marginRight: 10,
-                    }}
-                  >
-                    <Image
-                      style={{
-                        height: 20,
-                        width: 20,
-                        tintColor: '#6f67d9'
-                      }}
-                      source={require("../images/ic_question.png")}
-                    />
-                  </View>
-                </View>
-                <View
-                  style={{
-                    height: 1,
-                    width: '90%',
-                    alignSelf: 'center',
-                    marginTop: 5,
-                    backgroundColor: '#CCC'
-                  }}
-                />
-                <Text
-                  style={{
-                    fontFamily: 'IRANSansMobile',
-                    fontSize: 18,
-                    marginTop: 10,
-                    marginHorizontal: 20,
-                    marginVertical: 10,
-                    color: '#888'
-                  }}
-
-                >
-                  آیا مایل به خروج از اکانت خود هستید؟
-                </Text>
-                <View
-                  style={{
-                    height: 1,
-                    width: '90%',
-                    alignSelf: 'center',
-                    marginTop: 5,
-                    backgroundColor: '#CCC'
-                  }}
-                />
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    height: 40,
-                    alignItems: 'center',
-                    width: DEVICE_WIDTH * 0.9
-                  }}
-                >
-                  <TouchableWithoutFeedback
-                    onPress={
-                      () => this.setState({logoutWarning: false})
-                    }
-                  >
-                    <View>
-                      <Text
-                        style={{
-                          fontFamily: 'IRANSansMobile',
-                          fontSize: 17,
-                          color: "#e36c35",
-                          width: (DEVICE_WIDTH * 0.8) / 2,
-                          textAlign: 'center'
-                        }}>
-                        خیر
-                      </Text>
-                    </View>
-                  </TouchableWithoutFeedback>
-                  <View
-                    style={{
-                      height: 40,
-                      width: 1,
-                      marginTop: 2,
-                      backgroundColor: '#CCC'
-                    }}
-                  />
-                  <TouchableWithoutFeedback
-                    onPress={async () => {
-                      NavigationService.reset("OnBoarding");
-                      this.setState({logoutWarning: false})
-                    }}>
-                    <View>
-                      <Text
-                        style={{
-                          fontFamily: 'IRANSansMobile',
-                          fontSize: 17,
-                          color: "#7445e3",
-                          width: (DEVICE_WIDTH * 0.8) / 2,
-                          textAlign: 'center'
-                        }}>
-                        بله
-                      </Text>
-                    </View>
-                  </TouchableWithoutFeedback>
-                </View>
-              </View>
-            </Modal>
-            <Modal
-              isVisible={this.state.exitWarning}
-              onBackdropPress={() => {
-                this.setState({exitWarning: false})
-              }}
-              onBackButtonPress={() => {
-                this.setState({exitWarning: false})
-              }}
-            >
-              <View
-                style={{
-                  backgroundColor: "#FFFFFF",
-                  borderRadius: 25,
-                  marginStart: 10,
-                  marginEnd: 10,
-                  paddingStart: 10,
-                  paddingEnd: 10,
-                  paddingBottom: 5
-                }}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    marginTop: 10
-                  }}
-                >
-                  <TouchableOpacity
-                    style={{paddingHorizontal: 10}}
-                    onPress={() => {
-                      this.setState({exitWarning: false})
-                    }}
-                  >
-                    <Image
-                      style={{
-                        height: 20,
-                        width: 20,
-                        marginLeft: 10,
-                        tintColor: '#6f67d9'
-                      }}
-                      source={require("../images/ic_back.png")}
-                    />
-                  </TouchableOpacity>
-                  <Text
-                    style={{
-                      flex: 1,
-                      textAlign: 'center',
-                      fontFamily: 'IRANSansMobile',
-                      fontSize: 18,
-                      color: '#6f67d9'
-                    }}
-                  >
-                    توجه
-                  </Text>
-                  <View
-                    style={{
-                      borderColor: '#6f67d9',
-                      borderWidth: 2,
-                      height: 24,
-                      width: 24,
-                      borderRadius: 12,
-                      marginRight: 10,
-                    }}
-                  >
-                    <Image
-                      style={{
-                        height: 20,
-                        width: 20,
-                        tintColor: '#6f67d9'
-                      }}
-                      source={require("../images/ic_question.png")}
-                    />
-                  </View>
-                </View>
-                <View
-                  style={{
-                    height: 1,
-                    width: '90%',
-                    alignSelf: 'center',
-                    marginTop: 5,
-                    backgroundColor: '#CCC'
-                  }}
-                />
-                <Text
-                  style={{
-                    fontFamily: 'IRANSansMobile',
-                    fontSize: 18,
-                    marginTop: 10,
-                    marginHorizontal: 20,
-                    marginVertical: 10,
-                    color: '#888'
-                  }}
-
-                >
-                  آیا مایل به خروج از برنامه هستید؟
-                </Text>
-                <View
-                  style={{
-                    height: 1,
-                    width: '90%',
-                    alignSelf: 'center',
-                    marginTop: 5,
-                    backgroundColor: '#CCC'
-                  }}
-                />
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    height: 40,
-                    alignItems: 'center',
-                    width: DEVICE_WIDTH * 0.9
-                  }}
-                >
-                  <TouchableWithoutFeedback
-                    onPress={
-                      () => this.setState({exitWarning: false})
-                    }
-                  >
-                    <View>
-                      <Text
-                        style={{
-                          fontFamily: 'IRANSansMobile',
-                          fontSize: 17,
-                          color: "#e36c35",
-                          width: (DEVICE_WIDTH * 0.8) / 2,
-                          textAlign: 'center'
-                        }}>
-                        خیر
-                      </Text>
-                    </View>
-                  </TouchableWithoutFeedback>
-                  <View
-                    style={{
-                      height: 40,
-                      width: 1,
-                      marginTop: 2,
-                      backgroundColor: '#CCC'
-                    }}
-                  />
-                  <TouchableWithoutFeedback
-                    onPress={async () => {
-                      BackHandler.exitApp();
-                      this.setState({exitWarning: false})
-                    }}>
-                    <View>
-                      <Text
-                        style={{
-                          fontFamily: 'IRANSansMobile',
+                          fontFamily: 'byekan',
                           fontSize: 17,
                           color: "#7445e3",
                           width: (DEVICE_WIDTH * 0.8) / 2,
@@ -1160,7 +825,7 @@ class MainPage extends Component {
               >
                 <PersianCalendarPicker
                   isRTL
-                  textStyle={{fontFamily: 'IRANSansMobile'}}
+                  textStyle={{fontFamily: 'byekan'}}
                   onDateChange={(date) => {
                     let today = new Date();
                     const diffTime = date - today;
@@ -1173,23 +838,6 @@ class MainPage extends Component {
               </View>
             </Modal>
           </View>
-          <Toast
-            ref="toast"
-            style={{
-              backgroundColor: '#444',
-              marginHorizontal: 50
-            }}
-            position='center'
-            positionValue={200}
-            fadeInDuration={200}
-            opacity={0.8}
-            textStyle={{
-              color: 'white',
-              fontFamily: 'IRANSansMobile',
-              fontSize: 15,
-              textAlign: 'center'
-            }}
-          />
         </GestureRecognizer>
         <View
           style={{
@@ -1201,7 +849,7 @@ class MainPage extends Component {
             alignItems: 'center',
           }}
         >
-          <TouchableWithoutFeedback
+          <TouchableOpacity
             onPress={() => {
               NavigationService.navigate('AddNewSession');
             }}
@@ -1227,7 +875,7 @@ class MainPage extends Component {
                 source={require("../images/ic_add.png")}
               />
             </View>
-          </TouchableWithoutFeedback>
+          </TouchableOpacity>
         </View>
         <TouchableWithoutFeedback
           onPress={() => {
@@ -1252,13 +900,12 @@ class MainPage extends Component {
             <View
               style={{
                 flex: 1,
-                justifyContent: 'space-around',
-                paddingVertical: 15
+                justifyContent: 'center'
               }}
             >
               <Text
                 style={{
-                  fontFamily: 'IRANSansMobile',
+                  fontFamily: 'byekan',
                   fontSize: 15,
                   color: this.state.dayoff || this.state.todayPersian1 === 'جمعه' ? '#ff5a41' : '#FFFFFF',
                   width: '100%',
@@ -1271,26 +918,27 @@ class MainPage extends Component {
               </Text>
               <Text
                 style={{
-                  fontFamily: 'IRANSansMobile',
+                  fontFamily: 'byekan',
                   fontSize: 35,
                   color: this.state.dayoff || this.state.todayPersian1 === 'جمعه' ? '#ff5a41' : '#FFFFFF',
                   width: '100%',
                   textAlign: 'center',
                   paddingEnd: 10,
                   paddingStart: 10,
-                  marginTop: 5
+                  marginTop: -15,
                 }}>
                 {this.state.todayPersian2}
               </Text>
               <Text
                 style={{
-                  fontFamily: 'IRANSansMobile',
+                  fontFamily: 'byekan',
                   fontSize: 15,
                   color: this.state.dayoff || this.state.todayPersian1 === 'جمعه' ? '#ff5a41' : '#FFFFFF',
                   width: '100%',
                   textAlign: 'center',
                   paddingEnd: 10,
-                  paddingStart: 10
+                  paddingStart: 10,
+                  marginTop: -15
                 }}>
                 {this.state.todayPersian3}
               </Text>
@@ -1316,6 +964,7 @@ class MainPage extends Component {
                   paddingBottom: 5,
                 }}
               >
+                {!this.result[0].people[index].rep_last_name &&
                 <Image
                   source={require("../images/ic_visibility.png")}
                   style={{
@@ -1326,10 +975,11 @@ class MainPage extends Component {
                     !this.result[0].people[index].rep_last_name ? '#000' : '#CCC'
                   }}
                 />
+                }
                 <Text
                   style={{
                     flex: 1,
-                    fontFamily: 'IRANSansMobile',
+                    fontFamily: 'byekan',
                     textAlign: 'right',
                     color: this.result[0].people[index].rep_last_name ? 'rgba(145,107,255,0.44)' : '#6f67d9',
                   }}
@@ -1383,7 +1033,7 @@ class MainPage extends Component {
                 <Text
                   style={{
                     flex: 1,
-                    fontFamily: 'IRANSansMobile',
+                    fontFamily: 'byekan',
                     textAlign: 'right',
                     color: '#6f67d9'
                   }}
@@ -1474,17 +1124,6 @@ const MyDrawerNavigator = createDrawerNavigator({
           </View>
           <DrawerItems
             {...props}
-            onItemPress={
-              (route, focused) => {
-                if (route.route.key === 'Logout') {
-                  DeviceEventEmitter.emit("logout");
-                }
-                // this.setState({logoutWarning:true});
-                else
-                  props.onItemPress({route, focused});
-                // console.log("item pressed", route.route.key);
-              }
-            }
             getLabel={(scene) => (
               <View>
                 <View
@@ -1497,7 +1136,7 @@ const MyDrawerNavigator = createDrawerNavigator({
                   <Text
                     style={{
                       width: '80%',
-                      fontFamily: 'IRANSansMobile',
+                      fontFamily: 'byekan',
                       color: '#FFF'
                     }}
                   >
@@ -1547,9 +1186,9 @@ const MyDrawerNavigator = createDrawerNavigator({
       itemStyle: {justifyContent: 'flex-end'},
       inactiveBackgroundColor: 'argba(0,0,0,0)',
       activeBackgroundColor: 'argba(0,0,0,0)',
-      inactiveLabelStyle: {fontFamily: 'IRANSansMobile', textAlign: 'right', color: '#CCC'},
-      activeLabelStyle: {fontFamily: 'IRANSansMobile', textAlign: 'right', color: '#FFF'},
-      labelStyle: {fontFamily: 'IRANSansMobile', textAlign: 'right', color: '#FFF'},
+      inactiveLabelStyle: {fontFamily: 'byekan', textAlign: 'right', color: '#CCC'},
+      activeLabelStyle: {fontFamily: 'byekan', textAlign: 'right', color: '#FFF'},
+      labelStyle: {fontFamily: 'byekan', textAlign: 'right', color: '#FFF'},
     },
     drawerPosition: 'right'
   });
@@ -1561,7 +1200,7 @@ const style = StyleSheet.create({
     paddingRight: 15
   },
   modalText: {
-    fontFamily: 'IRANSansMobile',
+    fontFamily: 'byekan',
     flex: 1,
     textAlign: 'right'
   },

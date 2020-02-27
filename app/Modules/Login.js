@@ -26,6 +26,8 @@ class Login extends Component {
 
   componentDidMount() {
     SplashScreen.hide();
+    DBManager.saveSettingValue('token', 'N/A');
+    DBManager.saveSettingValue('onboarding','N/A');
   }
 
   _TextChanged(input) {
@@ -37,7 +39,7 @@ class Login extends Component {
     if (result === 'We texted you a login code.')
       this.setState({isPhoneNumber: false});
     else
-      this.refs.toast.show('خطایی در ارسال کد رخ داده است. لطفا شماره همراه خود را چک نمایید و مجددا تلاش نمایید',5000);
+      this.refs.toast.show('خطایی در ارسال کد رخ داده است. لطفا شماره همراه خود را چک نمایید و مجددا تلاش نمایید');
   }
 
   async _checkCode() {
@@ -46,7 +48,7 @@ class Login extends Component {
       DBManager.saveSettingValue('token', result);
       NavigationService.reset('MainPage', null);
     }else {
-      this.refs.toast.show('کد وارد شده صحیح نیست یا منقضی شده است. لطفا مجددا تلاش نمایید.',5000);
+      this.refs.toast.show('کد وارد شده صحیح نیست یا منقضی شده است. لطفا مجددا تلاش نمایید.');
     }
   }
 
@@ -105,9 +107,9 @@ class Login extends Component {
                       backgroundColor: '#817ce2',
                       color: '#fff',
                       textAlign: 'center',
-                      fontFamily: 'IRANSansMobile',
+                      fontFamily: 'byekan',
                       flex: 1,
-                      fontSize:14
+                      fontSize:12
                     }}
                     autoCapitalize="none"
                     onChangeText={(text) => {
@@ -125,9 +127,8 @@ class Login extends Component {
                       backgroundColor: '#817ce2',
                       color: '#fff',
                       textAlign: 'center',
-                      fontFamily: 'IRANSansMobile',
-                      flex: 1,
-                      fontSize:14
+                      fontFamily: 'byekan',
+                      flex: 1
                     }}
                     autoCapitalize="none"
                     onChangeText={(text) => {
@@ -183,7 +184,7 @@ class Login extends Component {
                         paddingHorizontal: 30,
                         paddingVertical: 5,
                         color: Globals.PRIMARY_BLUE,
-                        fontFamily: 'IRANSansMobile'
+                        fontFamily: 'byekan'
                       }}>
                       ورود
                     </Text>
@@ -200,19 +201,19 @@ class Login extends Component {
         <Toast
           ref="toast"
           style={{
-            backgroundColor: '#444',
-            marginHorizontal: 50
+            backgroundColor:'#444',
+            marginHorizontal:50
           }}
           position='center'
           positionValue={200}
           fadeInDuration={200}
-          fadeOutDuration={5000}
+          fadeOutDuration={2000}
           opacity={0.8}
           textStyle={{
-            color: 'white',
-            fontFamily: 'IRANSansMobile',
-            fontSize: 15,
-            textAlign: 'center'
+            color:'white',
+            fontFamily:'byekan',
+            fontSize:15,
+            textAlign:'center'
           }}
         />
       </ImageBackground>

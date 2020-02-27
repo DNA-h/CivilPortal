@@ -1,7 +1,6 @@
 import React from 'react';
 import {View, Text, Animated, TouchableWithoutFeedback} from 'react-native';
 import DBManager from "../../Utils/DBManager";
-import FitBounds from "@mapbox/react-native-mapbox-gl/example/src/components/FitBounds";
 
 export default class Item extends React.Component {
 
@@ -30,7 +29,7 @@ export default class Item extends React.Component {
             style={{
               color: this.props.day === 'جمعه' ? '#ff2c05' : '#000000',
               fontSize: DBManager.RFValue(16),
-              fontFamily: 'IRANSansMobile',
+              fontFamily: 'byekan',
               textAlign: 'center'
             }}>
             {this.props.day}
@@ -38,17 +37,17 @@ export default class Item extends React.Component {
           <Text
             style={{
               color: this.props.day === 'جمعه' ? '#ff2c05' : '#000000',
-              fontSize: DBManager.RFValue(16),
-              fontFamily: 'IRANSansMobile_Bold'
+              fontSize: DBManager.RFValue(14),
+              fontFamily: 'byekan'
             }}>
-            {DBManager.toArabicNumbers(this.props.date)}
+            {this.props.date}
           </Text>
           <Text
             style={{
               color: this.props.day === 'جمعه' ? '#ff2c05' : '#000000',
               fontSize: DBManager.RFValue(12),
               textAlign: 'center',
-              fontFamily: 'IRANSansMobile'
+              fontFamily: 'byekan'
             }}>
             {this.props.month}
           </Text>
