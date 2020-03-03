@@ -16,6 +16,7 @@ import Globals from "../Utils/Globals";
 import jalaali from 'jalaali-js';
 import Toast from "./Components/EasyToast";
 import Mapbox from "mapir-mapbox";
+import MyCarousel from "./Components/MyCarousel";
 
 Mapbox.apiKey(Globals.ACCESS_TOKEN);
 
@@ -32,6 +33,8 @@ class AddNewSession extends Component {
   constructor(props) {
     super(props);
     let date = new Date();
+    let hijri = require('hijri');
+    let hDate = hijri.convert(new Date(), -1);
     this._startHour = date.getHours();
     this._startMinute = Math.floor((date.getMinutes() - date.getMinutes() % 5) / 5);
     this._endHour = date.getHours() === 23 ? 0 : date.getHours() + 1;
@@ -42,6 +45,8 @@ class AddNewSession extends Component {
     let day = jalali.jd - 1;
     this.data = [];
     this.extras = [];
+    this.shamsiCounter = DBManager.shamsiCounter[jalali.jm - 1] + jalali.jd - 1;
+    this.hijriCounter = DBManager.hijriCounter[hDate.month - 1] + hDate.dayOfMonth - 1;
 
     for (let i = 0; i < 31; i++) {
       let jalali2 = jalaali.toJalaali(date);
@@ -119,7 +124,7 @@ class AddNewSession extends Component {
     await DBManager.saveSettingValue(`titleCount`, this.state.titles.length - 1);
     this.state.titles.splice(index, 1);
     for (let i = index; i < this.state.titles.length; i += 1) {
-      await DBManager.saveSettingValue(`title${i}`, this.state.titles[i+1]);
+      await DBManager.saveSettingValue(`title${i}`, this.state.titles[i + 1]);
     }
     this.setState({
       titles: this.state.titles,
@@ -130,7 +135,7 @@ class AddNewSession extends Component {
     await DBManager.saveSettingValue(`addressCount`, this.state.addresses.length - 1);
     this.state.addresses.splice(index, 1);
     for (let i = index; i < this.state.addresses.length; i += 1) {
-      await DBManager.saveSettingValue(`address${i}`, this.state.addresses[i+1]);
+      await DBManager.saveSettingValue(`address${i}`, this.state.addresses[i + 1]);
     }
     this.setState({
       addresses: this.state.addresses,
@@ -301,7 +306,7 @@ class AddNewSession extends Component {
             </View>
             <View
               style={{
-                height: 200,
+                height: DBManager.RFHeight(28),
                 flexDirection: 'row',
                 alignItems: 'center'
               }}
@@ -310,9 +315,9 @@ class AddNewSession extends Component {
                 data={this.data}
                 extras={this.extras}
                 itemWidth={DBManager.RFWidth(15)}
-                itemHeight={180}
+                itemHeight={DBManager.RFHeight(27)}
                 sliderWidth={DEVICE_WIDTH}
-                sliderHeight={180}
+                sliderHeight={DBManager.RFHeight(27)}
                 enableMomentum
                 useScrollView={false}
                 activeSlideAlignment={"start"}
@@ -340,8 +345,10 @@ class AddNewSession extends Component {
                     }],
                   }
                 }}
-                renderItem={({item, index}) =>
+                renderItem={({item, index, extra}) =>
                   <Item
+                    dayOff={this.props.counter.shamsiDayOff[(this.shamsiCounter + (extra === undefined ? index : extra)) % 365] === 1 ||
+                    this.props.counter.hijriDayOff[(this.hijriCounter + (extra === undefined ? index : extra)) % 354] === 1}
                     date={item.date}
                     month={item.month}
                     day={item.day}
@@ -388,8 +395,7 @@ class AddNewSession extends Component {
               alignItems: 'center',
               justifyContent: 'space-around',
               flexDirection: 'row',
-              marginVertical: 20,
-              marginTop: 10
+              marginVertical: DBManager.RFHeight(2),
             }}>
             <View
               style={{
@@ -399,17 +405,25 @@ class AddNewSession extends Component {
                 alignItems: 'center'
               }}>
               <View style={{flex: 1}}/>
-              {
-                this.renderCarousel(dailyHour, this._endHour, (index) => {
-                  this._endHour = Math.floor(index / 50);
-                })
-              }
+              <MyCarousel
+                data={dailyHour}
+                first={this._endHour}
+                saveFunc={
+                  (index) => {
+                    this._endHour = Math.floor(index / 50);
+                  }
+                }
+              />
               <Text style={{marginHorizontal: 10, color: '#FFFFFF'}}> : </Text>
-              {
-                this.renderCarousel(dailyMinutes, this._endMinute, (index) => {
-                  this._endMinute = Math.floor(index / 50);
-                })
-              }
+              <MyCarousel
+                data={dailyMinutes}
+                first={this._endMinute}
+                saveFunc={
+                  (index) => {
+                    this._endMinute = Math.floor(index / 50);
+                  }
+                }
+              />
               <View style={{flex: 1}}/>
             </View>
             <Text
@@ -432,17 +446,25 @@ class AddNewSession extends Component {
               }}
             >
               <View style={{flex: 1}}/>
-              {
-                this.renderCarousel(dailyHour, this._startHour, (index) => {
-                  this._startHour = Math.floor(index / 50);
-                })
-              }
+              <MyCarousel
+                data={dailyHour}
+                first={this._startHour}
+                saveFunc={
+                  (index) => {
+                    this._startHour = Math.floor(index / 50);
+                  }
+                }
+              />
               <Text style={{marginHorizontal: 10, color: '#FFFFFF'}}>:</Text>
-              {
-                this.renderCarousel(dailyMinutes, this._startMinute, (index) => {
-                  this._startMinute = Math.floor(index / 50);
-                })
-              }
+              <MyCarousel
+                data={dailyMinutes}
+                first={this._startMinute}
+                saveFunc={
+                  (index) => {
+                    this._startMinute = Math.floor(index / 50);
+                  }
+                }
+              />
               <View style={{flex: 1}}/>
             </View>
             <Text
@@ -460,7 +482,7 @@ class AddNewSession extends Component {
 
           <View
             style={{
-              height: 40,
+              height: DBManager.RFHeight(6),
               borderRadius: 20,
               backgroundColor: '#FFFFFF',
               flexDirection: 'row-reverse',
@@ -474,7 +496,7 @@ class AddNewSession extends Component {
             <View
               style={{
                 backgroundColor: Globals.PRIMARY_DARK_BLUE,
-                height: 40,
+                height: DBManager.RFHeight(6),
                 borderTopRightRadius: 20,
                 borderTopLeftRadius: 20,
                 borderBottomRightRadius: 20,
@@ -484,7 +506,11 @@ class AddNewSession extends Component {
               }}
             >
               <Text
-                style={{color: '#FFFFFF', fontFamily: 'byekan'}}
+                style={{
+                  fontSize: DBManager.RFHeight(2),
+                  color: '#FFFFFF',
+                  fontFamily: 'byekan'
+                }}
               >
                 موضوع
               </Text>
@@ -559,6 +585,8 @@ class AddNewSession extends Component {
                 fontFamily: 'byekan',
                 marginStart: 15,
                 marginEnd: 5,
+                paddingVertical: 0,
+                fontSize: DBManager.RFHeight(2)
               }}
               placeholderTextColor='#CCC'
               onChangeText={(text) => {
@@ -569,7 +597,7 @@ class AddNewSession extends Component {
 
           <View
             style={{
-              height: 40,
+              height: DBManager.RFHeight(6),
               borderRadius: 20,
               backgroundColor: '#FFFFFF',
               flexDirection: 'row-reverse',
@@ -584,7 +612,7 @@ class AddNewSession extends Component {
             <View
               style={{
                 backgroundColor: Globals.PRIMARY_DARK_BLUE,
-                height: 40,
+                height: DBManager.RFHeight(6),
                 borderTopRightRadius: 20,
                 borderTopLeftRadius: 20,
                 borderBottomRightRadius: 20,
@@ -594,7 +622,11 @@ class AddNewSession extends Component {
               }}
             >
               <Text
-                style={{color: '#FFFFFF', fontFamily: 'byekan'}}
+                style={{
+                  color: '#FFFFFF',
+                  fontFamily: 'byekan',
+                  fontSize: DBManager.RFHeight(2)
+                }}
               >
                 {"آدرس "}
               </Text>
@@ -644,7 +676,7 @@ class AddNewSession extends Component {
                     <Text
                       numberOfLines={1}
                       style={{
-                        flex:1,
+                        flex: 1,
                         fontFamily: 'byekan',
                         textAlign: 'center',
                         color: '#FFF'
@@ -666,6 +698,8 @@ class AddNewSession extends Component {
                 color: '#000',
                 textAlign: 'center',
                 fontFamily: 'byekan',
+                paddingVertical: 0,
+                fontSize: DBManager.RFHeight(2),
                 marginStart: 15,
                 marginEnd: 5,
               }}
@@ -679,7 +713,7 @@ class AddNewSession extends Component {
           <Text
             style={{
               fontFamily: 'byekan',
-              fontSize: 16,
+              fontSize: DBManager.RFHeight(2.5),
               color: '#888',
               width: '50%',
               alignSelf: 'center',
@@ -757,8 +791,8 @@ class AddNewSession extends Component {
               this.saveValue();
               NavigationService.navigate('ChoosePeople', {
                 date: '1398-' + (this.state.selectedMonth + 1) + '-' + (this.state.selectedDay + 1),
-                start: dailyHour[this._startHour] + ":" + dailyMinutes[this._startMinute + 1],
-                end: dailyHour[this._endHour] + ":" + dailyMinutes[this._endMinute + 1],
+                start: dailyHour[this._startHour] + ":" + dailyMinutes[this._startMinute],
+                end: dailyHour[this._endHour] + ":" + dailyMinutes[this._endMinute],
                 place: this.state.address,
                 meeting_title: this.state.title
               });
@@ -766,8 +800,7 @@ class AddNewSession extends Component {
           >
             <View
               style={{
-                marginVertical: 10,
-                marginBottom: 20,
+                marginVertical: DBManager.RFHeight(2),
                 flexDirection: 'row',
                 backgroundColor: '#FFFFFF',
                 borderRadius: 30,
@@ -789,7 +822,7 @@ class AddNewSession extends Component {
               <Text
                 style={{
                   fontFamily: 'byekan',
-                  fontSize: 22,
+                  fontSize: DBManager.RFHeight(3.5),
                   width: '80%',
                   textAlign: 'center',
                   color: '#675ec9',
@@ -800,6 +833,7 @@ class AddNewSession extends Component {
               </Text>
             </View>
           </TouchableWithoutFeedback>
+
           <Toast
             ref="toast"
             style={{

@@ -3,6 +3,7 @@ import {
   Dimensions, FlatList, Image, ImageBackground, Linking, ScrollView, StyleSheet,
   StatusBar, Text, TouchableOpacity, TouchableWithoutFeedback, View, PermissionsAndroid
 } from 'react-native';
+import {setEvents} from '../actions';
 import {connect} from "react-redux";
 import CalendarItem from "./Components/CalendarItem";
 import NavigationService from "../service/NavigationService";
@@ -111,31 +112,41 @@ class MainPage extends Component {
     this.setState({warning: true});
   }
 
+  _handleNotification = (notification) => {
+    const sDate = notification.data.date;
+    const year = parseInt(sDate.substr(0, 4), 10);
+    const month = parseInt(sDate.substr(5, 2), 10);
+    const day = parseInt(sDate.substr(8, 2), 10);
+    const g = jalaali.toGregorian(year, month, day);
+    const date = new Date();
+    date.setDate(g.gd);
+    date.setMonth(g.gm - 1);
+    date.setFullYear(g.gy);
+
+    let today = new Date();
+    const diffTime = date - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    this.difference = diffDays + 1;
+    this.setState({datePicker: false});
+    this._dayPressed(true);
+  };
+
   async componentDidMount() {
     SplashScreen.hide();
     StatusBar.setBackgroundColor('#6A61D1');
     const notificationOpen: NotificationOpen = await firebase.notifications().getInitialNotification();
     if (notificationOpen) {
       const notification: Notification = notificationOpen.notification;
-      const sDate = notification.data.date;
-      const year = parseInt(sDate.substr(0, 4), 10);
-      const month = parseInt(sDate.substr(5, 2), 10);
-      const day = parseInt(sDate.substr(8, 2), 10);
-      const g = jalaali.toGregorian(year, month, day);
-      const date = new Date();
-      date.setDate(g.gd);
-      date.setMonth(g.gm - 1);
-      date.setFullYear(g.gy);
-
-      let today = new Date();
-      const diffTime = date - today;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      this.difference = diffDays + 1;
-      this.setState({datePicker: false});
-      this._dayPressed(true);
+      this._handleNotification(notification);
     }
+    this.removeNotificationListener = firebase.notifications().onNotificationOpened((notificationOpen: NotificationOpen) => {
+      const notification: Notification = notificationOpen.notification;
+      this._handleNotification(notification);
+      firebase.notifications().removeAllDeliveredNotifications();
+    });
     this.routeSubscription = this.props.navigation.addListener('willFocus', this.fetchData,);
     this.fetchData();
+    firebase.notifications().removeAllDeliveredNotifications();
     PermissionsAndroid.requestMultiple(
       [PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION],
@@ -154,6 +165,7 @@ class MainPage extends Component {
     if (this.routeSubscription) {
       this.routeSubscription.remove();
     }
+    this.removeNotificationListener();
   }
 
   fetchData = async () => {
@@ -188,7 +200,8 @@ class MainPage extends Component {
         .android.setBigText(message._data.body)
         .setNotificationId(new Date().getMilliseconds().toString())
         .setTitle('جلسه جدید!')
-        .setBody(message._data.body);
+        .setBody(message._data.body)
+        .setData({date: message._data.body.substr(18, 10)});
       firebase.notifications().displayNotification(notification);
       this._loadSessions();
     });
@@ -263,16 +276,24 @@ class MainPage extends Component {
     date.setDate(date.getDate() + this.difference);
     let jalali = jalaali.toJalaali(date);
     let hDate = hijri.convert(new Date(), this.difference - 1);
-    let json = await RequestsController.loadTodayEvents(jalali.jd, jalali.jm, date.getDate(), date.getMonth() + 1,
-      hDate.dayOfMonth, hDate.month);
-    let flag = false;
-    let string = "";
-    for (let index = 0; index < json.values.length; index++) {
-      if (json.values[index].dayoff) flag = true;
-      if (index > 0) string = string + "\n";
-      string = string + json.values[index].occasion;
+    if(this.props.counter.shamsiEvents.length ===0) {
+      let shamsiEvents = await RequestsController.loadShamsiEvents();
+      let hijriEvents = await RequestsController.loadHijriEvents();
+      this.setState({
+        occasion: shamsiEvents.events[DBManager.shamsiCounter[jalali.jm - 1] + jalali.jd-1] +
+          hijriEvents.events[DBManager.hijriCounter[hDate.month - 1] + hDate.dayOfMonth-1],
+        dayoff: shamsiEvents.dayOff[DBManager.shamsiCounter[jalali.jm - 1] + jalali.jd-1] === 1 ||
+          hijriEvents.dayOff[DBManager.hijriCounter[hDate.month - 1] + hDate.dayOfMonth-1] === 1
+      });
+      this.props.setEvents(shamsiEvents.events, hijriEvents.events, shamsiEvents.dayOff, hijriEvents.dayOff);
+    }else{
+      this.setState({
+        occasion: this.props.counter.shamsiEvents[DBManager.shamsiCounter[jalali.jm - 1] + jalali.jd-1] +
+          this.props.counter.hijriEvents[DBManager.hijriCounter[hDate.month - 1] + hDate.dayOfMonth-1],
+        dayoff: this.props.counter.shamsiDayOff[DBManager.shamsiCounter[jalali.jm - 1] + jalali.jd-1] === 1 ||
+          this.props.counter.hijriDayOff[DBManager.hijriCounter[hDate.month - 1] + hDate.dayOfMonth-1] === 1
+      });
     }
-    this.setState({occasion: string, dayoff: flag});
   }
 
   _dayPressed(flag) {
@@ -1074,7 +1095,7 @@ class MainPage extends Component {
 
 const MyDrawerNavigator = createDrawerNavigator({
     Home: {
-      screen: MainPage, navigationOptions: ({navigation}) => ({
+      screen: connect(mapStateToProps, {setEvents})(MainPage), navigationOptions: ({navigation}) => ({
         title: 'پشتیبانی',
       }),
     }, Test: {
@@ -1173,8 +1194,8 @@ const MyDrawerNavigator = createDrawerNavigator({
           >
             <Image
               style={{
-                width: 100,
-                height: 100,
+                width: DBManager.RFWidth(10),
+                height: DBManager.RFWidth(14),
                 resizeMode: 'contain'
               }}
               source={require('../images/logo_main.png')}
@@ -1214,10 +1235,12 @@ const style = StyleSheet.create({
   }
 });
 
+export default MyDrawerNavigator;
+
 function mapStateToProps(state) {
   return {
     counter: state
   }
 }
 
-export default connect(mapStateToProps, {})(MyDrawerNavigator);
+

@@ -4,6 +4,7 @@ import {CheckBox} from 'react-native-elements'
 import {connect} from "react-redux";
 import {counterAdd, counterSub} from "../../actions";
 import Globals from "../../Utils/Globals";
+import DBManager from "../../Utils/DBManager";
 
 class PeopleItem extends Component {
 
@@ -14,71 +15,52 @@ class PeopleItem extends Component {
     };
   }
 
+  handlePress = () => {
+    if (!this.props.showCheck)
+      this.props.callback(this.props.item.item.first_name,
+        this.props.item.item.last_name,
+        this.props.item.item.id);
+    else {
+      this.setState(() => {
+          this.props.callback(
+            this.props.item.item.first_name,
+            this.props.item.item.last_name,
+            this.props.item.item.mobile,
+            this.props.item.item.rank,
+            this.state.isSelected);
+          return {isSelected: !this.state.isSelected}
+        }
+      );
+    }
+  };
+
   render() {
     return (
       <TouchableWithoutFeedback
-        onPress={() => {
-          if (!this.props.showCheck)
-            this.props.callback(this.props.item.item.first_name,
-              this.props.item.item.last_name,
-              this.props.item.item.id);
-          else {
-            this.setState(() => {
-                this.props.callback(
-                  this.props.item.item.first_name,
-                  this.props.item.item.last_name,
-                  this.props.item.item.mobile,
-                  this.props.item.item.rank,
-                  this.state.isSelected);
-                return {isSelected: !this.state.isSelected}
-              }
-            );
-          }
-        }}
+        onPress={this.handlePress}
       >
         <View
-          style={{alignItems: 'center'}}>
+          style={{alignItems: 'center', width: '100%'}}>
           <View
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              paddingStart: 10,
-              paddingEnd: 10,
-              paddingTop: 5,
-              paddingBottom: 5,
-              marginStart: 5,
-              marginEnd: 5,
-              marginTop: 10,
-              marginBottom: 10
             }}
           >
             {
               this.props.share ? null :
                 <CheckBox
                   checked={this.props.showCheck ? this.state.isSelected : true}
+                  onPress={this.handlePress}
                   disabled={!this.props.showCheck}
                   checkedIcon={'square'}
-                  onPress={() => {
-                    if (!this.props.showCheck) return;
-                    this.setState(() => {
-                        this.props.callback(
-                          this.props.item.item.first_name,
-                          this.props.item.item.last_name,
-                          this.props.item.item.mobile,
-                          this.props.item.item.rank,
-                          this.state.isSelected);
-                        return {isSelected: !this.state.isSelected}
-                      }
-                    );
-                  }}
                 />
             }
-            <View style={{flex: 1}}/>
-            <View>
+            <View style={{flex: 1}}>
               <Text
                 style={{
                   fontFamily: 'byekan',
-                  fontSize: 15,
+                  fontSize: DBManager.RFHeight(2.5),
                   textAlign: 'center',
                   color: '#6f67d9'
                 }}
@@ -91,7 +73,7 @@ class PeopleItem extends Component {
               <Text
                 style={{
                   fontFamily: 'byekan',
-                  fontSize: 15,
+                  fontSize: DBManager.RFHeight(2.5),
                   textAlign: 'center',
                   color: '#7e7e7e',
                   backgroundColor: '#dddddd',

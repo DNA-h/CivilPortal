@@ -4,16 +4,19 @@ const {height, width} = Dimensions.get("window");
 const arabicNumbers = ['۰', '۱', '٢', '٣', '۴', '۵', '۶', '۷', '٨', '٩'];
 
 export default class DBManager {
+  static shamsiCounter = [0, 31, 62, 93, 124, 155, 186, 216, 246, 276, 306, 336, 365];
+  static hijriCounter = [0, 30, 59, 89, 118, 148, 177, 207, 236, 266, 295, 325, 354];
+
   static async getSettingValue(key, defalt) {
     try {
       const value = await AsyncStorage.getItem(key);
       if (value !== null)
         return value;
-        // if (key!== "token")return value;
-        // else return "97d888a5ac13cd2ae22cf3b587b92613735af22a";
+      // if (key!== "token")return value;
+      // else return "97d888a5ac13cd2ae22cf3b587b92613735af22a";
       // return '766e632f3d3d0ec89c940acfb43b8f6b61e9fdeb';
-    else
-      return defalt;
+      else
+        return defalt;
     } catch (e) {
       console.log(e);
       return defalt;

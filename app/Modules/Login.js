@@ -18,6 +18,7 @@ class Login extends Component {
     this.state = {
       isPhoneNumber: true
     };
+    this.phone = '';
     this.text = '';
     this._sendCode = this._sendCode.bind(this);
     this._checkCode = this._checkCode.bind(this);
@@ -27,15 +28,18 @@ class Login extends Component {
   componentDidMount() {
     SplashScreen.hide();
     DBManager.saveSettingValue('token', 'N/A');
-    DBManager.saveSettingValue('onboarding','N/A');
+    DBManager.saveSettingValue('onboarding', 'N/A');
   }
 
   _TextChanged(input) {
-    this.text = input
+    if (this.state.isPhoneNumber)
+      this.phone = input;
+    else
+      this.text = input
   }
 
   async _sendCode() {
-    let result = await RequestsController.loadToken(this.text);
+    let result = await RequestsController.loadToken(this.phone);
     if (result === 'We texted you a login code.')
       this.setState({isPhoneNumber: false});
     else
@@ -47,7 +51,7 @@ class Login extends Component {
     if (result !== undefined && result.length === 40) {
       DBManager.saveSettingValue('token', result);
       NavigationService.reset('MainPage', null);
-    }else {
+    } else {
       this.refs.toast.show('کد وارد شده صحیح نیست یا منقضی شده است. لطفا مجددا تلاش نمایید.');
     }
   }
@@ -80,8 +84,8 @@ class Login extends Component {
 
           <View
             style={{
-              paddingLeft: 60,
-              paddingRight: 60,
+              paddingLeft: DBManager.RFWidth(10),
+              paddingRight: DBManager.RFWidth(10),
               marginTop: 20,
               width: '100%'
             }}
@@ -89,13 +93,12 @@ class Login extends Component {
             <View
               style={{
                 backgroundColor: '#817ce2',
-                paddingHorizontal: 20,
+                paddingHorizontal: DBManager.RFWidth(5),
                 paddingBottom: 5,
                 paddingTop: 5,
                 width: '100%',
                 marginTop: 10,
                 borderStyle: 'solid',
-                fontSize: 15,
                 borderRadius: 25,
                 flexDirection: 'row',
                 alignItems: 'center'
@@ -109,7 +112,7 @@ class Login extends Component {
                       textAlign: 'center',
                       fontFamily: 'byekan',
                       flex: 1,
-                      fontSize:12
+                      fontSize: 12
                     }}
                     autoCapitalize="none"
                     onChangeText={(text) => {
@@ -167,8 +170,8 @@ class Login extends Component {
               width: '100%',
               borderRadius: 80,
               margin: 12,
-              paddingLeft: 60,
-              paddingRight: 60,
+              paddingLeft: DBManager.RFWidth(10),
+              paddingRight: DBManager.RFWidth(10),
             }}
           >
             {
@@ -191,6 +194,46 @@ class Login extends Component {
                   </View>
                 </TouchableWithoutFeedback> : null
             }
+            {
+              !this.state.isPhoneNumber ?
+                <TouchableWithoutFeedback
+                  onPress={this._sendCode}>
+                  <View>
+                    <Text
+                      style={{
+                        borderRadius: 35,
+                        backgroundColor: "#c8c6f5",
+                        marginRight: 15,
+                        paddingHorizontal: 30,
+                        paddingVertical: 5,
+                        color: Globals.PRIMARY_BLUE,
+                        fontFamily: 'byekan'
+                      }}>
+                      ارسال مجدد کد
+                    </Text>
+                  </View>
+                </TouchableWithoutFeedback> : null
+            }
+            {
+              !this.state.isPhoneNumber ?
+                <TouchableWithoutFeedback
+                  onPress={() => this.setState({isPhoneNumber: true})}>
+                  <View>
+                    <Text
+                      style={{
+                        borderRadius: 35,
+                        backgroundColor: "#c8c6f5",
+                        marginRight: 15,
+                        paddingHorizontal: 30,
+                        paddingVertical: 5,
+                        color: Globals.PRIMARY_BLUE,
+                        fontFamily: 'byekan'
+                      }}>
+                      تصحیح شماره
+                    </Text>
+                  </View>
+                </TouchableWithoutFeedback> : null
+            }
             <View style={{flex: 1}}/>
 
           </View>
@@ -201,8 +244,8 @@ class Login extends Component {
         <Toast
           ref="toast"
           style={{
-            backgroundColor:'#444',
-            marginHorizontal:50
+            backgroundColor: '#444',
+            marginHorizontal: 50
           }}
           position='center'
           positionValue={200}
@@ -210,10 +253,10 @@ class Login extends Component {
           fadeOutDuration={2000}
           opacity={0.8}
           textStyle={{
-            color:'white',
-            fontFamily:'byekan',
-            fontSize:15,
-            textAlign:'center'
+            color: 'white',
+            fontFamily: 'byekan',
+            fontSize: 15,
+            textAlign: 'center'
           }}
         />
       </ImageBackground>

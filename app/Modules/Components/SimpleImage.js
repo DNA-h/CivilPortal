@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import {Image, Text, View} from 'react-native';
 import {RequestsController} from "../../Utils/RequestController";
 import Globals from "../../Utils/Globals";
+import DBManager from "../../Utils/DBManager";
 
 export default class SimpleImage extends Component {
   constructor(props) {
@@ -27,9 +28,9 @@ export default class SimpleImage extends Component {
       <View style={{alignItems:'center'}}>
         <View
           style={{
-            width: 120,
-            height: 120,
-            borderRadius: 60,
+            width: DBManager.RFWidth(40),
+            height: DBManager.RFWidth(40),
+            borderRadius: DBManager.RFWidth(20),
             borderWidth: 4,
             borderColor: Globals.PRIMARY_DARK_BLUE,
             overflow: 'hidden'
@@ -37,8 +38,8 @@ export default class SimpleImage extends Component {
         >
           <Image
             style={{
-              width: 112,
-              height: 112,
+              width: DBManager.RFWidth(38),
+              height: DBManager.RFWidth(38),
               resizeMode: 'cover'
             }}
             source={{uri: this.state.avatar}}

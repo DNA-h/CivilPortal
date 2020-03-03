@@ -1,33 +1,43 @@
 export const counterAdd = () => {
-    return {
-        type : 'ADD'
-    }
+  return {
+    type: 'ADD'
+  }
 };
 
 export const counterSub = () => {
-    return {
-        type : 'SUB'
-    }
+  return {
+    type: 'SUB'
+  }
 };
 
 export const navSendCode = () => {
-    return {
-        type : 'navSendCode'
-    }
+  return {
+    type: 'navSendCode'
+  }
 };
 
 export const setURI = (x, y) => {
   return {
-    type : 'setURI',
-    x:x,
-    y:y
+    type: 'setURI',
+    x: x,
+    y: y
+  }
+};
+
+export const setEvents = (shamsiEvents, hijriEvents, shamsiDayOff, hijriDayOff) => {
+  return {
+    type: 'setEvents',
+    shamsiEvents: shamsiEvents,
+    hijriEvents: hijriEvents,
+    shamsiDayOff: shamsiDayOff,
+    hijriDayOff: hijriDayOff
   }
 };
 
 export const setValues = (mobile, code) => {
-    return {
-        type: 'SET',
-        mobile: mobile,
-        code: code
-    }
+  return {
+    type: 'SET',
+    mobile: mobile,
+    code: code
+  }
 };

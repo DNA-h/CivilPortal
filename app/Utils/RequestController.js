@@ -11,6 +11,26 @@ export class RequestsController {
     return json;
   }
 
+  static async loadShamsiEvents(){
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
+    let json = await ConnectionManager.doFetch("http://185.211.57.73/api/events_shamsi/", 'GET',
+      null, headers, true);
+    // console.log('json is ', json);
+    return json;
+  }
+
+  static async loadHijriEvents(){
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    headers.append('Authorization', 'token ' + await DBManager.getSettingValue('token'));
+    let json = await ConnectionManager.doFetch("http://185.211.57.73/api/events_hijri/", 'GET',
+      null, headers, true);
+    // console.log('json is ', json);
+    return json;
+  }
+
   static async loadToken(mobile) {
     let headers = new Headers();
     headers.append('Content-Type', 'application/json');

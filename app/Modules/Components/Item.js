@@ -9,7 +9,7 @@ export default class Item extends React.Component {
       <View
         style={{
           flexDirection: 'row',
-          height: 180
+          height: DBManager.RFHeight(25)
         }}
       >
         <Animated.View
@@ -27,7 +27,7 @@ export default class Item extends React.Component {
           ]}>
           <Text
             style={{
-              color: this.props.day === 'جمعه' ? '#ff2c05' : '#000000',
+              color: this.props.day === 'جمعه' || this.props.dayOff ? '#ff2c05' : '#000000',
               fontSize: DBManager.RFValue(16),
               fontFamily: 'byekan',
               textAlign: 'center'
@@ -36,7 +36,7 @@ export default class Item extends React.Component {
           </Text>
           <Text
             style={{
-              color: this.props.day === 'جمعه' ? '#ff2c05' : '#000000',
+              color: this.props.day === 'جمعه' || this.props.dayOff ? '#ff2c05' : '#000000',
               fontSize: DBManager.RFValue(14),
               fontFamily: 'byekan'
             }}>
@@ -44,7 +44,7 @@ export default class Item extends React.Component {
           </Text>
           <Text
             style={{
-              color: this.props.day === 'جمعه' ? '#ff2c05' : '#000000',
+              color: this.props.day === 'جمعه' || this.props.dayOff ? '#ff2c05' : '#000000',
               fontSize: DBManager.RFValue(12),
               textAlign: 'center',
               fontFamily: 'byekan'

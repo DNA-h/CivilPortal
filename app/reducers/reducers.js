@@ -7,7 +7,11 @@ const initialState = {
   count: 0,
   x: 0,
   y: 0,
-  avatar: 'http://185.211.57.73/static/uploads/4.png'
+  avatar: 'http://185.211.57.73/static/uploads/4.png',
+  shamsiEvents: [],
+  hijriEvents: [],
+  shamsiDayOff: [],
+  hijriDayOff: []
 };
 
 export default function reducer(state = initialState, action) {
@@ -29,6 +33,13 @@ export default function reducer(state = initialState, action) {
       return Object.assign({}, state, {
         x: action.x,
         y: action.y
+      });
+    case 'setEvents':
+      return Object.assign({}, state, {
+        shamsiEvents: action.shamsiEvents,
+        hijriEvents: action.hijriEvents,
+        shamsiDayOff: action.shamsiDayOff,
+        hijriDayOff: action.hijriDayOff
       });
     case 'navSendCode':
       NavigationActions.navigate({routeName: 'SendCode'});

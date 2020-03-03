@@ -248,7 +248,7 @@ class CalendarItem extends Component {
     return (
       <View
         style={{
-          height: hp(18),
+          height: hp(18.5),
           width: '100%',
           alignSelf: 'center',
           paddingHorizontal: 5,
@@ -323,7 +323,7 @@ class CalendarItem extends Component {
 
         </View>
         <View
-          style={{flexDirection: 'row', paddingEnd: 15}}
+          style={{flexDirection: 'row', paddingEnd: 15,}}
         >
           <View style={{flex: 1}}/>
           <View
