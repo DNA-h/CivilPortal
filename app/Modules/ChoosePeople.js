@@ -47,6 +47,12 @@ class ChoosePeople extends Component {
         rank: 'خودم'
       }
     };
+    for (let index in names) {
+      if (names[index].mobile === mme.mobile) {
+        names.splice(index, 1);
+        break;
+      }
+    }
     this.setState({peoples: names});
   }
 

@@ -1,16 +1,18 @@
 package com.civilportal;
 
 import android.app.Application;
+import android.content.Context;
+
+import androidx.multidex.MultiDex;
 
 import com.facebook.react.ReactApplication;
+import io.invertase.firebase.messaging.ReactNativeFirebaseMessagingPackage;
+import com.wix.reactnativenotifications.RNNotificationsPackage;
+
+import io.invertase.firebase.app.ReactNativeFirebaseAppPackage;
+
 import com.mapbox.rctmgl.RCTMGLPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
-
-import io.invertase.firebase.RNFirebasePackage;
-import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;
-import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
-import ir.map.sdk_map.Mapir;
-
 import com.rnimmersive.RNImmersivePackage;
 
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
@@ -38,11 +40,11 @@ public class MainApplication extends Application implements ReactApplication {
         protected List<ReactPackage> getPackages() {
             return Arrays.<ReactPackage>asList(
                     new MainReactPackage(),
+            new ReactNativeFirebaseMessagingPackage(),
+                    new RNNotificationsPackage(MainApplication.this),
+                    new ReactNativeFirebaseAppPackage(),
                     new RCTMGLPackage(),
                     new VectorIconsPackage(),
-                    new RNFirebasePackage(),
-                    new RNFirebaseNotificationsPackage(),
-                    new RNFirebaseMessagingPackage(),
                     new RNImmersivePackage(),
                     new SplashScreenReactPackage(),
                     new RNGestureHandlerPackage(),
@@ -64,12 +66,14 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-        Mapir.getInstance(this, "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjgxMWE5MTE3MmJjODI3ZDc2MzIzZjdkNTVjNTM0ZDk3ZDYzN2VkNjBiM2MyY2JhYjg0YTE5NmE0YTJiYjliNTllM2QzMmI3NTgzZGUyYTc5In0.eyJhdWQiOiI3NzkwIiwianRpIjoiODExYTkxMTcyYmM4MjdkNzYzMjNmN2Q1NWM1MzRkOTdkNjM3ZWQ2MGIzYzJjYmFiODRhMTk2YTRhMmJiOWI1OWUzZDMyYjc1ODNkZTJhNzkiLCJpYXQiOjE1ODA2NjYzMjEsIm5iZiI6MTU4MDY2NjMyMSwiZXhwIjoxNTgzMTcxOTIxLCJzdWIiOiIiLCJzY29wZXMiOlsiYmFzaWMiXX0.A8OkM6OasTFBHdxOuVCIt6rDgMse9TClabc-xs_nedzoFuy219gacEkmiJpDszsgv5UBqdsoBITnty7X_AF7dJGorrTRon0RGeBM0fv5u7qP1LMa8_iFZ4IwrKI0TsiVwuXqBuknduoGe-b2XMyoF7p4X3pcHq2rJLAy-CFBYAQd372Nbzub2r8wBxsmmyJ7I1b53mAqdRJVSAo1tIgP0d5nbaS7FUeIOk7TnHlpzA8qdWD3yoSqiuCqx5r0wohoKPL_YEENkWpo2vLyvzL5G23_2CzEYRXFAau20gKLmO0dBO3mUPL6goX0I1EBSDVyEnjA7AFGjiYoL-_dlZhOdQ");
-
         I18nUtil sharedI18nUtilInstance = I18nUtil.getInstance();
         sharedI18nUtilInstance.allowRTL(getApplicationContext(), false);
-
-
         SoLoader.init(this, /* native exopackage */ false);
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 }

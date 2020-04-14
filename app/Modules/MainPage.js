@@ -17,10 +17,11 @@ import Modal from "react-native-modal";
 import GestureRecognizer from 'react-native-swipe-gestures';
 import PersianCalendarPicker from 'react-native-persian-calendar-picker';
 import Globals from "../Utils/Globals";
-import firebase from 'react-native-firebase';
+import firebase from '@react-native-firebase/app';
 import SimpleImage from "./Components/SimpleImage";
 import Login from "./Login";
 import jalaali from 'jalaali-js';
+import {Notifications} from "react-native-notifications";
 
 let months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"];
 let gMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -134,19 +135,19 @@ class MainPage extends Component {
   async componentDidMount() {
     SplashScreen.hide();
     StatusBar.setBackgroundColor('#6A61D1');
-    const notificationOpen: NotificationOpen = await firebase.notifications().getInitialNotification();
-    if (notificationOpen) {
-      const notification: Notification = notificationOpen.notification;
-      this._handleNotification(notification);
-    }
-    this.removeNotificationListener = firebase.notifications().onNotificationOpened((notificationOpen: NotificationOpen) => {
-      const notification: Notification = notificationOpen.notification;
-      this._handleNotification(notification);
-      firebase.notifications().removeAllDeliveredNotifications();
-    });
+    // const notificationOpen: NotificationOpen = await firebase.notifications().getInitialNotification();
+    // if (notificationOpen) {
+    //   const notification: Notification = notificationOpen.notification;
+    //   this._handleNotification(notification);
+    // }
+    // this.removeNotificationListener = firebase.notifications().onNotificationOpened((notificationOpen: NotificationOpen) => {
+    //   const notification: Notification = notificationOpen.notification;
+    //   this._handleNotification(notification);
+    //   firebase.notifications().removeAllDeliveredNotifications();
+    // });
     this.routeSubscription = this.props.navigation.addListener('willFocus', this.fetchData,);
     this.fetchData();
-    firebase.notifications().removeAllDeliveredNotifications();
+    // firebase.notifications().removeAllDeliveredNotifications();
     PermissionsAndroid.requestMultiple(
       [PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION],
@@ -165,7 +166,7 @@ class MainPage extends Component {
     if (this.routeSubscription) {
       this.routeSubscription.remove();
     }
-    this.removeNotificationListener();
+    // this.removeNotificationListener();
   }
 
   fetchData = async () => {
@@ -184,25 +185,31 @@ class MainPage extends Component {
       .then(fcmToken => {
         if (fcmToken) {
           RequestsController.sendFCMToken(fcmToken);
+          RequestsController.sendFCMToken(fcmToken);
         } else {
           console.log('error');
         }
       });
-    const channel = new firebase.notifications.Android
-      .Channel('civilCH', 'جلسات جدید', firebase.notifications.Android.Importance.Max)
-      .setDescription('جلسات');
-    firebase.notifications().android.createChannel(channel);
+    // const channel = new firebase.notifications.Android
+    //   .Channel('civilCH', 'جلسات جدید', firebase.notifications.Android.Importance.Max)
+    //   .setDescription('جلسات');
+    // firebase.notifications().android.createChannel(channel);
 
     firebase.messaging().onMessage((message: RemoteMessage) => {
-      const notification = new firebase.notifications.Notification()
-        .android.setChannelId('civilCH')
-        .android.setSmallIcon('ic_launcher')
-        .android.setBigText(message._data.body)
-        .setNotificationId(new Date().getMilliseconds().toString())
-        .setTitle('جلسه جدید!')
-        .setBody(message._data.body)
-        .setData({date: message._data.body.substr(18, 10)});
-      firebase.notifications().displayNotification(notification);
+      // const notification = new firebase.notifications.Notification()
+      //   .android.setChannelId('civilCH')
+      //   .android.setSmallIcon('ic_launcher')
+      //   .android.setBigText(message._data.body)
+      //   .setNotificationId(new Date().getMilliseconds().toString())
+      //   .setTitle('جلسه جدید!')
+      //   .setBody(DBManager.toArabicNumbers(message._data.body))
+      //   .setData({date: message._data.body.substr(18, 10)});
+      // firebase.notifications().displayNotification(notification);
+      const notification =Notifications.postLocalNotification({
+        body:DBManager.toArabicNumbers(message.data.body),
+        title: 'جلسه جدید!',
+
+      });
       this._loadSessions();
     });
   }
@@ -1122,6 +1129,7 @@ const MyDrawerNavigator = createDrawerNavigator({
   },
   {
     drawerBackgroundColor: '#FFFFFF00',
+    overlayColor:'#rgba(0,0,0,0.6)',
     drawerWidth: DEVICE_WIDTH * 0.7,
     contentComponent: (props) =>
       (
@@ -1192,14 +1200,16 @@ const MyDrawerNavigator = createDrawerNavigator({
               justifyContent: 'center'
             }}
           >
+            <View style={{flex:1}}/>
             <Image
               style={{
-                width: DBManager.RFWidth(10),
-                height: DBManager.RFWidth(14),
+                flex:1,
+                aspectRatio:1,
                 resizeMode: 'contain'
               }}
               source={require('../images/logo_main.png')}
             />
+            <View style={{flex:1}}/>
           </View>
         </ImageBackground>
       ),

@@ -1,5 +1,6 @@
 import React from "react";
 import {View, Text, ScrollView} from 'react-native';
+import DBManager from "../../Utils/DBManager";
 
 export default class MyCarousel extends React.Component {
   constructor(props) {
@@ -54,7 +55,7 @@ export default class MyCarousel extends React.Component {
                   color: '#FFFFFF',
                   textAlign: 'center'
                 }}>
-                {this.props.data[index]}
+                {DBManager.toArabicNumbers(this.props.data[index])}
               </Text>
             </View>
           )

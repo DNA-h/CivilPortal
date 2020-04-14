@@ -11,6 +11,7 @@ import OnBoarding from "./app/Modules/Drawer/OnBoarding";
 import SaveAddress from "./app/Modules/SaveAddress";
 import ShareSession from "./app/Modules/ShareSession";
 import {Immersive} from 'react-native-immersive'
+import "@react-native-firebase/messaging"
 
 const RootStack = createStackNavigator(
   {

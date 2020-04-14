@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, Animated, TouchableWithoutFeedback} from 'react-native';
+import {View, Text, Animated,WebView } from 'react-native';
 import DBManager from "../../Utils/DBManager";
 
 export default class Item extends React.Component {
@@ -28,7 +28,7 @@ export default class Item extends React.Component {
           <Text
             style={{
               color: this.props.day === 'جمعه' || this.props.dayOff ? '#ff2c05' : '#000000',
-              fontSize: DBManager.RFValue(16),
+              fontSize: DBManager.RFWidth(20)/4,
               fontFamily: 'byekan',
               textAlign: 'center'
             }}>
@@ -40,12 +40,13 @@ export default class Item extends React.Component {
               fontSize: DBManager.RFValue(14),
               fontFamily: 'byekan'
             }}>
-            {this.props.date}
+            {DBManager.toArabicNumbers(this.props.date)}
           </Text>
           <Text
+            numberOfLines={1}
             style={{
               color: this.props.day === 'جمعه' || this.props.dayOff ? '#ff2c05' : '#000000',
-              fontSize: DBManager.RFValue(12),
+              fontSize: DBManager.RFWidth(20)/this.props.month.length,
               textAlign: 'center',
               fontFamily: 'byekan'
             }}>

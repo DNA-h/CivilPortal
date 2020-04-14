@@ -36,9 +36,9 @@ class AddNewSession extends Component {
     let hijri = require('hijri');
     let hDate = hijri.convert(new Date(), -1);
     this._startHour = date.getHours();
-    this._startMinute = Math.floor((date.getMinutes() - date.getMinutes() % 5) / 5);
+    this._startMinute = Math.ceil((date.getMinutes() - date.getMinutes() % 5) / 5);
     this._endHour = date.getHours() === 23 ? 0 : date.getHours() + 1;
-    this._endMinute = Math.floor((date.getMinutes() - date.getMinutes() % 5) / 5);
+    this._endMinute = Math.ceil((date.getMinutes() - date.getMinutes() % 5) / 5);
 
     let jalali = jalaali.toJalaali(date);
     let month = jalali.jm - 1;
@@ -67,7 +67,7 @@ class AddNewSession extends Component {
       let day2 = jalali2.jd;
       let d = date.getDay();
       this.extras.push({
-        index: i, date: day2, month: months[month2], day: days[d]
+        index: 3-i, date: day2, month: months[month2], day: days[d]
       });
     }
 
@@ -176,56 +176,6 @@ class AddNewSession extends Component {
     return {inputRange, outputRange};
   }
 
-  renderCarousel(data, first, saveFunc) {
-    return (
-      <ScrollView
-        data={data}
-        enableMomentum
-        initialNumToRender={data.length}
-        showsVerticalScrollIndicator={false}
-        keyExtractor={(item, index) => 'endHour-' + index}
-        vertical
-        ref={(ref) => {
-          if (ref === null || ref === undefined) return;
-          ref.scrollTo({x: 0, y: 50 * first, animated: false});
-        }}
-        snapToInterval={50}
-        snapToAlignment={'start'}
-        onScroll={event => {
-          saveFunc(event.nativeEvent.contentOffset.y);
-        }}
-        style={{
-          height: 50,
-          width: 30,
-        }}
-      >
-        {
-          data.map((val, index) =>
-            <View
-              style={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: 50,
-                width: 30,
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 20,
-                  fontFamily: 'byekan',
-                  borderRadius: 12,
-                  color: '#FFFFFF',
-                  textAlign: 'center'
-                }}>
-                {data[index]}
-              </Text>
-            </View>
-          )
-        }
-      </ScrollView>
-    )
-  }
-
   render() {
     const _renderer = (props) =>
       <View
@@ -312,6 +262,7 @@ class AddNewSession extends Component {
               }}
             >
               <Carousel
+                inverted
                 data={this.data}
                 extras={this.extras}
                 itemWidth={DBManager.RFWidth(15)}
@@ -410,7 +361,7 @@ class AddNewSession extends Component {
                 first={this._endHour}
                 saveFunc={
                   (index) => {
-                    this._endHour = Math.floor(index / 50);
+                    this._endHour = Math.ceil(index / 50);
                   }
                 }
               />
@@ -420,7 +371,7 @@ class AddNewSession extends Component {
                 first={this._endMinute}
                 saveFunc={
                   (index) => {
-                    this._endMinute = Math.floor(index / 50);
+                    this._endMinute = Math.ceil(index / 50);
                   }
                 }
               />
@@ -451,7 +402,7 @@ class AddNewSession extends Component {
                 first={this._startHour}
                 saveFunc={
                   (index) => {
-                    this._startHour = Math.floor(index / 50);
+                    this._startHour = Math.ceil(index / 50);
                   }
                 }
               />
@@ -461,7 +412,7 @@ class AddNewSession extends Component {
                 first={this._startMinute}
                 saveFunc={
                   (index) => {
-                    this._startMinute = Math.floor(index / 50);
+                    this._startMinute = Math.ceil(index / 50);
                   }
                 }
               />
@@ -731,7 +682,7 @@ class AddNewSession extends Component {
 
           <TouchableWithoutFeedback
             onPress={() => NavigationService.navigate('Save')}>
-            {Math.floor(this.props.counter.x) === 0 ?
+            {Math.ceil(this.props.counter.x) === 0 ?
               <View
                 style={{
                   flex: 1,
@@ -790,7 +741,7 @@ class AddNewSession extends Component {
               }
               this.saveValue();
               NavigationService.navigate('ChoosePeople', {
-                date: '1398-' + (this.state.selectedMonth + 1) + '-' + (this.state.selectedDay + 1),
+                date: '1399-' + (this.state.selectedMonth + 1) + '-' + (this.state.selectedDay + 1),
                 start: dailyHour[this._startHour] + ":" + dailyMinutes[this._startMinute],
                 end: dailyHour[this._endHour] + ":" + dailyMinutes[this._endMinute],
                 place: this.state.address,

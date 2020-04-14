@@ -55,6 +55,16 @@ export default class SimpleImage extends Component {
         >
           {this.state.name}
         </Text>
+        <Text
+          style={{
+            width: '80%',
+            fontSize:17,
+            fontFamily: 'byekan',
+            color: '#FFF'
+          }}
+        >
+          {this.state.rank}
+        </Text>
       </View>
     )
   };
