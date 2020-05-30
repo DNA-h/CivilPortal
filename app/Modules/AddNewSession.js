@@ -48,6 +48,31 @@ class AddNewSession extends Component {
     this.shamsiCounter = DBManager.shamsiCounter[jalali.jm - 1] + jalali.jd - 1;
     this.hijriCounter = DBManager.hijriCounter[hDate.month - 1] + hDate.dayOfMonth - 1;
 
+    this.state = {
+      selectedDay: day,
+      selectedMonth: month,
+      title: '',
+      titles: [],
+      focusTitle: false,
+      titleY: -100,
+      address: '',
+      addresses: [],
+      focusAddress: false,
+      addressY: -100
+    };
+    this.saveValue = this.saveValue.bind(this);
+    this._compareTitle = this._compareTitle.bind(this);
+    this._compareAddress = this._compareAddress.bind(this);
+  }
+
+  async componentDidMount() {
+    this.props.setURI(0, 0);
+    const titles = [];
+    const addresses = [];
+    const countTitle = parseInt(await DBManager.getSettingValue('titleCount', '0'), 10);
+    const countAddress = parseInt(await DBManager.getSettingValue('addressCount', '0'), 10);
+
+    let date = new Date();
     for (let i = 0; i < 31; i++) {
       let jalali2 = jalaali.toJalaali(date);
       let month2 = jalali2.jm - 1;
@@ -82,30 +107,6 @@ class AddNewSession extends Component {
         index: i, date: day2, month: months[month2], day: days[d]
       });
     }
-
-    this.state = {
-      selectedDay: day,
-      selectedMonth: month,
-      title: '',
-      titles: [],
-      focusTitle: false,
-      titleY: -100,
-      address: '',
-      addresses: [],
-      focusAddress: false,
-      addressY: -100
-    };
-    this.saveValue = this.saveValue.bind(this);
-    this._compareTitle = this._compareTitle.bind(this);
-    this._compareAddress = this._compareAddress.bind(this);
-  }
-
-  async componentDidMount() {
-    this.props.setURI(0, 0);
-    const titles = [];
-    const addresses = [];
-    const countTitle = parseInt(await DBManager.getSettingValue('titleCount', '0'), 10);
-    const countAddress = parseInt(await DBManager.getSettingValue('addressCount', '0'), 10);
     for (let index = 0; index < countTitle; index += 1) {
       const item = await DBManager.getSettingValue(`title${index}`, '');
       titles.push(item);
@@ -258,7 +259,6 @@ class AddNewSession extends Component {
               style={{
                 height: DBManager.RFHeight(28),
                 flexDirection: 'row',
-                alignItems: 'center'
               }}
             >
               <Carousel

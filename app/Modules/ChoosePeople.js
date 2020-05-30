@@ -10,6 +10,7 @@ import Modal from "react-native-modal";
 import {RequestsController} from "../Utils/RequestController";
 import NavigationService from "../service/NavigationService";
 import Toast from "./Components/EasyToast";
+import DBManager from "../Utils/DBManager";
 
 const {width} = Dimensions.get('window');
 
@@ -323,7 +324,7 @@ class ChoosePeople extends Component {
                 textAlign: 'center'
               }}
             >
-              شما {this.state.selectedData.length + (this.selfPresent ? 1 : 0)} نفر را به جلسه دعوت کرده اید، آیا از
+              شما {DBManager.toArabicNumbers(this.state.selectedData.length + (this.selfPresent ? 1 : 0))} نفر را به جلسه دعوت کرده اید، آیا از
               دعوت آنها اطمینان دارید؟
             </Text>
             <View

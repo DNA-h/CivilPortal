@@ -60,7 +60,7 @@ class PeopleItem extends Component {
               <Text
                 style={{
                   fontFamily: 'byekan',
-                  fontSize: DBManager.RFHeight(2.5),
+                  fontSize: DBManager.RFHeight(2.3),
                   textAlign: 'center',
                   color: '#6f67d9'
                 }}
@@ -73,7 +73,7 @@ class PeopleItem extends Component {
               <Text
                 style={{
                   fontFamily: 'byekan',
-                  fontSize: DBManager.RFHeight(2.5),
+                  fontSize: DBManager.RFHeight(2.2),
                   textAlign: 'center',
                   color: '#7e7e7e',
                   backgroundColor: '#dddddd',

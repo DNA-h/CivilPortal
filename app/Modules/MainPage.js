@@ -88,7 +88,7 @@ class MainPage extends Component {
     let jalali = jalaali.toJalaali(date);
     let value = jalali.jy + "-" + (jalali.jm < 10 ? '0' + jalali.jm : jalali.jm) + "-" + (jalali.jd < 10 ? '0' + jalali.jd : jalali.jd);
     let result = await RequestsController.MySessions(value);
-    result = result.filter((item) => { //server (for some reasens) returns two copies of same session if you are owner
+    result = result.filter((item) => { //server (for some reasons) returns two copies of same session if you are owner
         if (item.owner) return true;
         if (result.some(e => e.owner && e.id === item.id))
           return false;
@@ -133,7 +133,11 @@ class MainPage extends Component {
   };
 
   async componentDidMount() {
-    SplashScreen.hide();
+    setTimeout(SplashScreen.hide, 2000);
+
+    // await DBManager.saveSettingValue(`titleCount`, 0);
+    // await DBManager.saveSettingValue(`addressCount`, 0);
+
     StatusBar.setBackgroundColor('#6A61D1');
     // const notificationOpen: NotificationOpen = await firebase.notifications().getInitialNotification();
     // if (notificationOpen) {
@@ -205,8 +209,8 @@ class MainPage extends Component {
       //   .setBody(DBManager.toArabicNumbers(message._data.body))
       //   .setData({date: message._data.body.substr(18, 10)});
       // firebase.notifications().displayNotification(notification);
-      const notification =Notifications.postLocalNotification({
-        body:DBManager.toArabicNumbers(message.data.body),
+      const notification = Notifications.postLocalNotification({
+        body: DBManager.toArabicNumbers(message.data.body),
         title: 'جلسه جدید!',
 
       });
@@ -264,8 +268,7 @@ class MainPage extends Component {
     date.setDate(date.getDate() + this.difference);
     let value = date.getDate() + " " + gMonths[date.getMonth()] + " " + date.getFullYear() + "\n" +
       date.getDate() + " / " + (date.getMonth() + 1) + " / " + date.getFullYear();
-    let chars = value.split('');
-    return chars.join('');
+    return value;
   }
 
   parseHijriDate() {
@@ -273,8 +276,7 @@ class MainPage extends Component {
     let date = hijri.convert(new Date(), this.difference - 1);
     let value = date.dayOfMonth + " " + date.monthText + " " + date.year + "\n" +
       date.year + " / " + date.month + " / " + date.dayOfMonth;
-    let chars = value.split('');
-    return chars.join('');
+    return value;
   }
 
   async getCalendarEvents() {
@@ -283,22 +285,22 @@ class MainPage extends Component {
     date.setDate(date.getDate() + this.difference);
     let jalali = jalaali.toJalaali(date);
     let hDate = hijri.convert(new Date(), this.difference - 1);
-    if(this.props.counter.shamsiEvents.length ===0) {
+    if (this.props.counter.shamsiEvents.length === 0) {
       let shamsiEvents = await RequestsController.loadShamsiEvents();
       let hijriEvents = await RequestsController.loadHijriEvents();
       this.setState({
-        occasion: shamsiEvents.events[DBManager.shamsiCounter[jalali.jm - 1] + jalali.jd-1] +
-          hijriEvents.events[DBManager.hijriCounter[hDate.month - 1] + hDate.dayOfMonth-1],
-        dayoff: shamsiEvents.dayOff[DBManager.shamsiCounter[jalali.jm - 1] + jalali.jd-1] === 1 ||
-          hijriEvents.dayOff[DBManager.hijriCounter[hDate.month - 1] + hDate.dayOfMonth-1] === 1
+        occasion: shamsiEvents.events[DBManager.shamsiCounter[jalali.jm - 1] + jalali.jd - 1] +
+          hijriEvents.events[DBManager.hijriCounter[hDate.month - 1] + hDate.dayOfMonth - 1],
+        dayoff: shamsiEvents.dayOff[DBManager.shamsiCounter[jalali.jm - 1] + jalali.jd - 1] === 1 ||
+          hijriEvents.dayOff[DBManager.hijriCounter[hDate.month - 1] + hDate.dayOfMonth - 1] === 1
       });
       this.props.setEvents(shamsiEvents.events, hijriEvents.events, shamsiEvents.dayOff, hijriEvents.dayOff);
-    }else{
+    } else {
       this.setState({
-        occasion: this.props.counter.shamsiEvents[DBManager.shamsiCounter[jalali.jm - 1] + jalali.jd-1] +
-          this.props.counter.hijriEvents[DBManager.hijriCounter[hDate.month - 1] + hDate.dayOfMonth-1],
-        dayoff: this.props.counter.shamsiDayOff[DBManager.shamsiCounter[jalali.jm - 1] + jalali.jd-1] === 1 ||
-          this.props.counter.hijriDayOff[DBManager.hijriCounter[hDate.month - 1] + hDate.dayOfMonth-1] === 1
+        occasion: this.props.counter.shamsiEvents[DBManager.shamsiCounter[jalali.jm - 1] + jalali.jd - 1] +
+          this.props.counter.hijriEvents[DBManager.hijriCounter[hDate.month - 1] + hDate.dayOfMonth - 1],
+        dayoff: this.props.counter.shamsiDayOff[DBManager.shamsiCounter[jalali.jm - 1] + jalali.jd - 1] === 1 ||
+          this.props.counter.hijriDayOff[DBManager.hijriCounter[hDate.month - 1] + hDate.dayOfMonth - 1] === 1
       });
     }
   }
@@ -535,6 +537,8 @@ class MainPage extends Component {
               isVisible={this.state.modalVisible}
               onBackdropPress={() => this.setState({modalVisible: false})}
               onBackButtonPress={() => this.setState({modalVisible: false})}
+              backdropOpacity={0}
+              style={{backgroundColor: '#rgba(32,32,32,0.8)', marginVertical: 0, marginHorizontal: 0}}
             >
               <View
                 style={{
@@ -542,8 +546,8 @@ class MainPage extends Component {
                   height: '80%',
                   alignItems: 'center',
                   borderRadius: 60,
-                  marginStart: 10,
-                  marginEnd: 10,
+                  marginStart: 40,
+                  marginEnd: 40,
                   paddingStart: 10,
                   paddingEnd: 10,
                   paddingBottom: 5
@@ -598,7 +602,7 @@ class MainPage extends Component {
                 <View style={{height: 1, width: '90%', backgroundColor: '#CCC'}}/>
                 <View style={style.modalItem}>
                   <Text style={style.modalText}>
-                    {this.result[0].meeting_title}
+                    {DBManager.toArabicNumbers(this.result[0].meeting_title)}
                   </Text>
                   <Image
                     style={style.modalImage}
@@ -607,7 +611,7 @@ class MainPage extends Component {
                 <View style={{height: 1, width: '90%', backgroundColor: '#CCC'}}/>
                 <View style={style.modalItem}>
                   <Text style={style.modalText}>
-                    {MainPage.prettifyTime(this.result[0].start_time)}
+                    {DBManager.toArabicNumbers(MainPage.prettifyTime(this.result[0].start_time))}
                   </Text>
                   <Image
                     style={style.modalImage}
@@ -641,7 +645,7 @@ class MainPage extends Component {
                 <View style={style.modalItem}>
                   <Text style={style.modalText}>
                     {this.result[0].start_time === undefined ? '' :
-                      `از ساعت ${this.result[0].start_time.substr(11, 5)} تا ساعت ${this.result[0].end_time.substr(11, 5)}`}
+                      `از ساعت ${DBManager.toArabicNumbers(this.result[0].start_time.substr(11, 5))} تا ساعت ${DBManager.toArabicNumbers(this.result[0].end_time.substr(11, 5))}`}
                   </Text>
                   <Image
                     style={style.modalImage}
@@ -934,12 +938,13 @@ class MainPage extends Component {
               <Text
                 style={{
                   fontFamily: 'byekan',
-                  fontSize: 15,
+                  fontSize: 13,
                   color: this.state.dayoff || this.state.todayPersian1 === 'جمعه' ? '#ff5a41' : '#FFFFFF',
                   width: '100%',
                   textAlign: 'center',
                   paddingEnd: 10,
-                  paddingStart: 10
+                  paddingStart: 10,
+                  marginTop: -5,
                 }}
               >
                 {this.state.todayPersian1}
@@ -947,7 +952,7 @@ class MainPage extends Component {
               <Text
                 style={{
                   fontFamily: 'byekan',
-                  fontSize: 35,
+                  fontSize: 32,
                   color: this.state.dayoff || this.state.todayPersian1 === 'جمعه' ? '#ff5a41' : '#FFFFFF',
                   width: '100%',
                   textAlign: 'center',
@@ -960,7 +965,7 @@ class MainPage extends Component {
               <Text
                 style={{
                   fontFamily: 'byekan',
-                  fontSize: 15,
+                  fontSize: 13,
                   color: this.state.dayoff || this.state.todayPersian1 === 'جمعه' ? '#ff5a41' : '#FFFFFF',
                   width: '100%',
                   textAlign: 'center',
@@ -1129,7 +1134,7 @@ const MyDrawerNavigator = createDrawerNavigator({
   },
   {
     drawerBackgroundColor: '#FFFFFF00',
-    overlayColor:'#rgba(0,0,0,0.6)',
+    overlayColor: '#rgba(0,0,0,0.6)',
     drawerWidth: DEVICE_WIDTH * 0.7,
     contentComponent: (props) =>
       (
@@ -1200,16 +1205,16 @@ const MyDrawerNavigator = createDrawerNavigator({
               justifyContent: 'center'
             }}
           >
-            <View style={{flex:1}}/>
+            <View style={{flex: 1}}/>
             <Image
               style={{
-                flex:1,
-                aspectRatio:1,
+                flex: 1,
+                aspectRatio: 1,
                 resizeMode: 'contain'
               }}
               source={require('../images/logo_main.png')}
             />
-            <View style={{flex:1}}/>
+            <View style={{flex: 1}}/>
           </View>
         </ImageBackground>
       ),
